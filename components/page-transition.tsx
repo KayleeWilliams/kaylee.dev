@@ -21,7 +21,7 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
   const shouldAnimateInitial = isNavigation && !shouldReduceMotion;
 
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="popLayout">
       <motion.main
         animate={{ opacity: 1, y: 0 }}
         exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -10 }}

@@ -50,19 +50,13 @@ export function Sidebar({
           </motion.div>
         )}
       </AnimatePresence>
-      <motion.div
-        className={isHome ? "hidden md:block" : undefined}
-        layout={!shouldReduceMotion}
-      >
+      <div className={isHome ? "hidden md:block" : undefined}>
         {profile}
-      </motion.div>
+      </div>
       {secondary ? (
-        <motion.div
-          className={isHome ? "hidden md:block" : undefined}
-          layout={!shouldReduceMotion}
-        >
+        <div className={isHome ? "hidden md:block" : undefined}>
           {secondary}
-        </motion.div>
+        </div>
       ) : null}
     </div>
   );
