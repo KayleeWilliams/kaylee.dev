@@ -1,3 +1,4 @@
+import { cacheLife } from "next/cache";
 import type { Metadata } from "next";
 import Link from "next/link";
 import QRCode from "react-qr-code";
@@ -19,9 +20,9 @@ export const metadata: Metadata = {
   description: `Scan to connect with ${personConfig.name} on LinkedIn.`,
 };
 
-export const dynamic = "force-static";
-
-export default function ConnectPage() {
+export default async function ConnectPage() {
+  "use cache";
+  cacheLife("max");
   if (!linkedInUrl) {
     return (
       <Card>

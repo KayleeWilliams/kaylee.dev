@@ -11,6 +11,13 @@ const withMDX = createMDX({
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
+  cacheComponents: true,
+  images: {
+    qualities: [100, 75],
+  },
+  experimental: {
+    viewTransition: true,
+  },
   pageExtensions: ["ts", "tsx", "js", "jsx", "md", "mdx"],
   rewrites() {
     return {

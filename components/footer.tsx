@@ -1,9 +1,13 @@
+import { cacheLife } from "next/cache";
 import { RiGithubFill } from "@remixicon/react";
 import Link from "next/link";
 import { personConfig } from "@/lib/site-config";
 import { withUtm } from "@/lib/utils/utm";
 
-export default function Footer() {
+export default async function Footer() {
+  "use cache";
+  cacheLife("days");
+
   const currentYear = new Date().getFullYear();
 
   return (
