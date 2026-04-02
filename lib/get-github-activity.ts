@@ -75,6 +75,8 @@ async function fetchPullRequestSummary(
 export async function getRecentGitHubActivity(
   username: string
 ): Promise<RepoActivity[]> {
+  "use cache";
+
   try {
     const response = await fetch(
       `https://api.github.com/users/${username}/events/public?per_page=100`,

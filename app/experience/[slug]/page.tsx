@@ -1,3 +1,4 @@
+import { cacheLife } from "next/cache";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getAllExperience } from "@/lib/get-all-experience";
@@ -6,9 +7,6 @@ import Company from "./company";
 import Details from "./details";
 import Tech from "./tech";
 
-export const revalidate = 3600;
-export const dynamicParams = false;
-export const dynamic = "force-static";
 
 export async function generateStaticParams() {
   const experiences = await getAllExperience();
@@ -44,6 +42,9 @@ export default async function ExperiencePage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
+  "use cache";
+  cacheLife("hours");
+
   const { slug } = await params;
   const experience = await getExperience(slug);
 

@@ -12,7 +12,7 @@ function ExperienceHeader({ experience }: { experience: Experience }) {
     <div className="group flex flex-row items-center gap-2">
       <Image
         alt={experience.company}
-        className={`${experience.logoDark ? "dark:hidden" : ""}`}
+        className={`size-[30px] object-contain ${experience.logoDark ? "dark:hidden" : ""}`}
         height={30}
         src={experience.logo}
         width={30}
@@ -20,7 +20,7 @@ function ExperienceHeader({ experience }: { experience: Experience }) {
       {experience.logoDark && (
         <Image
           alt={experience.company}
-          className="hidden dark:block"
+          className="hidden size-[30px] object-contain dark:block"
           height={30}
           src={experience.logoDark}
           width={30}

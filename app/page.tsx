@@ -1,3 +1,4 @@
+import { cacheLife } from "next/cache";
 import ScrollingBanner from "@/components/banner";
 import Experience from "@/components/experience";
 import Hero from "@/components/hero";
@@ -7,9 +8,9 @@ import Projects from "@/components/projects";
 import ThemeSwitcher from "@/components/theme-switcher";
 import { personConfig } from "@/lib/site-config";
 
-export const dynamic = "force-static";
-
-export default function Home() {
+export default async function Home() {
+  "use cache";
+  cacheLife("hours");
   const githubUrl = personConfig.sameAs.find((url) => url.includes("github.com/"));
   const githubUsername = githubUrl?.split("/").at(-1) ?? "";
 

@@ -1,7 +1,5 @@
 import { renderPortfolioMarkdown } from "@/lib/render-portfolio-markdown";
 
-export const revalidate = 3600;
-
 export async function GET(): Promise<Response> {
   const markdown = await renderPortfolioMarkdown();
 
