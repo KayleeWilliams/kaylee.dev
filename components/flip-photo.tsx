@@ -20,23 +20,23 @@ export default function FlipPhoto({
 					<div className="flip-card-front">
 						<Image
 							alt="Speaking at Next.js Conf London"
-							className="size-12 rounded-full border-2 border-gray-200 object-cover object-top shadow-md transition-colors duration-200 hover:border-violet-500 md:size-60"
-							height={240}
+							className="rounded-full border-2 border-gray-200 object-cover object-top shadow-md transition-colors duration-200 hover:border-violet-500"
+							fill
 							priority
 							quality={100}
+							sizes="(min-width: 768px) 240px, 48px"
 							src={conferencePhoto}
-							width={240}
 						/>
 					</div>
 					{/* Back - Cat Photo */}
 					<div className="flip-card-back">
 						<Image
 							alt="My cat Kibby"
-							className="size-12 rounded-full border-2 border-gray-200 object-cover object-top shadow-md transition-colors duration-200 hover:border-violet-500 md:size-60"
-							height={240}
+							className="rounded-full border-2 border-gray-200 object-cover object-top shadow-md transition-colors duration-200 hover:border-violet-500"
+							fill
 							quality={100}
+							sizes="(min-width: 768px) 240px, 48px"
 							src={catPhoto}
-							width={240}
 						/>
 					</div>
 				</div>
