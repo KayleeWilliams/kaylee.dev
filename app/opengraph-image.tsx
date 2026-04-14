@@ -67,7 +67,7 @@ export default function Image() {
               margin: 0,
             }}
           >
-            Building c15t & Consent · Open Source
+            Building c15t & Inth · YC P26
           </p>
         </div>
 
