@@ -19,6 +19,15 @@ const nextConfig: NextConfig = {
     viewTransition: true,
   },
   pageExtensions: ["ts", "tsx", "js", "jsx", "md", "mdx"],
+  redirects() {
+    return [
+      {
+        source: "/experience/consent",
+        destination: "/experience/inth",
+        permanent: true,
+      },
+    ];
+  },
   rewrites() {
     return {
       beforeFiles: [

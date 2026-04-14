@@ -7,7 +7,8 @@ projectUrl: "https://c15t.com"
 statsUrl: "https://c15t.com/stats"
 docsUrl: "https://c15t.com/docs"
 currentWork:
-  - "Founding Engineer at [Consent](https://consent.io)"
+  - "Founding Engineer at [Inth](https://inth.com)"
+  - "YC P26"
   - "Co-author of [c15t](https://c15t.com)"
   - "Shipping consent infrastructure for teams that care about performance and UX"
 ---
