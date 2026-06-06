@@ -12,10 +12,15 @@
 
 # testing
 /coverage
+/.playwright-mcp/
 
 # next.js
 /.next/
 /out/
+
+# astro
+/.astro/
+/dist/
 
 # production
 /build

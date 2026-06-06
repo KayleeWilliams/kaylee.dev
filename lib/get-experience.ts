@@ -1,23 +1,23 @@
-import fs from "node:fs";
-import path from "node:path";
-import matter from "gray-matter";
+import { getCollection } from "astro:content";
 import type { Experience, ExperienceFrontmatter } from "@/types/experience";
 
-const experienceDirectory = path.join(process.cwd(), "content/experience");
+const MARKDOWN_EXTENSION_REGEX = /\.md$/;
 
-export function getExperience(slug: string): Promise<Experience | null> {
-  const fullPath = path.join(experienceDirectory, `${slug}.mdx`);
+function slugFromId(id: string) {
+  return id.replace(MARKDOWN_EXTENSION_REGEX, "");
+}
 
-  if (!fs.existsSync(fullPath)) {
-    return Promise.resolve(null);
+export async function getExperience(slug: string): Promise<Experience | null> {
+  const entries = await getCollection("experience");
+  const entry = entries.find((item) => slugFromId(item.id) === slug);
+
+  if (!entry) {
+    return null;
   }
 
-  const fileContents = fs.readFileSync(fullPath, "utf8");
-  const { data, content } = matter(fileContents);
-
-  return Promise.resolve({
+  return {
     slug,
-    content,
-    ...(data as ExperienceFrontmatter),
-  });
+    content: entry.body ?? "",
+    ...(entry.data as ExperienceFrontmatter),
+  };
 }

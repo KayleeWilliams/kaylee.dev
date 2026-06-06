@@ -1,0 +1,296 @@
+@import "tailwindcss";
+
+@source "../../src/**/*.{astro,ts,js}";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --card: #ffffff;
+  --card-foreground: #171717;
+  --border: #e5e7eb;
+  --primary: #8b5cf6;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+}
+
+.dark {
+  --background: #0f172a;
+  --foreground: #f1f5f9;
+  --card: #1a2332;
+  --card-foreground: #f1f5f9;
+  --border: #334155;
+  --primary: #a78bfa;
+  --muted: #111827;
+  --muted-foreground: #94a3b8;
+}
+
+html {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  font-family: Nunito, ui-sans-serif, system-ui, sans-serif;
+  color: var(--foreground);
+  background: var(--background);
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+.grid-background {
+  background-image: radial-gradient(
+    circle at center,
+    rgba(2, 2, 2, 0.15) 1px,
+    transparent 1px
+  );
+  background-size: 40px 40px;
+}
+
+.dark .grid-background {
+  background-image: radial-gradient(
+    circle at center,
+    rgba(148, 163, 184, 0.15) 1px,
+    transparent 1px
+  );
+}
+
+.theme-icon-sun {
+  display: none;
+}
+
+.dark .theme-icon-sun {
+  display: block;
+}
+
+.dark .theme-icon-moon {
+  display: none;
+}
+
+.disable-theme-transitions *,
+.disable-theme-transitions ::before,
+.disable-theme-transitions ::after {
+  transition: none !important;
+}
+
+@keyframes grid-fade {
+  0% {
+    background-position: 0px 20px;
+  }
+  100% {
+    background-position: 40px 20px;
+  }
+}
+
+@keyframes marquee-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marquee-right {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.marquee-left {
+  transform: translateX(0);
+}
+
+.marquee-left-fast {
+  transform: translateX(0);
+}
+
+.marquee-right {
+  transform: translateX(-50%);
+}
+
+.back-button-enter {
+  animation: slide-in 0.35s ease both;
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.flip-card {
+  overflow: hidden;
+  border-radius: 9999px;
+  perspective: 1000px;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+.flip-card-inner.flip-card-auto {
+  transform: rotateY(0deg);
+}
+
+@keyframes auto-flip {
+  0%,
+  45% {
+    transform: rotateY(0deg);
+  }
+  50%,
+  95% {
+    transform: rotateY(180deg);
+  }
+  100% {
+    transform: rotateY(0deg);
+  }
+}
+
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 9999px;
+  backface-visibility: hidden;
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
+}
+
+.flip-pill {
+  opacity: 0;
+}
+
+@keyframes pill-visibility {
+  0%,
+  45% {
+    opacity: 0;
+  }
+  50%,
+  95% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.markdown-content p {
+  margin-bottom: 1rem;
+}
+
+.markdown-content h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.markdown-content h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.markdown-content h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.markdown-content ul {
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+  list-style: disc;
+}
+
+.markdown-content ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+  list-style: decimal;
+}
+
+.markdown-content a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.markdown-content a:hover {
+  text-decoration: underline;
+}
+
+@media (min-width: 768px) {
+  .grid-background {
+    animation: grid-fade 10s linear infinite;
+  }
+
+  .marquee-left {
+    animation: marquee-left 30s linear infinite;
+  }
+
+  .marquee-left-fast {
+    animation: marquee-left 20s linear infinite;
+  }
+
+  .marquee-right {
+    animation: marquee-right 25s linear infinite;
+  }
+
+  .flip-card-inner.flip-card-auto {
+    animation: auto-flip 10s ease-in-out infinite;
+  }
+
+  .flip-pill {
+    animation: pill-visibility 10s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

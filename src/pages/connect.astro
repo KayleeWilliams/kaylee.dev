@@ -1,0 +1,67 @@
+---
+import QRCode from "qrcode";
+import Card from "@/src/components/Card.astro";
+import CardContent from "@/src/components/CardContent.astro";
+import CardHeader from "@/src/components/CardHeader.astro";
+import CardTitle from "@/src/components/CardTitle.astro";
+import BaseLayout from "@/src/layouts/BaseLayout.astro";
+import { personConfig, socialConfig } from "@/lib/site-config";
+
+const linkedInUrl = socialConfig.find(
+  (social) => social.name.toLowerCase() === "linkedin"
+)?.url;
+const qrSvg = linkedInUrl
+  ? await QRCode.toString(linkedInUrl, {
+      type: "svg",
+      color: {
+        dark: "#0A66C2",
+        light: "#FFFFFF",
+      },
+      margin: 1,
+      width: 208,
+    })
+  : "";
+---
+
+<BaseLayout
+  title={`Connect | ${personConfig.name}`}
+  description={`Scan to connect with ${personConfig.name} on LinkedIn.`}
+>
+  {
+    linkedInUrl ? (
+      <div class="mx-auto w-full max-w-md">
+        <Card>
+          <CardHeader>
+            <CardTitle>Connect on LinkedIn</CardTitle>
+            <div class="text-foreground text-sm">
+              Scan this QR code to open my LinkedIn profile.
+            </div>
+          </CardHeader>
+          <CardContent class="flex flex-col items-center gap-4">
+            <div
+              class="w-full max-w-[240px] rounded-xl bg-white p-4 shadow-xs"
+              set:html={qrSvg}
+            />
+            <a
+              class="font-medium text-primary text-sm underline-offset-2 hover:underline"
+              href={linkedInUrl}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Open LinkedIn
+            </a>
+          </CardContent>
+        </Card>
+      </div>
+    ) : (
+      <Card>
+        <CardHeader>
+          <CardTitle>Connect</CardTitle>
+          <div class="text-foreground text-sm">
+            No LinkedIn profile is configured yet.
+          </div>
+        </CardHeader>
+      </Card>
+    )
+  }
+</BaseLayout>

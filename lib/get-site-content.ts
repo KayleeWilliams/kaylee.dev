@@ -1,33 +1,25 @@
-import fs from "node:fs";
-import path from "node:path";
-import matter from "gray-matter";
+import { getCollection } from "astro:content";
 
-export type SiteContentFrontmatter = {
+export interface SiteContentFrontmatter {
   title?: string;
-};
+}
 
-export type SiteContent = {
-  slug: string;
+export interface SiteContent extends SiteContentFrontmatter {
   content: string;
-} & SiteContentFrontmatter;
+  slug: string;
+}
 
-const siteContentDirectory = path.join(process.cwd(), "content/site");
-
-export function getSiteContent<T = SiteContentFrontmatter>(
+export async function getSiteContent<T = SiteContentFrontmatter>(
   slug: string
-): ({ slug: string; content: string } & T) | null {
-  const fullPath = path.join(siteContentDirectory, `${slug}.md`);
+): Promise<({ slug: string; content: string } & T) | null> {
+  const entries = await getCollection("site");
+  const entry = entries.find((item) => item.id === slug);
 
-  if (!fs.existsSync(fullPath)) {
-    return null;
-  }
-
-  const fileContents = fs.readFileSync(fullPath, "utf8");
-  const { data, content } = matter(fileContents);
-
-  return {
-    slug,
-    content,
-    ...(data as T),
-  };
+  return entry
+    ? {
+        slug,
+        content: entry.body ?? "",
+        ...(entry.data as T),
+      }
+    : null;
 }

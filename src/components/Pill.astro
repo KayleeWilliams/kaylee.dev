@@ -1,0 +1,13 @@
+---
+type Props = {
+  class?: string;
+};
+
+const { class: className = "" } = Astro.props;
+---
+
+<div
+  class={`absolute rounded-full bg-violet-500 px-2 py-1 text-violet-50 text-xs ${className}`}
+>
+  <slot />
+</div>

@@ -1,0 +1,101 @@
+---
+import { fetchNpmDownloads } from "@/lib/get-npm-downloads";
+import { getSiteContent } from "@/lib/get-site-content";
+import { fetchStars } from "@/lib/get-stars";
+import { formatDownloads } from "@/lib/utils/format-downloads";
+import { withUtm } from "@/lib/utils/utm";
+import Card from "./Card.astro";
+import CardContent from "./CardContent.astro";
+import Icon from "./Icon.astro";
+
+type HeroFrontmatter = {
+  title?: string;
+  description?: string;
+  github?: string;
+  npmPackage?: string;
+  projectUrl?: string;
+  statsUrl?: string;
+  docsUrl?: string;
+};
+
+const hero = await getSiteContent<HeroFrontmatter>("hero");
+const [stars, downloads] =
+  hero?.github && hero.npmPackage
+    ? await Promise.all([
+        fetchStars(hero.github),
+        fetchNpmDownloads(hero.npmPackage),
+      ])
+    : [undefined, undefined];
+---
+
+{
+  hero?.projectUrl && hero.github && hero.npmPackage ? (
+    <Card class="border-violet-200 bg-linear-to-br from-violet-50 to-card dark:border-violet-500/30 dark:from-violet-950/20 dark:to-card">
+      <CardContent class="pt-6">
+        <div class="flex flex-col gap-4">
+          <div class="flex flex-col gap-1">
+            <h2 class="font-bold text-lg text-primary md:text-xl">
+              {hero.title ?? "c15t"}
+            </h2>
+            <p class="text-foreground text-sm md:text-base">{hero.description}</p>
+          </div>
+
+          {(stars || downloads) && (
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+              {stars && (
+                <div class="flex items-center gap-2">
+                  <Icon class="size-5 text-yellow-500" name="star" />
+                  <span class="font-semibold text-foreground">
+                    {stars.toLocaleString()}+ stars
+                  </span>
+                </div>
+              )}
+              {downloads && (
+                <div class="flex items-center gap-2">
+                  <Icon class="size-5 text-violet-500" name="download" />
+                  <span class="font-semibold text-foreground">
+                    {formatDownloads(downloads)}+ monthly downloads
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div class="flex flex-wrap gap-3">
+            <a
+              class="ease inline-flex items-center gap-1.5 rounded-md bg-violet-500 px-4 py-2 font-medium text-sm text-white transition-[background-color] duration-150 hover:bg-violet-600 active:scale-[0.98]"
+              href={withUtm(hero.projectUrl, "hero", "view-project")}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              View Project
+              <Icon class="size-4" name="external-link" />
+            </a>
+            {hero.statsUrl && (
+              <a
+                class="ease inline-flex items-center gap-1.5 rounded-md border border-violet-200 bg-white px-4 py-2 font-medium text-sm text-violet-600 transition-[background-color,border-color] duration-150 hover:border-violet-300 hover:bg-violet-50 active:scale-[0.98] dark:border-violet-500/30 dark:bg-transparent dark:text-violet-400 dark:hover:border-violet-500/50 dark:hover:bg-violet-500/10"
+                href={withUtm(hero.statsUrl, "hero", "view-stats")}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                View Stats
+                <Icon class="size-4" name="external-link" />
+              </a>
+            )}
+            {hero.docsUrl && (
+              <a
+                class="ease inline-flex items-center gap-1.5 rounded-md border border-violet-200 bg-white px-4 py-2 font-medium text-sm text-violet-600 transition-[background-color,border-color] duration-150 hover:border-violet-300 hover:bg-violet-50 active:scale-[0.98] dark:border-violet-500/30 dark:bg-transparent dark:text-violet-400 dark:hover:border-violet-500/50 dark:hover:bg-violet-500/10"
+                href={withUtm(hero.docsUrl, "hero", "read-docs")}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                Read Docs
+                <Icon class="size-4" name="external-link" />
+              </a>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  ) : null
+}

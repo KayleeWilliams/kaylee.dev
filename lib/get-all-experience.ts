@@ -1,34 +1,22 @@
-import fs from "node:fs";
-import path from "node:path";
+import { getCollection } from "astro:content";
 import dayjs from "dayjs";
-import matter from "gray-matter";
 import type { Experience, ExperienceFrontmatter } from "@/types/experience";
 
-const experienceDirectory = path.join(process.cwd(), "content/experience");
-const MDX_REGEX = /\.mdx$/;
+const MARKDOWN_EXTENSION_REGEX = /\.md$/;
 
-export function getAllExperience(): Promise<Experience[]> {
-  const fileNames = fs.readdirSync(experienceDirectory);
+function slugFromId(id: string) {
+  return id.replace(MARKDOWN_EXTENSION_REGEX, "");
+}
 
-  const experiences = fileNames
-    .filter((fileName) => {
-      const fullPath = path.join(experienceDirectory, fileName);
-      return fs.statSync(fullPath).isFile();
-    })
-    .map((fileName) => {
-      const slug = fileName.replace(MDX_REGEX, "");
-      const fullPath = path.join(experienceDirectory, fileName);
-      const fileContents = fs.readFileSync(fullPath, "utf8");
-      const { data, content } = matter(fileContents);
+export async function getAllExperience(): Promise<Experience[]> {
+  const entries = await getCollection("experience");
+  const experiences = entries.map((entry) => ({
+    slug: slugFromId(entry.id),
+    content: entry.body ?? "",
+    ...(entry.data as ExperienceFrontmatter),
+  }));
 
-      return {
-        slug,
-        content,
-        ...(data as ExperienceFrontmatter),
-      };
-    });
-
-  return Promise.resolve(
-    experiences.sort((a, b) => dayjs(b.startDate).diff(dayjs(a.startDate)))
+  return experiences.sort((a, b) =>
+    dayjs(b.startDate).diff(dayjs(a.startDate))
   );
 }
