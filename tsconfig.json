@@ -19,12 +19,6 @@
     },
     "strictNullChecks": true
   },
-  "include": [
-    ".astro/types.d.ts",
-    "src/env.d.ts",
-    "**/*.ts",
-    "**/*.astro",
-    "**/*.svelte"
-  ],
+  "include": [".astro/types.d.ts", "src/env.d.ts", "**/*.ts", "**/*.astro"],
   "exclude": ["node_modules"]
 }
