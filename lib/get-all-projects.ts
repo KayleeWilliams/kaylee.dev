@@ -1,35 +1,31 @@
-import fs from "node:fs";
-import path from "node:path";
-import matter from "gray-matter";
+import { getCollection } from "astro:content";
 import type { Project, ProjectFrontmatter } from "@/types/project";
 import { fetchStars } from "./get-stars";
 
-const projectsDirectory = path.join(process.cwd(), "content/projects");
-const MDX_REGEX = /\.mdx$/;
+const MARKDOWN_EXTENSION_REGEX = /\.md$/;
 
-export async function getAllProjects(): Promise<Project[]> {
-  const fileNames = fs.readdirSync(projectsDirectory).filter((fileName) => {
-    const fullPath = path.join(projectsDirectory, fileName);
-    return fs.statSync(fullPath).isFile() && MDX_REGEX.test(fileName);
-  });
+interface GetAllProjectsOptions {
+  includeStars?: boolean;
+}
 
-  const projectsWithoutStars = fileNames.map((fileName) => {
-    const slug = fileName.replace(MDX_REGEX, "");
-    const fullPath = path.join(projectsDirectory, fileName);
-    const fileContents = fs.readFileSync(fullPath, "utf8");
-    const { data, content } = matter(fileContents);
+function slugFromId(id: string) {
+  return id.replace(MARKDOWN_EXTENSION_REGEX, "");
+}
 
-    return {
-      slug,
-      content,
-      ...(data as ProjectFrontmatter),
-    };
-  });
+export async function getAllProjects({
+  includeStars = true,
+}: GetAllProjectsOptions = {}): Promise<Project[]> {
+  const entries = await getCollection("projects");
+  const projectsWithoutStars = entries.map((entry) => ({
+    slug: slugFromId(entry.id),
+    content: entry.body ?? "",
+    ...(entry.data as ProjectFrontmatter),
+  }));
 
   // Fetch stars for projects that have showStars enabled
   const projects = await Promise.all(
     projectsWithoutStars.map(async (project) => {
-      if (project.showStars && project.github) {
+      if (includeStars && project.showStars && project.github) {
         const stars = await fetchStars(project.github);
         return { ...project, stars };
       }

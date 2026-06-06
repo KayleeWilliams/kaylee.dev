@@ -7,7 +7,7 @@ import CardContent from "./CardContent.astro";
 import CardTitle from "./CardTitle.astro";
 import Icon from "./Icon.astro";
 
-const projects = await getAllProjects();
+const projects = await getAllProjects({ includeStars: false });
 const activeProjects = projects.filter((project) => project.active);
 const onlyC15t =
   activeProjects.length === 1 && activeProjects[0]?.slug === "c15t";

@@ -12,9 +12,8 @@ export default defineConfig({
   output: "server",
   adapter,
   build: {
-    // Inline all stylesheets into the HTML to avoid a render-blocking
-    // chained CSS request (Lighthouse: "Avoid chaining critical requests").
-    inlineStylesheets: "always",
+    // Keep CSS cacheable and avoid inflating every HTML response.
+    inlineStylesheets: "never",
   },
   vite: {
     plugins: [tailwindcss()],

@@ -18,7 +18,7 @@ type HeroFrontmatter = {
   docsUrl?: string;
 };
 
-const hero = getSiteContent<HeroFrontmatter>("hero");
+const hero = await getSiteContent<HeroFrontmatter>("hero");
 const [stars, downloads] =
   hero?.github && hero.npmPackage
     ? await Promise.all([

@@ -1,6 +1,6 @@
 export interface ExperienceFrontmatter {
   company: string;
-  date: string;
+  date?: string;
   description: string;
   disableDetails?: boolean;
   endDate?: string;
