@@ -1,19 +1,11 @@
-export type ProjectFrontmatter = {
-  title: string;
-  description: string;
-  date: string;
-  tags: string[];
-  image: string;
-  github?: string;
-  demo?: string;
-  featured?: boolean;
+export interface ProjectFrontmatter {
   active?: boolean;
-
-  /**
-   * URL for the project
-   * @default undefined
-   */
-  url?: string;
+  date: string;
+  demo?: string;
+  description: string;
+  featured?: boolean;
+  github?: string;
+  image: string;
 
   /**
    * Display the number of stars for the repository
@@ -27,9 +19,17 @@ export type ProjectFrontmatter = {
    * This is dynamically fetched from the repository if showStars is true
    */
   stars?: number;
-};
+  tags: string[];
+  title: string;
+
+  /**
+   * URL for the project
+   * @default undefined
+   */
+  url?: string;
+}
 
 export interface Project extends ProjectFrontmatter {
-  slug: string;
   content: string;
+  slug: string;
 }

@@ -1,18 +1,18 @@
 import { getAllExperience } from "@/lib/get-all-experience";
+import { getAllProjects } from "@/lib/get-all-projects";
 import { getRecentGitHubActivity } from "@/lib/get-github-activity";
 import { fetchNpmDownloads } from "@/lib/get-npm-downloads";
-import { getAllProjects } from "@/lib/get-all-projects";
 import { getSiteContent } from "@/lib/get-site-content";
 import { fetchStars } from "@/lib/get-stars";
 import { personConfig } from "@/lib/site-config";
 import { formatDate } from "@/lib/utils/format-date";
 import { formatDownloads } from "@/lib/utils/format-downloads";
 
-type HeroContent = {
+interface HeroContent {
   currentWork?: string[];
   github?: string;
   npmPackage?: string;
-};
+}
 
 export async function renderPortfolioMarkdown(): Promise<string> {
   const [hero, profile, experience, projects] = await Promise.all([
@@ -32,7 +32,7 @@ export async function renderPortfolioMarkdown(): Promise<string> {
 
   const snapshotDate = new Date().toISOString().slice(0, 10);
   const githubUrl = personConfig.sameAs.find((url) =>
-    url.includes("github.com/"),
+    url.includes("github.com/")
   );
   const githubUsername = githubUrl?.split("/").at(-1);
   const contributions = githubUsername
@@ -97,6 +97,7 @@ export async function renderPortfolioMarkdown(): Promise<string> {
       ? [
           "## Recent Contributions (last 30 days)",
           "",
+          // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Keep existing markdown metric aggregation intact during framework migration.
           ...contributions.map((repo) => {
             const metrics = [
               repo.openedPrs > 0 ? `${repo.openedPrs} PR opened` : undefined,

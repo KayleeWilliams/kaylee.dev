@@ -1,0 +1,70 @@
+---
+import { getRecentGitHubActivity } from "@/lib/get-github-activity";
+import Card from "./Card.astro";
+import CardContent from "./CardContent.astro";
+import CardHeader from "./CardHeader.astro";
+import CardTitle from "./CardTitle.astro";
+import Pill from "./Pill.astro";
+
+type Props = {
+  username: string;
+};
+
+const { username } = Astro.props;
+const repos = await getRecentGitHubActivity(username);
+---
+
+{
+  repos.length > 0 ? (
+    <Card class="relative">
+      <Pill class="-top-2 -right-[10px] rotate-[4deg] lg:-top-1 lg:-right-[24px] lg:rotate-16">
+        PAST 30 DAYS
+      </Pill>
+      <CardHeader>
+        <CardTitle>OSS Contributions</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div class="divide-y divide-border">
+          {repos.map((repo) => (
+            <div class="py-3 first:pt-0 last:pb-0">
+              <div class="min-w-0">
+                <div class="flex items-center justify-between gap-3">
+                  <a
+                    class="truncate font-medium text-primary hover:underline"
+                    href={`https://github.com/${repo.repo}`}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    {repo.repo}
+                  </a>
+                  {repo.additions || repo.deletions ? (
+                    <p class="shrink-0 font-medium text-xs">
+                      <span class="text-emerald-500">
+                        +{repo.additions.toLocaleString()}
+                      </span>{" "}
+                      <span class="text-rose-500">
+                        -{repo.deletions.toLocaleString()}
+                      </span>
+                    </p>
+                  ) : null}
+                </div>
+                <p class="mt-1 text-muted-foreground text-xs">
+                  {[
+                    repo.openedPrs > 0 ? `${repo.openedPrs} PR opened` : undefined,
+                    repo.mergedPrs > 0 ? `${repo.mergedPrs} merged` : undefined,
+                    repo.reviews > 0 ? `${repo.reviews} reviews` : undefined,
+                    repo.reviewComments > 0 ? `${repo.reviewComments} comments` : undefined,
+                    repo.issuesOpened > 0 ? `${repo.issuesOpened} issues` : undefined,
+                    repo.commits > 0 ? `${repo.commits} commits` : undefined,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  ) : null
+}

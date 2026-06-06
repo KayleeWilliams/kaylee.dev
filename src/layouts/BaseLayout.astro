@@ -1,0 +1,124 @@
+---
+import Footer from "@/src/components/Footer.astro";
+import Icon from "@/src/components/Icon.astro";
+import OSSActivity from "@/src/components/OSSActivity.astro";
+import Profile from "@/src/components/Profile.astro";
+import ThemeSwitcher from "@/src/components/ThemeSwitcher.astro";
+import { personConfig } from "@/lib/site-config";
+import "@/src/styles/globals.css";
+
+type Props = {
+  title?: string;
+  description?: string;
+};
+
+const {
+  title = `${personConfig.name} | Software Engineer`,
+  description = personConfig.description,
+} = Astro.props;
+const isHome = Astro.url.pathname === "/";
+const hasSidebar = !isHome;
+const githubUrl = personConfig.sameAs.find((url) =>
+  url.includes("github.com/")
+);
+const githubUsername = githubUrl?.split("/").at(-1) ?? "";
+const ogImageUrl = new URL("/opengraph-image", personConfig.siteUrl).toString();
+
+Astro.response.headers.set(
+  "Cache-Control",
+  "public, s-maxage=3600, stale-while-revalidate=86400"
+);
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: personConfig.name,
+  url: personConfig.siteUrl,
+  jobTitle: personConfig.jobTitle,
+  sameAs: personConfig.sameAs,
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta
+      name="keywords"
+      content={`${personConfig.name}, software engineer, full-stack developer, open source, c15t, TypeScript, React`}
+    />
+    <meta name="author" content={personConfig.name} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content={personConfig.siteUrl} />
+    <meta property="og:site_name" content={personConfig.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content={personConfig.twitterHandle} />
+    <meta name="twitter:image" content={ogImageUrl} />
+    <link rel="icon" href="/favicon.ico" />
+    <script
+      is:inline
+      set:html={`try{const t=localStorage.getItem("theme");const d=t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d)}catch{}`}
+    />
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify(jsonLd)}
+    />
+  </head>
+  <body class="grid-background antialiased">
+    <div class="min-h-screen">
+      <div class="container mx-auto max-w-(--breakpoint-lg) px-4 py-8">
+        <div class={hasSidebar ? "grid grid-cols-1 gap-0 md:grid-cols-3 md:gap-6" : undefined}>
+          {
+            hasSidebar && (
+              <div class="col-span-1">
+                <div class="space-y-6">
+                  <div class="back-button-enter flex flex-row items-center justify-center gap-4">
+                    <ThemeSwitcher />
+                    <div class="w-full rounded-lg border border-border bg-card text-card-foreground shadow-xs transition-[background-color] duration-150 ease hover:bg-violet-50 active:scale-[0.98] dark:hover:bg-violet-500">
+                      <div class="py-4">
+                        <a
+                          class="flex flex-row items-center justify-center gap-2 font-medium"
+                          href="/"
+                        >
+                          <Icon class="size-4" name="arrow-left" />
+                          Go Back
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <Profile />
+                  </div>
+                  {githubUsername ? (
+                    <div>
+                      <OSSActivity username={githubUsername} />
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            )
+          }
+          <main class={hasSidebar ? "md:col-span-2" : undefined}>
+            {
+              hasSidebar ? (
+                <div class="space-y-6">
+                  <slot />
+                </div>
+              ) : (
+                <slot />
+              )
+            }
+          </main>
+        </div>
+      </div>
+    </div>
+    <Footer />
+  </body>
+</html>

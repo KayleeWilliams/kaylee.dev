@@ -1,0 +1,87 @@
+---
+import { getAllExperience } from "@/lib/get-all-experience";
+import { formatDate } from "@/lib/utils/format-date";
+import { withUtm } from "@/lib/utils/utm";
+import Card from "./Card.astro";
+import CardContent from "./CardContent.astro";
+import CardTitle from "./CardTitle.astro";
+import Icon from "./Icon.astro";
+
+const experience = await getAllExperience();
+---
+
+<div class="space-y-4">
+  <CardTitle class="text-foreground">Experience</CardTitle>
+
+  <Card>
+    <CardContent class="space-y-3 pt-6">
+      {
+        experience.map((e) => {
+          const content = (
+            <>
+              <div class="group flex flex-row items-center gap-2">
+                <img
+                  alt={e.company}
+                  class={`size-[30px] object-contain ${e.logoDark ? "dark:hidden" : ""}`}
+                  height="30"
+                  src={e.logo}
+                  width="30"
+                />
+                {e.logoDark && (
+                  <img
+                    alt={e.company}
+                    class="hidden size-[30px] object-contain dark:block"
+                    height="30"
+                    src={e.logoDark}
+                    width="30"
+                  />
+                )}
+                <div>
+                  <p class="font-semibold">{e.role}</p>
+                  <div class="flex flex-row items-center gap-2">
+                    <p class={e.url ? "underline-offset-2 group-hover:underline" : ""}>
+                      {e.company}
+                    </p>
+                    {e.url && <Icon class="size-4" name="external-link" />}
+                  </div>
+                </div>
+              </div>
+            </>
+          );
+
+          return (
+            <div>
+              {e.url ? (
+                <a href={withUtm(e.url, "experience", e.slug)} rel="noopener noreferrer" target="_blank">
+                  {content}
+                </a>
+              ) : (
+                content
+              )}
+              <div class="mt-1 mb-2 flex flex-row items-center gap-2 text-gray-600 dark:text-gray-400">
+                <Icon class="size-4" name="calendar" />
+                <p class="text-sm">
+                  {formatDate(e.startDate)} - {e.endDate ? formatDate(e.endDate) : "Present"}
+                </p>
+              </div>
+              <p>{e.description}</p>
+
+              <div class="mt-2 mb-1 flex flex-row items-center gap-2">
+                <div class="w-full border-border border-t"></div>
+                {!e.disableDetails && (
+                  <a
+                    class="flex w-max items-center gap-2 text-nowrap text-primary text-sm underline-offset-2 hover:underline"
+                    href={`/experience/${e.slug}`}
+                  >
+                    Learn More
+                    <Icon class="size-4" name="external-link" />
+                  </a>
+                )}
+              </div>
+            </div>
+          );
+        })
+      }
+    </CardContent>
+  </Card>
+</div>

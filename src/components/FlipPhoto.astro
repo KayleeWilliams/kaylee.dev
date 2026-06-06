@@ -1,0 +1,45 @@
+---
+import { Image } from "astro:assets";
+import catImage from "@/src/assets/cat.jpeg";
+import conferenceImage from "@/src/assets/conference.jpeg";
+import Pill from "./Pill.astro";
+
+type Props = {
+  class?: string;
+};
+
+const { class: className = "" } = Astro.props;
+---
+
+<div class={`relative ${className}`}>
+  <div class="flip-card size-12 md:size-60">
+    <div class="flip-card-inner flip-card-auto">
+      <div class="flip-card-front">
+        <Image
+          alt="Speaking at Next.js Conf London"
+          class="h-full w-full rounded-full border-2 border-gray-200 object-cover object-top shadow-md transition-colors duration-200 hover:border-violet-500"
+          fetchpriority="high"
+          height="240"
+          sizes="(min-width: 768px) 240px, 48px"
+          src={conferenceImage}
+          width="240"
+        />
+      </div>
+      <div class="flip-card-back">
+        <Image
+          alt="My cat Kibby"
+          class="h-full w-full rounded-full border-2 border-gray-200 object-cover object-top shadow-md transition-colors duration-200 hover:border-violet-500"
+          height="240"
+          loading="lazy"
+          sizes="(min-width: 768px) 240px, 48px"
+          src={catImage}
+          width="240"
+        />
+      </div>
+    </div>
+  </div>
+
+  <Pill class="top-5 left-[3.5px] hidden flip-pill -rotate-40 md:block">
+    MY CAT 🐱
+  </Pill>
+</div>

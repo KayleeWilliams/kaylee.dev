@@ -1,18 +1,18 @@
-export type ExperienceFrontmatter = {
+export interface ExperienceFrontmatter {
   company: string;
-  role: string;
-  description: string;
   date: string;
-  url?: string;
+  description: string;
+  disableDetails?: boolean;
+  endDate?: string;
   logo: string;
   logoDark?: string;
-  tech: string[];
+  role: string;
   startDate: string;
-  endDate?: string;
-  disableDetails?: boolean;
-};
+  tech: string[];
+  url?: string;
+}
 
 export interface Experience extends ExperienceFrontmatter {
-  slug: string;
   content: string;
+  slug: string;
 }

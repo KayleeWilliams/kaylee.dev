@@ -2,14 +2,14 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 
-export type SiteContentFrontmatter = {
+export interface SiteContentFrontmatter {
   title?: string;
-};
+}
 
-export type SiteContent = {
-  slug: string;
+export interface SiteContent extends SiteContentFrontmatter {
   content: string;
-} & SiteContentFrontmatter;
+  slug: string;
+}
 
 const siteContentDirectory = path.join(process.cwd(), "content/site");
 
