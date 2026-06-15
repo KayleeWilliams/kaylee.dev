@@ -1,49 +1,10 @@
 ---
-import Banner from "@/src/components/Banner.astro";
-import ExperienceList from "@/src/components/ExperienceList.astro";
 import Hero from "@/src/components/Hero.astro";
-import OSSActivity from "@/src/components/OSSActivity.astro";
-import Profile from "@/src/components/Profile.astro";
-import Projects from "@/src/components/Projects.astro";
-import ThemeSwitcher from "@/src/components/ThemeSwitcher.astro";
+import SelectedWork from "@/src/components/SelectedWork.astro";
 import BaseLayout from "@/src/layouts/BaseLayout.astro";
-import { personConfig } from "@/lib/site-config";
-
-const githubUrl = personConfig.sameAs.find((url) =>
-  url.includes("github.com/")
-);
-const githubUsername = githubUrl?.split("/").at(-1) ?? "";
 ---
 
 <BaseLayout>
-  <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
-    <section class="contents md:col-span-2 md:col-start-2 md:row-start-1 md:block md:space-y-6">
-      <div class="order-1 flex w-full flex-row gap-4">
-        <Banner />
-        <ThemeSwitcher />
-      </div>
-      <div class="order-3">
-        <Hero />
-      </div>
-      <div class="order-4">
-        <ExperienceList />
-      </div>
-      <div class="order-6">
-        <Projects />
-      </div>
-    </section>
-
-    <aside class="contents md:col-span-1 md:col-start-1 md:row-start-1 md:block md:space-y-6">
-      <div class="order-2">
-        <Profile />
-      </div>
-      {
-        githubUsername ? (
-          <div class="order-5">
-            <OSSActivity username={githubUsername} />
-          </div>
-        ) : null
-      }
-    </aside>
-  </div>
+  <Hero />
+  <SelectedWork />
 </BaseLayout>

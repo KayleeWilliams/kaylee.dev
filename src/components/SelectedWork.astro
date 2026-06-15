@@ -1,0 +1,63 @@
+---
+import { getAllProjects } from "@/lib/get-all-projects";
+import { withUtm } from "@/lib/utils/utm";
+import Card from "./Card.astro";
+import Icon from "./Icon.astro";
+
+const projects = await getAllProjects({ includeStars: false });
+const active = projects.filter((project) => project.active);
+// The flagship (c15t) gets its own block above; this teases the rest.
+const teaser = active.filter((project) => !project.featured).slice(0, 4);
+---
+
+{
+  teaser.length > 0 && (
+    <Card>
+      <div class="p-6">
+        <div class="mb-4 flex items-baseline justify-between gap-4">
+          <h2 class="font-semibold text-foreground text-lg">Selected work</h2>
+          <a
+            class="group flex items-center gap-1 text-primary text-sm hover:underline"
+            href="/projects"
+          >
+            All projects
+            <Icon
+              class="size-3.5 transition-transform duration-150 group-hover:translate-x-0.5"
+              name="arrow-right"
+            />
+          </a>
+        </div>
+
+        <div class="divide-y divide-border">
+          {teaser.map((project) => (
+            <a
+              class="group flex items-baseline justify-between gap-4 py-3 first:pt-0 last:pb-0"
+              href={withUtm(
+                project.url || project.github || "/projects",
+                "home-selected-work",
+                project.slug
+              )}
+              rel={
+                project.url || project.github ? "noopener noreferrer" : undefined
+              }
+              target={project.url || project.github ? "_blank" : undefined}
+            >
+              <span class="flex min-w-0 items-baseline gap-2">
+                <span class="shrink-0 font-medium text-foreground group-hover:text-primary">
+                  {project.title}
+                </span>
+                <span class="truncate text-muted-foreground text-sm">
+                  {project.description.split(/[,.:]/)[0]}
+                </span>
+              </span>
+              <Icon
+                class="size-3.5 shrink-0 self-center text-muted-foreground transition-colors group-hover:text-primary"
+                name="external-link"
+              />
+            </a>
+          ))}
+        </div>
+      </div>
+    </Card>
+  )
+}

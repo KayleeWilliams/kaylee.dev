@@ -1,0 +1,38 @@
+---
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+
+const links = [
+  { href: "/", label: "Home" },
+  { href: "/about", label: "About" },
+  { href: "/projects", label: "Projects" },
+];
+
+function isActive(href: string): boolean {
+  if (href === "/") {
+    return path === "/";
+  }
+  return path === href || path.startsWith(`${href}/`);
+}
+---
+
+<nav aria-label="Primary" class="flex items-center gap-1">
+  {
+    links.map((link) => {
+      const active = isActive(link.href);
+      return (
+        <a
+          aria-current={active ? "page" : undefined}
+          class:list={[
+            "rounded-md px-3 py-1.5 font-medium text-sm transition-colors duration-150",
+            active
+              ? "bg-violet-500/10 text-primary"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground",
+          ]}
+          href={link.href}
+        >
+          {link.label}
+        </a>
+      );
+    })
+  }
+</nav>

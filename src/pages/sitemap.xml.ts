@@ -1,20 +1,17 @@
-import { getAllExperience } from "@/lib/get-all-experience";
+const BASE_URL = "https://www.kaylee.dev";
 
-export async function GET(): Promise<Response> {
-  const experiences = await getAllExperience();
-  const urls = [
-    "https://www.kaylee.dev",
-    ...experiences
-      .filter((experience) => !experience.disableDetails)
-      .map(
-        (experience) => `https://www.kaylee.dev/experience/${experience.slug}`
-      ),
-  ];
+export function GET(): Response {
   const now = new Date().toISOString();
-  const body = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls
+  const routes = [
+    { path: "", priority: "1" },
+    { path: "/about", priority: "0.8" },
+    { path: "/projects", priority: "0.8" },
+  ];
+
+  const body = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${routes
     .map(
-      (url) =>
-        `  <url><loc>${url}</loc><lastmod>${now}</lastmod>${url === "https://www.kaylee.dev" ? "<priority>1</priority>" : ""}</url>`
+      ({ path, priority }) =>
+        `  <url><loc>${BASE_URL}${path}</loc><lastmod>${now}</lastmod><priority>${priority}</priority></url>`
     )
     .join("\n")}\n</urlset>\n`;
 

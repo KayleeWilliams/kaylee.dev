@@ -1,10 +1,10 @@
 ---
 import Footer from "@/src/components/Footer.astro";
-import Icon from "@/src/components/Icon.astro";
+import Header from "@/src/components/Header.astro";
 import OSSActivity from "@/src/components/OSSActivity.astro";
 import Profile from "@/src/components/Profile.astro";
-import ThemeSwitcher from "@/src/components/ThemeSwitcher.astro";
-import { personConfig } from "@/lib/site-config";
+import { type Appearance, personConfig } from "@/lib/site-config";
+import { ClientRouter } from "astro:transitions";
 import "@/src/styles/globals.css";
 
 type Props = {
@@ -16,18 +16,19 @@ const {
   title = `${personConfig.name} | Software Engineer`,
   description = personConfig.description,
 } = Astro.props;
-const isHome = Astro.url.pathname === "/";
-const hasSidebar = !isHome;
+const ogImageUrl = new URL("/opengraph-image", personConfig.siteUrl).toString();
 const githubUrl = personConfig.sameAs.find((url) =>
   url.includes("github.com/")
 );
 const githubUsername = githubUrl?.split("/").at(-1) ?? "";
-const ogImageUrl = new URL("/opengraph-image", personConfig.siteUrl).toString();
 
 Astro.response.headers.set(
   "Cache-Control",
   "public, s-maxage=3600, stale-while-revalidate=86400"
 );
+
+const appearances = (personConfig.appearances ?? []) as Appearance[];
+const talks = appearances.filter((appearance) => appearance.type === "talk");
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -36,6 +37,21 @@ const jsonLd = {
   url: personConfig.siteUrl,
   jobTitle: personConfig.jobTitle,
   sameAs: personConfig.sameAs,
+  ...(talks.length > 0
+    ? {
+        performerIn: talks.map((talk) => ({
+          "@type": "Event",
+          name: talk.title,
+          ...(talk.url ? { url: talk.url } : {}),
+          ...(talk.date ? { startDate: talk.date } : {}),
+          superEvent: {
+            "@type": "Event",
+            name: talk.event,
+            ...(talk.eventUrl ? { url: talk.eventUrl } : {}),
+          },
+        })),
+      }
+    : {}),
 };
 ---
 
@@ -51,6 +67,7 @@ const jsonLd = {
       content={`${personConfig.name}, software engineer, full-stack developer, open source, c15t, TypeScript, React`}
     />
     <meta name="author" content={personConfig.name} />
+    <link rel="canonical" href={new URL(Astro.url.pathname, personConfig.siteUrl).toString()} />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:url" content={personConfig.siteUrl} />
@@ -59,6 +76,8 @@ const jsonLd = {
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImageUrl} />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
     <meta name="twitter:creator" content={personConfig.twitterHandle} />
     <meta name="twitter:image" content={ogImageUrl} />
     <link rel="icon" href="/favicon.ico" />
@@ -67,54 +86,29 @@ const jsonLd = {
       set:html={`try{const t=localStorage.getItem("theme");const d=t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d)}catch{}`}
     />
     <script
+      is:inline
+      set:html={`console.log("%cconsole.log(\\"here?\\") — yep, you found it 👀","color:#8b5cf6;font-weight:700;font-size:13px");console.log("%cHi, I'm Kaylee. I build c15t → https://c15t.com","color:#a78bfa");`}
+    />
+    <script
       type="application/ld+json"
       set:html={JSON.stringify(jsonLd)}
     />
+    <ClientRouter />
   </head>
   <body class="grid-background antialiased">
     <div class="min-h-screen">
       <div class="container mx-auto max-w-(--breakpoint-lg) px-4 py-8">
-        <div class={hasSidebar ? "grid grid-cols-1 gap-0 md:grid-cols-3 md:gap-6" : undefined}>
-          {
-            hasSidebar && (
-              <div class="col-span-1">
-                <div class="space-y-6">
-                  <div class="back-button-enter flex flex-row items-center justify-center gap-4">
-                    <ThemeSwitcher />
-                    <div class="w-full rounded-lg border border-border bg-card text-card-foreground shadow-xs transition-[background-color] duration-150 ease hover:bg-violet-50 active:scale-[0.98] dark:hover:bg-violet-500">
-                      <div class="py-4">
-                        <a
-                          class="flex flex-row items-center justify-center gap-2 font-medium"
-                          href="/"
-                        >
-                          <Icon class="size-4" name="arrow-left" />
-                          Go Back
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <Profile />
-                  </div>
-                  {githubUsername ? (
-                    <div>
-                      <OSSActivity username={githubUsername} />
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-            )
-          }
-          <main class={hasSidebar ? "md:col-span-2" : undefined}>
-            {
-              hasSidebar ? (
-                <div class="space-y-6">
-                  <slot />
-                </div>
-              ) : (
-                <slot />
-              )
-            }
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-x-10">
+          <aside
+            class="md:col-span-1 md:sticky md:top-8 md:self-start md:space-y-6"
+            transition:persist="sidebar"
+          >
+            <Profile />
+            {githubUsername ? <OSSActivity username={githubUsername} /> : null}
+          </aside>
+          <main class="space-y-6 md:col-span-2">
+            <Header />
+            <slot />
           </main>
         </div>
       </div>
