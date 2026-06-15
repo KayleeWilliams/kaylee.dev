@@ -17,10 +17,8 @@ const {
   description = personConfig.description,
 } = Astro.props;
 const ogImageUrl = new URL("/opengraph-image", personConfig.siteUrl).toString();
-const canonicalUrl = new URL(
-  Astro.url.pathname,
-  personConfig.siteUrl
-).toString();
+const originRoot = Astro.url.origin.replace(/\/+$/, "");
+const canonicalUrl = `${originRoot}${Astro.url.pathname}`;
 const trimmedPath = Astro.url.pathname.replace(/\/+$/, "");
 const markdownPath = trimmedPath === "" ? "/index.md" : `${trimmedPath}.md`;
 const githubUrl = personConfig.sameAs.find((url) =>
@@ -38,8 +36,8 @@ const talks = appearances.filter((appearance) => appearance.type === "talk");
 
 // Breadcrumb trail (Home > segment > …) for the BreadcrumbList node.
 const siteRoot = personConfig.siteUrl.replace(/\/$/, "");
-const crumbs = [{ name: "Home", item: `${siteRoot}/` }];
-let crumbPath = siteRoot;
+const crumbs = [{ name: "Home", item: `${originRoot}/` }];
+let crumbPath = originRoot;
 for (const segment of Astro.url.pathname.split("/").filter(Boolean)) {
   crumbPath += `/${segment}`;
   crumbs.push({

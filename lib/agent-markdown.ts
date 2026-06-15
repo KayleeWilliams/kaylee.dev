@@ -5,8 +5,6 @@ import { renderPortfolioMarkdown } from "@/lib/render-portfolio-markdown";
 import { type Appearance, personConfig, socialConfig } from "@/lib/site-config";
 import { formatDate } from "@/lib/utils/format-date";
 
-const BASE = personConfig.siteUrl.replace(/\/+$/, "");
-
 export type PageKey = "home" | "about" | "projects" | "connect";
 
 type PageMeta = {
@@ -45,6 +43,8 @@ const PAGES: Record<PageKey, PageMeta> = {
   },
 };
 
+const normalizeBase = (base: string) => base.replace(/\/+$/, "");
+
 /** Map an HTML page path to its PageKey, or null if it is not a mirrored page. */
 export function pageKeyFromPath(pathname: string): PageKey | null {
   const path = pathname.replace(/\/+$/, "") || "/";
@@ -54,23 +54,23 @@ export function pageKeyFromPath(pathname: string): PageKey | null {
   return entry ? entry[0] : null;
 }
 
-function frontmatter(meta: PageMeta, dateModified: string): string {
+function frontmatter(meta: PageMeta, base: string, dateModified: string): string {
   return [
     "---",
     `title: "${meta.title}"`,
     `description: "${meta.description}"`,
-    `url: "${BASE}${meta.path}"`,
-    `dateModified: "${dateModified}"`,
+    `canonical_url: "${base}${meta.path}"`,
+    `last_updated: "${dateModified}"`,
     "---",
     "",
   ].join("\n");
 }
 
-function sitemapSection(): string {
+function sitemapSection(base: string): string {
   return [
     "## Sitemap",
     "",
-    `See [the full sitemap](${BASE}/sitemap.md) for every page and agent resource.`,
+    `See [the full sitemap](${base}/sitemap.md) for every page and agent resource.`,
   ].join("\n");
 }
 
@@ -155,7 +155,11 @@ function connectBody(): string {
 }
 
 /** Full Markdown mirror of an HTML page: frontmatter + body + sitemap link. */
-export async function renderPageMarkdown(key: PageKey): Promise<string> {
+export async function renderPageMarkdown(
+  key: PageKey,
+  baseUrl: string
+): Promise<string> {
+  const base = normalizeBase(baseUrl);
   const meta = PAGES[key];
   const dateModified = new Date().toISOString();
   const body =
@@ -167,11 +171,29 @@ export async function renderPageMarkdown(key: PageKey): Promise<string> {
           ? await projectsBody()
           : connectBody();
 
-  return `${frontmatter(meta, dateModified)}${body}\n\n${sitemapSection()}\n`;
+  return `${frontmatter(meta, base, dateModified)}${body}\n\n${sitemapSection(base)}\n`;
+}
+
+/** 200 Markdown soft-404 for agent requests to unknown pages. */
+export function renderNotFoundMarkdown(baseUrl: string): string {
+  const base = normalizeBase(baseUrl);
+  return `${[
+    "# Page not found",
+    "",
+    "That page does not exist. Available pages:",
+    "",
+    `- [Home](${base}/) — [markdown](${base}/index.md)`,
+    `- [About](${base}/about) — [markdown](${base}/about.md)`,
+    `- [Projects](${base}/projects) — [markdown](${base}/projects.md)`,
+    `- [Connect](${base}/connect) — [markdown](${base}/connect.md)`,
+    "",
+    `See [the full sitemap](${base}/sitemap.md).`,
+  ].join("\n")}\n`;
 }
 
 /** llms.txt — concise index in the llmstxt.org format (links, not full text). */
-export function renderLlmsIndex(): string {
+export function renderLlmsIndex(baseUrl: string): string {
+  const base = normalizeBase(baseUrl);
   return `${[
     `# ${personConfig.name}`,
     "",
@@ -179,15 +201,15 @@ export function renderLlmsIndex(): string {
     "",
     "## Pages",
     "",
-    `- [Home](${BASE}/index.md): Overview, current work, and selected projects`,
-    `- [About](${BASE}/about.md): Bio, experience, and appearances`,
-    `- [Projects](${BASE}/projects.md): Open-source work — c15t, Cookiebench, DSAR, LeadType, Joyful`,
-    `- [Connect](${BASE}/connect.md): Social and contact links`,
+    `- [Home](${base}/index.md): Overview, current work, and selected projects`,
+    `- [About](${base}/about.md): Bio, experience, and appearances`,
+    `- [Projects](${base}/projects.md): Open-source work — c15t, Cookiebench, DSAR, LeadType, Joyful`,
+    `- [Connect](${base}/connect.md): Social and contact links`,
     "",
     "## More",
     "",
-    `- [Full profile](${BASE}/llms-full.txt): Everything inlined, including live OSS activity`,
-    `- [Sitemap](${BASE}/sitemap.md)`,
+    `- [Full profile](${base}/llms-full.txt): Everything inlined, including live OSS activity`,
+    `- [Sitemap](${base}/sitemap.md)`,
   ].join("\n")}\n`;
 }
 
@@ -197,46 +219,53 @@ export async function renderLlmsFull(): Promise<string> {
 }
 
 /** sitemap.md — Markdown sitemap mirroring the site hierarchy. */
-export function renderSitemapMarkdown(): string {
+export function renderSitemapMarkdown(baseUrl: string): string {
+  const base = normalizeBase(baseUrl);
   const dateModified = new Date().toISOString();
   return `${[
     "---",
     `title: "Sitemap — ${personConfig.name}"`,
-    `url: "${BASE}/sitemap.md"`,
-    `dateModified: "${dateModified}"`,
+    `canonical_url: "${base}/sitemap.md"`,
+    `last_updated: "${dateModified}"`,
     "---",
     "",
     "# Sitemap",
     "",
     "## Pages",
     "",
-    `- [Home](${BASE}/) — [markdown](${BASE}/index.md)`,
-    `- [About](${BASE}/about) — [markdown](${BASE}/about.md)`,
-    `- [Projects](${BASE}/projects) — [markdown](${BASE}/projects.md)`,
-    `- [Connect](${BASE}/connect) — [markdown](${BASE}/connect.md)`,
+    `- [Home](${base}/) — [markdown](${base}/index.md)`,
+    `- [About](${base}/about) — [markdown](${base}/about.md)`,
+    `- [Projects](${base}/projects) — [markdown](${base}/projects.md)`,
+    `- [Connect](${base}/connect) — [markdown](${base}/connect.md)`,
     "",
     "## Agent resources",
     "",
-    `- [llms.txt](${BASE}/llms.txt) — index`,
-    `- [llms-full.txt](${BASE}/llms-full.txt) — full profile`,
-    `- [AGENTS.md](${BASE}/AGENTS.md)`,
-    `- [sitemap.xml](${BASE}/sitemap.xml)`,
+    `- [llms.txt](${base}/llms.txt) — index`,
+    `- [llms-full.txt](${base}/llms-full.txt) — full profile`,
+    `- [AGENTS.md](${base}/AGENTS.md)`,
+    `- [sitemap.xml](${base}/sitemap.xml)`,
   ].join("\n")}\n`;
 }
 
 /** Markdown HTTP response with canonical Link header and Accept-aware caching. */
 export function markdownResponse(
   body: string,
-  options: { canonicalPath?: string; contentType?: string } = {}
+  options: {
+    base?: string;
+    canonicalPath?: string;
+    status?: number;
+    contentType?: string;
+  } = {}
 ): Response {
-  const { canonicalPath, contentType = "text/markdown" } = options;
+  const { base, canonicalPath, status = 200, contentType = "text/markdown" } =
+    options;
   const headers: Record<string, string> = {
     "Content-Type": `${contentType}; charset=utf-8`,
     "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
     Vary: "Accept",
   };
-  if (canonicalPath) {
-    headers.Link = `<${BASE}${canonicalPath}>; rel="canonical"`;
+  if (base && canonicalPath) {
+    headers.Link = `<${normalizeBase(base)}${canonicalPath}>; rel="canonical"`;
   }
-  return new Response(body, { headers });
+  return new Response(body, { status, headers });
 }
