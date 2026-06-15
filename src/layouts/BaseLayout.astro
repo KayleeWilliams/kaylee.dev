@@ -13,10 +13,14 @@ type Props = {
 };
 
 const {
-  title = `${personConfig.name} | Software Engineer`,
+  title = `${personConfig.name} — Founding Engineer at Inth, co-author of c15t`,
   description = personConfig.description,
 } = Astro.props;
 const ogImageUrl = new URL("/opengraph-image", personConfig.siteUrl).toString();
+const canonicalUrl = new URL(
+  Astro.url.pathname,
+  personConfig.siteUrl
+).toString();
 const githubUrl = personConfig.sameAs.find((url) =>
   url.includes("github.com/")
 );
@@ -30,28 +34,82 @@ Astro.response.headers.set(
 const appearances = (personConfig.appearances ?? []) as Appearance[];
 const talks = appearances.filter((appearance) => appearance.type === "talk");
 
+// Breadcrumb trail (Home > segment > …) for the BreadcrumbList node.
+const siteRoot = personConfig.siteUrl.replace(/\/$/, "");
+const crumbs = [{ name: "Home", item: `${siteRoot}/` }];
+let crumbPath = siteRoot;
+for (const segment of Astro.url.pathname.split("/").filter(Boolean)) {
+  crumbPath += `/${segment}`;
+  crumbs.push({
+    name: segment.charAt(0).toUpperCase() + segment.slice(1),
+    item: crumbPath,
+  });
+}
+
+const personId = `${siteRoot}/#person`;
+const websiteId = `${siteRoot}/#website`;
+
 const jsonLd = {
   "@context": "https://schema.org",
-  "@type": "Person",
-  name: personConfig.name,
-  url: personConfig.siteUrl,
-  jobTitle: personConfig.jobTitle,
-  sameAs: personConfig.sameAs,
-  ...(talks.length > 0
-    ? {
-        performerIn: talks.map((talk) => ({
-          "@type": "Event",
-          name: talk.title,
-          ...(talk.url ? { url: talk.url } : {}),
-          ...(talk.date ? { startDate: talk.date } : {}),
-          superEvent: {
-            "@type": "Event",
-            name: talk.event,
-            ...(talk.eventUrl ? { url: talk.eventUrl } : {}),
-          },
-        })),
-      }
-    : {}),
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": personId,
+      name: personConfig.name,
+      url: personConfig.siteUrl,
+      jobTitle: personConfig.jobTitle,
+      worksFor: {
+        "@type": "Organization",
+        name: "Inth",
+        url: "https://inth.com",
+      },
+      sameAs: personConfig.sameAs,
+      ...(talks.length > 0
+        ? {
+            performerIn: talks.map((talk) => ({
+              "@type": "Event",
+              name: talk.title,
+              ...(talk.url ? { url: talk.url } : {}),
+              ...(talk.date ? { startDate: talk.date } : {}),
+              superEvent: {
+                "@type": "Event",
+                name: talk.event,
+                ...(talk.eventUrl ? { url: talk.eventUrl } : {}),
+              },
+            })),
+          }
+        : {}),
+    },
+    {
+      "@type": "WebSite",
+      "@id": websiteId,
+      url: personConfig.siteUrl,
+      name: personConfig.name,
+      description: personConfig.description,
+      publisher: { "@id": personId },
+    },
+    {
+      "@type": "WebPage",
+      "@id": canonicalUrl,
+      url: canonicalUrl,
+      name: title,
+      description,
+      isPartOf: { "@id": websiteId },
+      about: { "@id": personId },
+      dateModified: new Date().toISOString(),
+      breadcrumb: { "@id": `${canonicalUrl}#breadcrumb` },
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": `${canonicalUrl}#breadcrumb`,
+      itemListElement: crumbs.map((crumb, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: crumb.name,
+        item: crumb.item,
+      })),
+    },
+  ],
 };
 ---
 
@@ -67,10 +125,16 @@ const jsonLd = {
       content={`${personConfig.name}, software engineer, full-stack developer, open source, c15t, TypeScript, React`}
     />
     <meta name="author" content={personConfig.name} />
-    <link rel="canonical" href={new URL(Astro.url.pathname, personConfig.siteUrl).toString()} />
+    <link rel="canonical" href={canonicalUrl} />
+    <link
+      rel="alternate"
+      type="text/markdown"
+      href="/markdown"
+      title="Portfolio (Markdown)"
+    />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="en_US" />
-    <meta property="og:url" content={personConfig.siteUrl} />
+    <meta property="og:url" content={canonicalUrl} />
     <meta property="og:site_name" content={personConfig.name} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
