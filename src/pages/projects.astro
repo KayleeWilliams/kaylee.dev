@@ -1,0 +1,158 @@
+---
+import Card from "@/src/components/Card.astro";
+import Icon from "@/src/components/Icon.astro";
+import BaseLayout from "@/src/layouts/BaseLayout.astro";
+import { getAllProjects } from "@/lib/get-all-projects";
+import { fetchNpmDownloads } from "@/lib/get-npm-downloads";
+import { formatDownloads } from "@/lib/utils/format-downloads";
+import { withUtm } from "@/lib/utils/utm";
+
+const projects = await getAllProjects({ includeStars: true });
+const active = projects.filter((project) => project.active);
+const flagship = active.find((project) => project.featured) ?? active[0];
+const rest = active
+  .filter((project) => project.slug !== flagship?.slug)
+  .sort((a, b) => (b.stars ?? 0) - (a.stars ?? 0));
+
+const flagshipDownloads =
+  flagship?.slug === "c15t"
+    ? await fetchNpmDownloads("c15t").catch(() => undefined)
+    : undefined;
+
+function liveUrl(project: { url?: string; github?: string }) {
+  return project.url || project.github || "#";
+}
+---
+
+<BaseLayout
+  title="Projects | Kaylee Williams"
+  description="Open-source tools for consent, privacy, and developer experience, built by Kaylee Williams at Inth: c15t, DSAR, Cookie Bench, and LeadType."
+>
+  <header class="space-y-2">
+    <h2 class="font-bold text-3xl tracking-tight">Projects</h2>
+    <p class="max-w-prose text-muted-foreground">
+      Open-source tools for the compliance stack, mostly built at <span
+        class="text-foreground">Inth</span
+      > (YC P26): consent, data rights, performance, and agent-readable docs. Fast
+      by default, minimal bundle, no bloat.
+    </p>
+  </header>
+
+  {
+    flagship && (
+      <Card class="border-violet-200 bg-linear-to-br from-violet-50 to-card dark:border-violet-500/30 dark:from-violet-950/20 dark:to-card">
+        <div class="flex flex-col gap-4 p-6">
+          <div class="flex flex-col gap-1.5">
+            {flagship.tags.length > 0 && (
+              <p class="text-muted-foreground text-xs">
+                {flagship.tags.join(" · ")}
+              </p>
+            )}
+            <a
+              class="group flex w-fit items-center gap-2 font-bold text-2xl text-primary"
+              href={withUtm(liveUrl(flagship), "projects", flagship.slug)}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <span class="group-hover:underline">{flagship.title}</span>
+              <Icon class="size-4" name="external-link" />
+            </a>
+            <p class="max-w-prose text-foreground">{flagship.description}</p>
+          </div>
+
+          {(flagship.stars || flagshipDownloads) && (
+            <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
+              {flagship.stars && (
+                <span class="flex items-center gap-1.5 font-semibold text-foreground text-sm">
+                  <Icon class="size-4 text-yellow-500" name="star" />
+                  {flagship.stars.toLocaleString()}+ stars
+                </span>
+              )}
+              {flagshipDownloads && (
+                <span class="flex items-center gap-1.5 font-semibold text-foreground text-sm">
+                  <Icon class="size-4 text-violet-500" name="download" />
+                  {formatDownloads(flagshipDownloads)}+ monthly downloads
+                </span>
+              )}
+            </div>
+          )}
+
+          <div class="flex flex-wrap gap-3 pt-1">
+            <a
+              class="ease inline-flex items-center gap-1.5 rounded-md bg-violet-500 px-4 py-2 font-medium text-sm text-white transition-[background-color] duration-150 hover:bg-violet-600 active:scale-[0.98]"
+              href={withUtm(liveUrl(flagship), "projects", `${flagship.slug}-view`)}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              View Project
+              <Icon class="size-4" name="external-link" />
+            </a>
+            {flagship.github && (
+              <a
+                class="ease inline-flex items-center gap-1.5 rounded-md border border-violet-200 bg-white px-4 py-2 font-medium text-sm text-violet-600 transition-[background-color,border-color] duration-150 hover:border-violet-300 hover:bg-violet-50 active:scale-[0.98] dark:border-violet-500/30 dark:bg-transparent dark:text-violet-400 dark:hover:border-violet-500/50 dark:hover:bg-violet-500/10"
+                href={withUtm(flagship.github, "projects", `${flagship.slug}-github`)}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                <Icon class="size-4" name="github" />
+                GitHub
+              </a>
+            )}
+          </div>
+        </div>
+      </Card>
+    )
+  }
+
+  {
+    rest.length > 0 && (
+      <section class="space-y-1">
+        <h3 class="mb-3 font-semibold text-muted-foreground text-sm uppercase tracking-wide">
+          More projects
+        </h3>
+        <div class="divide-y divide-border">
+          {rest.map((project) => (
+            <article class="flex flex-col gap-2 py-5 first:pt-0">
+              <div class="flex items-baseline justify-between gap-4">
+                <a
+                  class="group flex items-center gap-1.5 font-semibold text-lg text-primary"
+                  href={withUtm(liveUrl(project), "projects", project.slug)}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  <span class="group-hover:underline">{project.title}</span>
+                  <Icon class="size-3.5" name="external-link" />
+                </a>
+                {project.stars ? (
+                  <span class="flex shrink-0 items-center gap-1 text-muted-foreground text-sm">
+                    <Icon class="size-4 text-yellow-500" name="star" />
+                    {project.stars.toLocaleString()}
+                  </span>
+                ) : null}
+              </div>
+              <p class="max-w-prose text-muted-foreground text-sm">
+                {project.description}
+              </p>
+              <div class="flex items-center justify-between gap-4">
+                <span class="text-muted-foreground text-xs">
+                  {project.tags.join(" · ")}
+                </span>
+                {project.github && (
+                  <a
+                    class="flex shrink-0 items-center gap-1.5 text-primary text-sm hover:underline"
+                    href={withUtm(project.github, "projects", `${project.slug}-github`)}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <Icon class="size-4" name="github" />
+                    GitHub
+                  </a>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>
