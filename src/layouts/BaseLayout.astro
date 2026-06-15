@@ -83,7 +83,7 @@ const jsonLd = {
     <link rel="icon" href="/favicon.ico" />
     <script
       is:inline
-      set:html={`try{const t=localStorage.getItem("theme");const d=t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d)}catch{}`}
+      set:html={`(()=>{const apply=()=>{try{const t=localStorage.getItem("theme");const d=t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d)}catch{}};apply();if(!window.__themeApplyBound){window.__themeApplyBound=true;document.addEventListener("astro:after-swap",apply)}})()`}
     />
     <script
       is:inline
