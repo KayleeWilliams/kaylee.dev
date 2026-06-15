@@ -1,0 +1,148 @@
+---
+import Icon from "@/src/components/Icon.astro";
+import BaseLayout from "@/src/layouts/BaseLayout.astro";
+import { getAllExperience } from "@/lib/get-all-experience";
+import { getSiteContent } from "@/lib/get-site-content";
+import { type Appearance, personConfig } from "@/lib/site-config";
+import { renderMarkdown } from "@/lib/render-markdown";
+import { formatDate } from "@/lib/utils/format-date";
+
+const [about, experience] = await Promise.all([
+  getSiteContent("about"),
+  getAllExperience(),
+]);
+
+const appearances = ([...(personConfig.appearances ?? [])] as Appearance[]).sort(
+  (a, b) => (b.date ?? "").localeCompare(a.date ?? "")
+);
+
+function appearanceIcon(type: Appearance["type"]) {
+  return type === "judge" ? "scales" : "mic";
+}
+---
+
+<BaseLayout
+  title="About | Kaylee Williams"
+  description="Kaylee Williams is a founding engineer at Inth (YC P26) and co-author of c15t, building open-source consent and privacy infrastructure for developers."
+>
+  <header class="space-y-2">
+    <h2 class="font-bold text-3xl tracking-tight">About</h2>
+  </header>
+
+  {
+    about ? (
+      <div
+        class="markdown-content max-w-prose text-foreground leading-relaxed [&>p]:mb-4"
+        set:html={renderMarkdown(about.content)}
+      />
+    ) : null
+  }
+
+  <section class="space-y-1">
+    <h3 class="mb-3 font-semibold text-muted-foreground text-sm uppercase tracking-wide">
+      Experience
+    </h3>
+    <div class="divide-y divide-border">
+      {
+        experience.map((role) => (
+          <article class="flex gap-4 py-5 first:pt-0">
+            <img
+              alt={role.company}
+              class="mt-0.5 size-8 shrink-0 rounded-sm object-contain"
+              height="32"
+              src={role.logo}
+              width="32"
+            />
+            <div class="flex flex-col gap-1">
+              <div class="flex flex-col gap-0.5">
+                <p class="font-semibold leading-tight">{role.role}</p>
+                <div class="flex items-center gap-2 text-muted-foreground text-sm">
+                  {role.url ? (
+                    <a
+                      class="hover:text-primary hover:underline"
+                      href={role.url}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      {role.company}
+                    </a>
+                  ) : (
+                    <span>{role.company}</span>
+                  )}
+                  <span aria-hidden="true">·</span>
+                  <span>
+                    {formatDate(role.startDate)} -{" "}
+                    {role.endDate ? formatDate(role.endDate) : "Present"}
+                  </span>
+                </div>
+              </div>
+              <p class="max-w-prose text-foreground text-sm">
+                {role.description}
+              </p>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  {
+    appearances.length ? (
+      <section class="space-y-1">
+        <h3 class="mb-3 font-semibold text-muted-foreground text-sm uppercase tracking-wide">
+          Appearances
+        </h3>
+        <div class="divide-y divide-border">
+          {appearances.map((appearance) => (
+            <article class="flex gap-4 py-5 first:pt-0">
+              <Icon
+                class="mt-0.5 size-5 shrink-0 text-violet-400"
+                name={appearanceIcon(appearance.type)}
+              />
+              <div class="flex flex-col gap-1">
+                {appearance.url ? (
+                  <a
+                    class="group flex items-center gap-1.5 font-semibold leading-tight text-foreground hover:text-primary"
+                    href={appearance.url}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <span class="group-hover:underline">{appearance.title}</span>
+                    <Icon
+                      class="size-3.5 shrink-0 text-muted-foreground group-hover:text-primary"
+                      name="external-link"
+                    />
+                  </a>
+                ) : (
+                  <p class="font-semibold leading-tight text-foreground">
+                    {appearance.title}
+                  </p>
+                )}
+                <div class="flex flex-wrap items-center gap-2 text-muted-foreground text-sm">
+                  {appearance.eventUrl ? (
+                    <a
+                      class="hover:text-primary hover:underline"
+                      href={appearance.eventUrl}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      {appearance.event}
+                    </a>
+                  ) : (
+                    <span>{appearance.event}</span>
+                  )}
+                  {appearance.date ? (
+                    <Fragment>
+                      <span aria-hidden="true">·</span>
+                      <span>{formatDate(appearance.date, "MMM D, YYYY")}</span>
+                    </Fragment>
+                  ) : null}
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    ) : null
+  }
+</BaseLayout>

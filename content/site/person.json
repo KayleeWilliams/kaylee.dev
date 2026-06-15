@@ -2,13 +2,31 @@
   "name": "Kaylee Williams",
   "headline": "Full-Stack Engineer",
   "jobTitle": "Full-Stack Engineer",
+  "tagline": "Founding engineer at Inth (YC P26) and co-author of c15t, building open-source compliance infrastructure.",
   "siteUrl": "https://www.kaylee.dev",
-  "description": "Kaylee Williams - Full-Stack Engineer building c15t and Inth, backed by YC P26. Open source, developer experience, consent infrastructure.",
+  "description": "Kaylee Williams - founding engineer at Inth (YC P26) and co-author of c15t, building open-source compliance infrastructure for developers: consent, data rights, and developer experience.",
   "twitterHandle": "@kaylee_dev",
   "sameAs": [
     "https://github.com/KayleeWilliams",
     "https://linkedin.com/in/kaylee-w",
     "https://x.com/kaylee_dev"
+  ],
+  "appearances": [
+    {
+      "type": "talk",
+      "title": "Why Your Consent Banner Should Be in Your Bundle",
+      "event": "Next.js Conf London Watch Party 2025",
+      "date": "2025-10-22",
+      "url": "https://x.com/kaylee_dev/status/1981012407771431174",
+      "eventUrl": "https://vercel.com/go/next-js-conference-25-london-watch-party"
+    },
+    {
+      "type": "judge",
+      "title": "First-round judge",
+      "event": "Built in London with Vercel and OpenAI",
+      "date": "2026-06-12",
+      "eventUrl": "https://luma.com/1uv1oeuu"
+    }
   ],
   "sourceRepo": "https://github.com/KayleeWilliams/Portfolio",
   "primaryProjectUrl": "https://c15t.com"
