@@ -21,6 +21,8 @@ const canonicalUrl = new URL(
   Astro.url.pathname,
   personConfig.siteUrl
 ).toString();
+const trimmedPath = Astro.url.pathname.replace(/\/+$/, "");
+const markdownPath = trimmedPath === "" ? "/index.md" : `${trimmedPath}.md`;
 const githubUrl = personConfig.sameAs.find((url) =>
   url.includes("github.com/")
 );
@@ -129,8 +131,8 @@ const jsonLd = {
     <link
       rel="alternate"
       type="text/markdown"
-      href="/markdown"
-      title="Portfolio (Markdown)"
+      href={markdownPath}
+      title="This page (Markdown)"
     />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="en_US" />
