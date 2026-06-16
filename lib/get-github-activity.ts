@@ -1,4 +1,5 @@
 import { withMemoryCache } from "./cache";
+import { githubHeaders } from "./github-auth";
 
 interface GitHubEvent {
   created_at: string;
@@ -51,9 +52,7 @@ function fetchPullRequestSummary(
   const request = (async () => {
     try {
       const response = await fetch(prApiUrl, {
-        headers: {
-          Accept: "application/vnd.github+json",
-        },
+        headers: githubHeaders(),
       });
 
       if (!response.ok) {
@@ -86,9 +85,7 @@ export async function getRecentGitHubActivity(
         const response = await fetch(
           `https://api.github.com/users/${username}/events/public?per_page=100`,
           {
-            headers: {
-              Accept: "application/vnd.github+json",
-            },
+            headers: githubHeaders(),
           }
         );
 
