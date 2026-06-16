@@ -8,7 +8,6 @@ interface GitHubEvent {
     commits?: unknown[];
     pull_request?: {
       merged?: boolean;
-      url?: string;
     };
     issue?: {
       pull_request?: unknown;
@@ -21,9 +20,7 @@ interface GitHubEvent {
 }
 
 export interface RepoActivity {
-  additions: number;
   commits: number;
-  deletions: number;
   issuesOpened: number;
   mergedPrs: number;
   openedPrs: number;
@@ -33,45 +30,7 @@ export interface RepoActivity {
   score: number;
 }
 
-interface PullRequestSummary {
-  additions?: number;
-  deletions?: number;
-}
-
 const ONE_HOUR = 60 * 60;
-const prCache = new Map<string, Promise<PullRequestSummary | null>>();
-
-function fetchPullRequestSummary(
-  prApiUrl: string
-): Promise<PullRequestSummary | null> {
-  const cached = prCache.get(prApiUrl);
-  if (cached) {
-    return cached;
-  }
-
-  const request = (async () => {
-    try {
-      const response = await fetch(prApiUrl, {
-        headers: githubHeaders(),
-      });
-
-      if (!response.ok) {
-        return null;
-      }
-
-      const data = (await response.json()) as PullRequestSummary;
-      return {
-        additions: data.additions ?? 0,
-        deletions: data.deletions ?? 0,
-      };
-    } catch {
-      return null;
-    }
-  })();
-
-  prCache.set(prApiUrl, request);
-  return request;
-}
 
 export async function getRecentGitHubActivity(
   username: string
@@ -79,7 +38,7 @@ export async function getRecentGitHubActivity(
   return await withMemoryCache(
     `github-activity:${username}`,
     ONE_HOUR,
-    // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Preserve existing GitHub event scoring behavior during framework migration.
+    // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: GitHub event scoring.
     async () => {
       try {
         const response = await fetch(
@@ -96,8 +55,6 @@ export async function getRecentGitHubActivity(
         const events = (await response.json()) as GitHubEvent[];
         const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
         const activityByRepo = new Map<string, RepoActivity>();
-
-        const prFetches: { repoName: string; prUrl: string }[] = [];
 
         for (const event of events) {
           if (!event.repo?.name) {
@@ -117,20 +74,12 @@ export async function getRecentGitHubActivity(
             reviewComments: 0,
             issuesOpened: 0,
             commits: 0,
-            additions: 0,
-            deletions: 0,
             score: 0,
           };
 
           if (event.type === "PullRequestEvent") {
             if (event.payload?.action === "opened") {
               current.openedPrs += 1;
-              if (event.payload.pull_request?.url) {
-                prFetches.push({
-                  repoName: event.repo.name,
-                  prUrl: event.payload.pull_request.url,
-                });
-              }
             }
             if (
               event.payload?.action === "closed" &&
@@ -176,18 +125,6 @@ export async function getRecentGitHubActivity(
           activityByRepo.set(event.repo.name, current);
         }
 
-        const prSummaries = await Promise.all(
-          prFetches.map(({ prUrl }) => fetchPullRequestSummary(prUrl))
-        );
-        for (let i = 0; i < prFetches.length; i++) {
-          const summary = prSummaries[i];
-          const activity = activityByRepo.get(prFetches[i].repoName);
-          if (summary && activity) {
-            activity.additions += summary.additions ?? 0;
-            activity.deletions += summary.deletions ?? 0;
-          }
-        }
-
         for (const current of activityByRepo.values()) {
           current.score =
             current.openedPrs * 3 +
@@ -195,8 +132,7 @@ export async function getRecentGitHubActivity(
             current.reviews * 2 +
             current.reviewComments +
             current.issuesOpened +
-            current.commits +
-            Math.min(current.additions + current.deletions, 200);
+            current.commits;
         }
 
         return [...activityByRepo.values()]
