@@ -181,7 +181,7 @@ export function renderLlmsIndex(baseUrl: string): string {
     "",
     `- [Home](${base}/index.md): Overview, current work, and selected projects`,
     `- [About](${base}/about.md): Bio, experience, and appearances`,
-    `- [Projects](${base}/projects.md): Open-source work — c15t, Cookiebench, DSAR, LeadType, Joyful`,
+    `- [Projects](${base}/projects.md): Open-source work — c15t, Cookiebench, DSAR, Leadtype, Joyful`,
     `- [Connect](${base}/connect.md): Social and contact links`,
     "",
     "## More",

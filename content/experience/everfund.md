@@ -1,6 +1,6 @@
 ---
 role: "Full Stack Engineer"
-description: "Fundraising infrastructure for nonprofits. Framework migrations, white-labeled donations, design systems."
+description: "Donation platform helping nonprofits raise more money through better technology."
 logo: "/experience/everfund/logo.webp"
 company: "Everfund"
 startDate: "2023-06-01"

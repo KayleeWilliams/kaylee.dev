@@ -20,7 +20,7 @@ export const pageSeo: Record<SeoKey, { title: string; description: string }> = {
   projects: {
     title: "Projects — Kaylee Williams",
     description:
-      "Open-source tools for consent, privacy, and developer experience by Kaylee Williams at Inth: c15t, Cookiebench, DSAR, and LeadType.",
+      "Open-source tools for consent, privacy, and developer experience by Kaylee Williams at Inth: c15t, Cookiebench, DSAR, and Leadtype.",
   },
   connect: {
     title: "Connect — Kaylee Williams",
