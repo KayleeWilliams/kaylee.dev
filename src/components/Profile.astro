@@ -55,7 +55,7 @@ const iconByName = {
         </div>
       </div>
 
-      <div class="flex w-full flex-col space-y-2 border-border border-t pt-4">
+      <div class="grid w-full grid-cols-2 gap-2 border-border border-t pt-4 md:grid-cols-1">
         {
           socialConfig.map((social) => {
             const parts = social.url.split("/");
