@@ -5,6 +5,8 @@ import OSSActivity from "@/src/components/OSSActivity.astro";
 import Profile from "@/src/components/Profile.astro";
 import { pageSeo } from "@/lib/seo";
 import { type Appearance, personConfig } from "@/lib/site-config";
+import VercelAnalytics from "@vercel/analytics/astro";
+import SpeedInsights from "@vercel/speed-insights/astro";
 import { ClientRouter } from "astro:transitions";
 import "@/src/styles/globals.css";
 
@@ -158,6 +160,15 @@ const jsonLd = {
       type="application/ld+json"
       set:html={JSON.stringify(jsonLd)}
     />
+    <script
+      is:inline
+      src="https://cdn.databuddy.cc/databuddy.js"
+      data-client-id="daQ10qMML80QHRKHOxy38"
+      data-track-performance
+      data-track-web-vitals
+      data-track-errors
+      async
+    ></script>
     <ClientRouter />
   </head>
   <body class="grid-background antialiased">
@@ -165,11 +176,17 @@ const jsonLd = {
       <div class="container mx-auto max-w-(--breakpoint-lg) px-4 py-8">
         <div class="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-x-10">
           <aside
-            class="md:col-span-1 md:sticky md:top-8 md:self-start md:space-y-6"
+            class="contents md:col-span-1 md:block md:sticky md:top-8 md:self-start md:space-y-6"
             transition:persist="sidebar"
           >
             <Profile />
-            {githubUsername ? <OSSActivity username={githubUsername} /> : null}
+            {
+              githubUsername ? (
+                <div class="order-last md:order-none">
+                  <OSSActivity username={githubUsername} />
+                </div>
+              ) : null
+            }
           </aside>
           <main class="space-y-6 md:col-span-2">
             <Header />
@@ -179,5 +196,7 @@ const jsonLd = {
       </div>
     </div>
     <Footer />
+    <VercelAnalytics />
+    <SpeedInsights />
   </body>
 </html>
