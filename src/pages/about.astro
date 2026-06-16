@@ -3,6 +3,7 @@ import Icon from "@/src/components/Icon.astro";
 import BaseLayout from "@/src/layouts/BaseLayout.astro";
 import { getAllExperience } from "@/lib/get-all-experience";
 import { getSiteContent } from "@/lib/get-site-content";
+import { pageSeo } from "@/lib/seo";
 import { type Appearance, personConfig } from "@/lib/site-config";
 import { renderMarkdown } from "@/lib/render-markdown";
 import { formatDate } from "@/lib/utils/format-date";
@@ -22,8 +23,8 @@ function appearanceIcon(type: Appearance["type"]) {
 ---
 
 <BaseLayout
-  title="About — Kaylee Williams"
-  description="Kaylee Williams is a founding engineer at Inth (YC P26) and co-author of c15t, building open-source consent and privacy infrastructure for developers."
+  title={pageSeo.about.title}
+  description={pageSeo.about.description}
 >
   <header class="space-y-2">
     <h2 class="font-bold text-3xl tracking-tight">About</h2>

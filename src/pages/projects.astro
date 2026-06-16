@@ -4,6 +4,7 @@ import Icon from "@/src/components/Icon.astro";
 import BaseLayout from "@/src/layouts/BaseLayout.astro";
 import { getAllProjects } from "@/lib/get-all-projects";
 import { fetchNpmDownloads } from "@/lib/get-npm-downloads";
+import { pageSeo } from "@/lib/seo";
 import { formatDownloads } from "@/lib/utils/format-downloads";
 import { withUtm } from "@/lib/utils/utm";
 
@@ -25,8 +26,8 @@ function liveUrl(project: { url?: string; github?: string }) {
 ---
 
 <BaseLayout
-  title="Projects — Kaylee Williams"
-  description="Open-source tools for consent, privacy, and developer experience, built by Kaylee Williams at Inth: c15t, DSAR, Cookie Bench, and LeadType."
+  title={pageSeo.projects.title}
+  description={pageSeo.projects.description}
 >
   <header class="space-y-2">
     <h2 class="font-bold text-3xl tracking-tight">Projects</h2>

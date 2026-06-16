@@ -3,6 +3,7 @@ import Footer from "@/src/components/Footer.astro";
 import Header from "@/src/components/Header.astro";
 import OSSActivity from "@/src/components/OSSActivity.astro";
 import Profile from "@/src/components/Profile.astro";
+import { pageSeo } from "@/lib/seo";
 import { type Appearance, personConfig } from "@/lib/site-config";
 import { ClientRouter } from "astro:transitions";
 import "@/src/styles/globals.css";
@@ -13,8 +14,8 @@ type Props = {
 };
 
 const {
-  title = `${personConfig.name} — Founding Engineer at Inth, co-author of c15t`,
-  description = personConfig.description,
+  title = pageSeo.home.title,
+  description = pageSeo.home.description,
 } = Astro.props;
 const ogImageUrl = new URL("/opengraph-image", personConfig.siteUrl).toString();
 const originRoot = Astro.url.origin.replace(/\/+$/, "");
@@ -85,7 +86,7 @@ const jsonLd = {
       "@id": websiteId,
       url: personConfig.siteUrl,
       name: personConfig.name,
-      description: personConfig.description,
+      description: pageSeo.home.description,
       publisher: { "@id": personId },
     },
     {
@@ -122,7 +123,7 @@ const jsonLd = {
     <meta name="description" content={description} />
     <meta
       name="keywords"
-      content={`${personConfig.name}, software engineer, full-stack developer, open source, c15t, TypeScript, React`}
+      content={`${personConfig.name}, founding engineer, c15t, consent management, open source, TypeScript`}
     />
     <meta name="author" content={personConfig.name} />
     <link rel="canonical" href={canonicalUrl} />

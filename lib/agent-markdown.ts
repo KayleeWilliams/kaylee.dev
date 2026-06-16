@@ -2,45 +2,17 @@ import { getAllExperience } from "@/lib/get-all-experience";
 import { getAllProjects } from "@/lib/get-all-projects";
 import { getSiteContent } from "@/lib/get-site-content";
 import { renderPortfolioMarkdown } from "@/lib/render-portfolio-markdown";
+import { pageSeo, type SeoKey } from "@/lib/seo";
 import { type Appearance, personConfig, socialConfig } from "@/lib/site-config";
 import { formatDate } from "@/lib/utils/format-date";
 
-export type PageKey = "home" | "about" | "projects" | "connect";
+export type PageKey = SeoKey;
 
-type PageMeta = {
-  path: string;
-  mdPath: string;
-  title: string;
-  description: string;
-};
-
-const PAGES: Record<PageKey, PageMeta> = {
-  home: {
-    path: "/",
-    mdPath: "/index.md",
-    title: `${personConfig.name} — Founding Engineer at Inth, co-author of c15t`,
-    description: personConfig.description,
-  },
-  about: {
-    path: "/about",
-    mdPath: "/about.md",
-    title: "About — Kaylee Williams",
-    description:
-      "Kaylee Williams is a founding engineer at Inth (YC P26) and co-author of c15t, building open-source consent and privacy infrastructure for developers.",
-  },
-  projects: {
-    path: "/projects",
-    mdPath: "/projects.md",
-    title: "Projects — Kaylee Williams",
-    description:
-      "Open-source tools for consent, privacy, and developer experience, built by Kaylee Williams at Inth: c15t, DSAR, Cookiebench, and LeadType.",
-  },
-  connect: {
-    path: "/connect",
-    mdPath: "/connect.md",
-    title: "Connect — Kaylee Williams",
-    description: "Social and contact links for Kaylee Williams.",
-  },
+const PAGE_PATHS: Record<PageKey, { path: string; mdPath: string }> = {
+  home: { path: "/", mdPath: "/index.md" },
+  about: { path: "/about", mdPath: "/about.md" },
+  projects: { path: "/projects", mdPath: "/projects.md" },
+  connect: { path: "/connect", mdPath: "/connect.md" },
 };
 
 const normalizeBase = (base: string) => base.replace(/\/+$/, "");
@@ -48,18 +20,23 @@ const normalizeBase = (base: string) => base.replace(/\/+$/, "");
 /** Map an HTML page path to its PageKey, or null if it is not a mirrored page. */
 export function pageKeyFromPath(pathname: string): PageKey | null {
   const path = pathname.replace(/\/+$/, "") || "/";
-  const entry = (Object.entries(PAGES) as [PageKey, PageMeta][]).find(
-    ([, meta]) => meta.path === path
-  );
+  const entry = (
+    Object.entries(PAGE_PATHS) as [PageKey, { path: string }][]
+  ).find(([, meta]) => meta.path === path);
   return entry ? entry[0] : null;
 }
 
-function frontmatter(meta: PageMeta, base: string, dateModified: string): string {
+function frontmatter(
+  title: string,
+  description: string,
+  canonicalUrl: string,
+  dateModified: string
+): string {
   return [
     "---",
-    `title: "${meta.title}"`,
-    `description: "${meta.description}"`,
-    `canonical_url: "${base}${meta.path}"`,
+    `title: "${title}"`,
+    `description: "${description}"`,
+    `canonical_url: "${canonicalUrl}"`,
     `last_updated: "${dateModified}"`,
     "---",
     "",
@@ -160,7 +137,8 @@ export async function renderPageMarkdown(
   baseUrl: string
 ): Promise<string> {
   const base = normalizeBase(baseUrl);
-  const meta = PAGES[key];
+  const { path } = PAGE_PATHS[key];
+  const { title, description } = pageSeo[key];
   const dateModified = new Date().toISOString();
   const body =
     key === "home"
@@ -171,7 +149,7 @@ export async function renderPageMarkdown(
           ? await projectsBody()
           : connectBody();
 
-  return `${frontmatter(meta, base, dateModified)}${body}\n\n${sitemapSection(base)}\n`;
+  return `${frontmatter(title, description, `${base}${path}`, dateModified)}${body}\n\n${sitemapSection(base)}\n`;
 }
 
 /** 200 Markdown soft-404 for agent requests to unknown pages. */
