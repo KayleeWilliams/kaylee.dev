@@ -37,6 +37,16 @@ const repos = await getRecentGitHubActivity(username);
                   >
                     {repo.repo}
                   </a>
+                  {repo.additions || repo.deletions ? (
+                    <p class="shrink-0 font-medium text-xs">
+                      <span class="text-emerald-500">
+                        +{repo.additions.toLocaleString()}
+                      </span>{" "}
+                      <span class="text-rose-500">
+                        -{repo.deletions.toLocaleString()}
+                      </span>
+                    </p>
+                  ) : null}
                 </div>
                 <p class="mt-1 text-muted-foreground text-xs">
                   {[
