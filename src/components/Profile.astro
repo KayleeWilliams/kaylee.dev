@@ -1,70 +1,86 @@
 ---
-import { getSiteContent } from "@/lib/get-site-content";
-import { renderMarkdown } from "@/lib/render-markdown";
+import { getImage } from "astro:assets";
+import kayleeImage from "@/src/assets/kaylee.jpg";
 import { personConfig, socialConfig } from "@/lib/site-config";
+import { withUtm } from "@/lib/utils/utm";
 import Card from "./Card.astro";
 import CardContent from "./CardContent.astro";
-import FlipPhoto from "./FlipPhoto.astro";
 import Icon from "./Icon.astro";
 
-const profile = await getSiteContent("profile");
+const avatar = await getImage({
+  src: kayleeImage,
+  width: 240,
+  height: 240,
+  format: "webp",
+  quality: 82,
+});
 
 const iconByName = {
+  Bluesky: "bluesky",
   Github: "github",
   LinkedIn: "linkedin",
   Twitter: "twitter",
 } as const;
 ---
 
-{
-  profile ? (
-    <Card class="h-fit">
-      <CardContent class="pt-6">
-        <div class="flex flex-col items-start gap-2">
-          <div class="flex w-full flex-row items-center gap-4 md:flex-col md:items-start">
-            <FlipPhoto
-              class="rounded-full md:mx-auto"
-            />
-            <div class="flex flex-col items-start justify-center">
-              <h1 class="font-bold text-xl md:mt-4 md:text-2xl">
-                {personConfig.name}
-              </h1>
-              <p class="text-foreground text-sm md:text-base">
-                {personConfig.headline}
-              </p>
-            </div>
-          </div>
-          <div
-            class="markdown-content mt-2 text-start text-foreground text-sm"
-            set:html={renderMarkdown(profile.content)}
-          />
-
-          <div class="flex w-full flex-col space-y-2 border-border border-t pt-4">
-            {socialConfig.map((social) => {
-              const parts = social.url.split("/");
-              const username = parts.at(-1);
-              const icon =
-                iconByName[social.name as keyof typeof iconByName] ??
-                "external-link";
-
-              return (
-                <a
-                  aria-label={`${social.name} Logo`}
-                  class="group flex cursor-pointer items-center gap-2"
-                  href={social.url}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  <Icon class="size-4 text-violet-400" name={icon} />
-                  <p class="text-foreground text-sm transition-color duration-200 ease-linear group-hover:text-primary">
-                    {username}
-                  </p>
-                </a>
-              );
-            })}
-          </div>
+<Card class="h-fit">
+  <CardContent class="pt-6">
+    <div class="flex flex-col gap-4">
+      <div class="flex flex-row items-center gap-4 md:flex-col md:items-start">
+        <img
+          alt="Kaylee Williams"
+          class="size-16 shrink-0 rounded-full border-2 border-gray-200 object-cover object-top shadow-sm md:size-28"
+          decoding="async"
+          fetchpriority="high"
+          height="240"
+          src={avatar.src}
+          width="240"
+        />
+        <div class="space-y-1.5">
+          <h1 class="font-bold text-xl leading-tight md:text-2xl">
+            {personConfig.name}
+          </h1>
+          <p class="text-pretty text-foreground text-sm leading-snug">
+            Founding engineer at Inth (YC P26) and co-author of
+            <a
+              class="font-medium text-primary transition-colors duration-150 hover:underline"
+              href={withUtm(personConfig.primaryProjectUrl, "profile", "c15t")}
+              rel="noopener noreferrer"
+              target="_blank">c15t</a
+            >.
+          </p>
+          <p class="text-muted-foreground text-sm leading-snug">
+            Building open-source compliance infrastructure.
+          </p>
         </div>
-      </CardContent>
-    </Card>
-  ) : null
-}
+      </div>
+
+      <div class="grid w-full grid-cols-2 gap-2 border-border border-t pt-4 md:grid-cols-1">
+        {
+          socialConfig.map((social) => {
+            const parts = social.url.split("/");
+            const username = parts.at(-1);
+            const icon =
+              iconByName[social.name as keyof typeof iconByName] ??
+              "external-link";
+
+            return (
+              <a
+                aria-label={social.name}
+                class="group flex cursor-pointer items-center gap-2"
+                href={social.url}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                <Icon class="size-4 text-violet-400" name={icon} />
+                <p class="text-foreground text-sm transition-color duration-200 ease-linear group-hover:text-primary">
+                  {username}
+                </p>
+              </a>
+            );
+          })
+        }
+      </div>
+    </div>
+  </CardContent>
+</Card>

@@ -1,11 +1,12 @@
 ---
 type Props = {
   class?: string;
+  as?: keyof HTMLElementTagNameMap;
 };
 
-const { class: className = "" } = Astro.props;
+const { class: className = "", as: Tag = "div" } = Astro.props;
 ---
 
-<div class={`font-semibold text-2xl leading-none tracking-tight ${className}`}>
+<Tag class={`font-semibold text-2xl leading-none tracking-tight ${className}`}>
   <slot />
-</div>
+</Tag>

@@ -5,7 +5,8 @@ import CardContent from "@/src/components/CardContent.astro";
 import CardHeader from "@/src/components/CardHeader.astro";
 import CardTitle from "@/src/components/CardTitle.astro";
 import BaseLayout from "@/src/layouts/BaseLayout.astro";
-import { personConfig, socialConfig } from "@/lib/site-config";
+import { pageSeo } from "@/lib/seo";
+import { socialConfig } from "@/lib/site-config";
 
 const linkedInUrl = socialConfig.find(
   (social) => social.name.toLowerCase() === "linkedin"
@@ -24,15 +25,15 @@ const qrSvg = linkedInUrl
 ---
 
 <BaseLayout
-  title={`Connect | ${personConfig.name}`}
-  description={`Scan to connect with ${personConfig.name} on LinkedIn.`}
+  title={pageSeo.connect.title}
+  description={pageSeo.connect.description}
 >
   {
     linkedInUrl ? (
       <div class="mx-auto w-full max-w-md">
         <Card>
           <CardHeader>
-            <CardTitle>Connect on LinkedIn</CardTitle>
+            <CardTitle as="h2">Connect on LinkedIn</CardTitle>
             <div class="text-foreground text-sm">
               Scan this QR code to open my LinkedIn profile.
             </div>
@@ -56,7 +57,7 @@ const qrSvg = linkedInUrl
     ) : (
       <Card>
         <CardHeader>
-          <CardTitle>Connect</CardTitle>
+          <CardTitle as="h2">Connect</CardTitle>
           <div class="text-foreground text-sm">
             No LinkedIn profile is configured yet.
           </div>

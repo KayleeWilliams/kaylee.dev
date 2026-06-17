@@ -1,4 +1,5 @@
 import { withMemoryCache } from "./cache";
+import { githubHeaders } from "./github-auth";
 
 const GITHUB_URL_PATTERN = /github\.com\/([^/]+)\/([^/]+)/;
 const GIT_SUFFIX_PATTERN = /\.git$/;
@@ -22,9 +23,7 @@ export async function fetchStars(repoUrl: string): Promise<number | undefined> {
         const response = await fetch(
           `https://api.github.com/repos/${owner}/${cleanRepo}`,
           {
-            headers: {
-              Accept: "application/vnd.github.v3+json",
-            },
+            headers: githubHeaders("application/vnd.github.v3+json"),
           }
         );
 

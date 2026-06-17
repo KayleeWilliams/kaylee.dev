@@ -1,4 +1,5 @@
 import { withMemoryCache } from "./cache";
+import { githubHeaders } from "./github-auth";
 
 interface GitHubEvent {
   created_at: string;
@@ -51,9 +52,7 @@ function fetchPullRequestSummary(
   const request = (async () => {
     try {
       const response = await fetch(prApiUrl, {
-        headers: {
-          Accept: "application/vnd.github+json",
-        },
+        headers: githubHeaders(),
       });
 
       if (!response.ok) {
@@ -80,15 +79,13 @@ export async function getRecentGitHubActivity(
   return await withMemoryCache(
     `github-activity:${username}`,
     ONE_HOUR,
-    // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Preserve existing GitHub event scoring behavior during framework migration.
+    // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: GitHub event scoring.
     async () => {
       try {
         const response = await fetch(
           `https://api.github.com/users/${username}/events/public?per_page=100`,
           {
-            headers: {
-              Accept: "application/vnd.github+json",
-            },
+            headers: githubHeaders(),
           }
         );
 

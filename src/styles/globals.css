@@ -284,6 +284,12 @@ h3 {
   }
 }
 
+/* Snappier page cross-fade for view transitions (Astro's default feels slow) */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.12s;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,

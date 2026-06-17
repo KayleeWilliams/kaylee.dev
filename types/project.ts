@@ -5,7 +5,7 @@ export interface ProjectFrontmatter {
   description: string;
   featured?: boolean;
   github?: string;
-  image: string;
+  image?: string;
 
   /**
    * Display the number of stars for the repository

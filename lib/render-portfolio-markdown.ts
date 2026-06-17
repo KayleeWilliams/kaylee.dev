@@ -1,10 +1,9 @@
 import { getAllExperience } from "@/lib/get-all-experience";
 import { getAllProjects } from "@/lib/get-all-projects";
-import { getRecentGitHubActivity } from "@/lib/get-github-activity";
 import { fetchNpmDownloads } from "@/lib/get-npm-downloads";
 import { getSiteContent } from "@/lib/get-site-content";
 import { fetchStars } from "@/lib/get-stars";
-import { personConfig } from "@/lib/site-config";
+import { type Appearance, personConfig } from "@/lib/site-config";
 import { formatDate } from "@/lib/utils/format-date";
 import { formatDownloads } from "@/lib/utils/format-downloads";
 
@@ -31,13 +30,9 @@ export async function renderPortfolioMarkdown(): Promise<string> {
       : [undefined, undefined];
 
   const snapshotDate = new Date().toISOString().slice(0, 10);
-  const githubUrl = personConfig.sameAs.find((url) =>
-    url.includes("github.com/")
-  );
-  const githubUsername = githubUrl?.split("/").at(-1);
-  const contributions = githubUsername
-    ? await getRecentGitHubActivity(githubUsername)
-    : [];
+  const appearances = (
+    [...(personConfig.appearances ?? [])] as Appearance[]
+  ).sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
 
   const activeProjects = projects.filter((project) => project.active);
   const showProjectsSection =
@@ -93,31 +88,18 @@ export async function renderPortfolioMarkdown(): Promise<string> {
           ]),
         ]
       : []),
-    ...(contributions.length > 0
+    ...(appearances.length > 0
       ? [
-          "## Recent Contributions (last 30 days)",
+          "## Appearances",
           "",
-          // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Keep existing markdown metric aggregation intact during framework migration.
-          ...contributions.map((repo) => {
-            const metrics = [
-              repo.openedPrs > 0 ? `${repo.openedPrs} PR opened` : undefined,
-              repo.mergedPrs > 0 ? `${repo.mergedPrs} merged` : undefined,
-              repo.reviews > 0 ? `${repo.reviews} reviews` : undefined,
-              repo.reviewComments > 0
-                ? `${repo.reviewComments} comments`
-                : undefined,
-              repo.issuesOpened > 0 ? `${repo.issuesOpened} issues` : undefined,
-              repo.commits > 0 ? `${repo.commits} commits` : undefined,
-              repo.additions || repo.deletions
-                ? `+${repo.additions.toLocaleString()} / -${repo.deletions.toLocaleString()} lines changed`
-                : undefined,
-            ]
-              .filter(Boolean)
-              .join(" · ");
-
-            return `- [${repo.repo}](https://github.com/${repo.repo})${metrics ? ` — ${metrics}` : ""}`;
-          }),
-          "",
+          ...appearances.flatMap((item) => [
+            `### ${item.title}`,
+            "",
+            `- ${item.event}${item.date ? ` · ${formatDate(item.date, "MMM D, YYYY")}` : ""}`,
+            ...(item.url ? [`- ${item.url}`] : []),
+            ...(item.eventUrl ? [`- ${item.eventUrl}`] : []),
+            "",
+          ]),
         ]
       : []),
   ];

@@ -12,6 +12,9 @@
   "dependencies": {
     "@astrojs/vercel": "^10.0.7",
     "@tailwindcss/vite": "^4.1.18",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/functions": "^3.7.1",
+    "@vercel/speed-insights": "^2.0.0",
     "astro": "^6.4.4",
     "dayjs": "^1.11.13",
     "marked": "^16.4.2",

@@ -1,6 +1,6 @@
 ---
 title: "c15t"
-description: "Open-source consent management. Minimal bundle, full developer control, no bloat."
+description: "Open-source consent and privacy infrastructure. Minimal bundle, full developer control, no bloat."
 github: "https://github.com/c15t/c15t"
 npmPackage: "c15t"
 projectUrl: "https://c15t.com"
