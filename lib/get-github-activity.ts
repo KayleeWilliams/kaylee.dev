@@ -38,7 +38,9 @@ interface PullRequestSummary {
   deletions?: number;
 }
 
-const ONE_HOUR = 60 * 60;
+// Long TTL: the per-region Runtime Cache survives deploys, so a long-lived
+// entry keeps cold/post-deploy renders fast and background revalidations cheap.
+const CACHE_TTL = 24 * 60 * 60;
 const prCache = new Map<string, Promise<PullRequestSummary | null>>();
 
 function fetchPullRequestSummary(
@@ -78,7 +80,7 @@ export async function getRecentGitHubActivity(
 ): Promise<RepoActivity[]> {
   return await withMemoryCache(
     `github-activity:${username}`,
-    ONE_HOUR,
+    CACHE_TTL,
     // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: GitHub event scoring.
     async () => {
       try {
