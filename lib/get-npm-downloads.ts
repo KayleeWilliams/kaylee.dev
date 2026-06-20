@@ -1,6 +1,8 @@
 import { withMemoryCache } from "./cache";
 
-const ONE_HOUR = 60 * 60;
+// Monthly download totals barely move hour to hour; cache long so the Runtime
+// Cache (survives deploys) serves them without refetching on render.
+const CACHE_TTL = 24 * 60 * 60;
 
 export async function fetchNpmDownloads(
   packageName: string
@@ -8,7 +10,7 @@ export async function fetchNpmDownloads(
   try {
     return await withMemoryCache(
       `npm-downloads:${packageName}`,
-      ONE_HOUR,
+      CACHE_TTL,
       async () => {
         const response = await fetch(
           `https://api.npmjs.org/downloads/point/last-month/${packageName}`,

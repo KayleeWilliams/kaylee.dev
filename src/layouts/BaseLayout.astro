@@ -29,9 +29,13 @@ const githubUrl = personConfig.sameAs.find((url) =>
 );
 const githubUsername = githubUrl?.split("/").at(-1) ?? "";
 
+// Low-traffic personal site: cache the HTML hard at the edge and lean on
+// stale-while-revalidate so every visitor gets an instant (possibly slightly
+// stale) response while the page refreshes in the background — static feel,
+// no rebuilds. Fresh for a day, serve-stale for a month.
 Astro.response.headers.set(
   "Cache-Control",
-  "public, s-maxage=3600, stale-while-revalidate=86400"
+  "public, s-maxage=86400, stale-while-revalidate=2592000"
 );
 
 const appearances = (personConfig.appearances ?? []) as Appearance[];
