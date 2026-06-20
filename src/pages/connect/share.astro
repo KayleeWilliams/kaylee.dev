@@ -36,7 +36,7 @@ const displayUrl = connectUrl.replace(/^https?:\/\/(www\.)?/, "");
       <Pill class="-top-2.5 -right-2 rotate-[8deg]">SCAN ME</Pill>
       <div
         aria-label={`QR code linking to ${displayUrl}`}
-        class="w-full text-violet-700 [&>svg]:block [&>svg]:h-auto [&>svg]:w-full dark:text-violet-300"
+        class="w-full text-violet-700 [&>svg]:block [&>svg]:h-auto [&>svg]:w-full dark:text-violet-400"
         role="img"
         set:html={qrSvg}
       />

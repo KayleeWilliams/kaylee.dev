@@ -1,8 +1,8 @@
 ---
 role: "Founding Engineer"
 description: "Consent, data rights, and policy evidence, in code."
-logo: "/experience/inth/favicon.ico"
-logoDark: "/experience/inth/favicon.ico"
+logo: "/experience/inth/logo.webp"
+logoDark: "/experience/inth/logo.webp"
 company: "Inth"
 url: "https://inth.com"
 startDate: "2025-02-01"
