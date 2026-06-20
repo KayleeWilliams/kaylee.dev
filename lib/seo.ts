@@ -25,6 +25,6 @@ export const pageSeo: Record<SeoKey, { title: string; description: string }> = {
   connect: {
     title: "Connect — Kaylee Williams",
     description:
-      "Connect with Kaylee Williams — GitHub, LinkedIn, X, and Bluesky.",
+      "Connect with Kaylee Williams — GitHub, LinkedIn, X, Bluesky, and links to Inth and c15t.",
   },
 };

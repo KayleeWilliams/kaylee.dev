@@ -1,68 +1,209 @@
 ---
-import QRCode from "qrcode";
-import Card from "@/src/components/Card.astro";
-import CardContent from "@/src/components/CardContent.astro";
-import CardHeader from "@/src/components/CardHeader.astro";
-import CardTitle from "@/src/components/CardTitle.astro";
+import { getImage } from "astro:assets";
+import c15tLogo from "@/src/assets/c15t.png";
+import kayleeImage from "@/src/assets/kaylee.jpg";
+import Icon from "@/src/components/Icon.astro";
 import BaseLayout from "@/src/layouts/BaseLayout.astro";
 import { pageSeo } from "@/lib/seo";
-import { socialConfig } from "@/lib/site-config";
+import { personConfig, socialConfig } from "@/lib/site-config";
+import { withUtm } from "@/lib/utils/utm";
 
-const linkedInUrl = socialConfig.find(
-  (social) => social.name.toLowerCase() === "linkedin"
-)?.url;
-const qrSvg = linkedInUrl
-  ? await QRCode.toString(linkedInUrl, {
-      type: "svg",
-      color: {
-        dark: "#0A66C2",
-        light: "#FFFFFF",
-      },
-      margin: 1,
-      width: 208,
-    })
-  : "";
+const [avatar, c15tIcon] = await Promise.all([
+  getImage({
+    src: kayleeImage,
+    width: 240,
+    height: 240,
+    format: "webp",
+    quality: 82,
+  }),
+  getImage({
+    src: c15tLogo,
+    width: 96,
+    height: 96,
+    format: "webp",
+    quality: 90,
+  }),
+]);
+
+type IconName = "github" | "linkedin" | "twitter" | "bluesky";
+
+// Icon-only row, so the brand glyph IS the label. Keyed by socials.json name.
+const socialMeta: Record<string, { icon: IconName; label: string }> = {
+  Github: { icon: "github", label: "GitHub" },
+  LinkedIn: { icon: "linkedin", label: "LinkedIn" },
+  Twitter: { icon: "twitter", label: "X" },
+  Bluesky: { icon: "bluesky", label: "Bluesky" },
+};
+
+const socials = socialConfig
+  .map((social) => {
+    const meta = socialMeta[social.name];
+    return meta ? { ...meta, url: social.url } : null;
+  })
+  .filter(
+    (social): social is { icon: IconName; label: string; url: string } =>
+      social !== null
+  );
+
+type Site = {
+  label: string;
+  sub: string;
+  href: string;
+  external: boolean;
+  monogram?: string;
+  img?: { src: string; alt: string };
+};
+
+const sites: Site[] = [
+  {
+    monogram: "K",
+    label: "My Site",
+    sub: "kaylee.dev",
+    href: "/",
+    external: false,
+  },
+  {
+    img: { src: "/experience/inth/favicon.ico", alt: "Inth logo" },
+    label: "Inth",
+    sub: "inth.com",
+    href: withUtm("https://inth.com", "connect", "inth"),
+    external: true,
+  },
+  {
+    img: { src: c15tIcon.src, alt: "c15t logo" },
+    label: "c15t",
+    sub: "c15t.com",
+    href: withUtm(personConfig.primaryProjectUrl, "connect", "c15t"),
+    external: true,
+  },
+];
 ---
 
 <BaseLayout
   title={pageSeo.connect.title}
   description={pageSeo.connect.description}
+  variant="minimal"
 >
-  {
-    linkedInUrl ? (
-      <div class="mx-auto w-full max-w-md">
-        <Card>
-          <CardHeader>
-            <CardTitle as="h2">Connect on LinkedIn</CardTitle>
-            <div class="text-foreground text-sm">
-              Scan this QR code to open my LinkedIn profile.
-            </div>
-          </CardHeader>
-          <CardContent class="flex flex-col items-center gap-4">
-            <div
-              class="w-full max-w-[240px] rounded-xl bg-white p-4 shadow-xs"
-              set:html={qrSvg}
-            />
-            <a
-              class="font-medium text-primary text-sm underline-offset-2 hover:underline"
-              href={linkedInUrl}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              Open LinkedIn
-            </a>
-          </CardContent>
-        </Card>
+  <div class="flex flex-col gap-6">
+    <header
+      class="rise flex items-center gap-4 rounded-lg border border-border bg-card p-5 shadow-xs"
+    >
+      <img
+        alt="Kaylee Williams"
+        class="size-20 shrink-0 rounded-full border-2 border-gray-200 object-cover object-top shadow-sm"
+        decoding="async"
+        fetchpriority="high"
+        height="240"
+        src={avatar.src}
+        width="240"
+      />
+      <div class="min-w-0">
+        <h1 class="font-bold text-2xl leading-tight tracking-tight">
+          {personConfig.name}
+        </h1>
+        <p class="mt-1.5 text-pretty text-foreground/75 text-sm leading-snug">
+          Founding engineer at Inth (YC P26) and co-author of
+          <a
+            class="font-semibold text-primary underline-offset-2 hover:underline"
+            href={withUtm(
+              personConfig.primaryProjectUrl,
+              "connect-profile",
+              "c15t"
+            )}
+            rel="noopener noreferrer"
+            target="_blank">c15t</a
+          >.
+        </p>
       </div>
-    ) : (
-      <Card>
-        <CardHeader>
-          <CardTitle as="h2">Connect</CardTitle>
-          <div class="text-foreground text-sm">
-            No LinkedIn profile is configured yet.
-          </div>
-        </CardHeader>
-      </Card>
-    )
-  }
+    </header>
+
+    <nav
+      aria-label="Social profiles"
+      class="rise grid grid-cols-4 gap-3"
+      style="animation-delay:80ms"
+    >
+      {
+        socials.map((social) => (
+          <a
+            aria-label={social.label}
+            class="group flex aspect-square items-center justify-center rounded-lg border border-border bg-card text-foreground shadow-xs outline-none transition-[transform,border-color,background-color,color] duration-200 ease-out hover:-translate-y-0.5 hover:border-violet-300 hover:bg-violet-50 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background active:translate-y-0 dark:hover:border-violet-500/40 dark:hover:bg-violet-500/10"
+            href={social.url}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            <Icon class="size-7" name={social.icon} />
+          </a>
+        ))
+      }
+    </nav>
+
+    <ul class="flex flex-col gap-3">
+      {
+        sites.map((site, index) => (
+          <li
+            class="rise"
+            style={`animation-delay:${140 + index * 60}ms`}
+          >
+            <a
+              class="group flex items-center gap-4 rounded-lg border border-border bg-card p-3.5 shadow-xs outline-none transition-[transform,border-color,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:border-violet-300 hover:shadow-md focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background active:translate-y-0 dark:hover:border-violet-500/40"
+              href={site.href}
+              rel={site.external ? "noopener noreferrer" : undefined}
+              target={site.external ? "_blank" : undefined}
+            >
+              {site.img ? (
+                <img
+                  alt={site.img.alt}
+                  class="size-11 shrink-0 rounded-md object-cover shadow-xs"
+                  height="44"
+                  src={site.img.src}
+                  width="44"
+                />
+              ) : (
+                <span class="grid size-11 shrink-0 place-items-center rounded-md bg-violet-600 font-bold text-lg text-white shadow-xs">
+                  {site.monogram}
+                </span>
+              )}
+              <span class="min-w-0 flex-1">
+                <span class="block font-semibold leading-tight">
+                  {site.label}
+                </span>
+                <span class="block truncate text-muted-foreground text-sm">
+                  {site.sub}
+                </span>
+              </span>
+              <Icon
+                class="size-4 shrink-0 text-muted-foreground transition-[color,transform] duration-200 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-primary"
+                name="arrow-up-right"
+              />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
 </BaseLayout>
+
+<style>
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .rise {
+    opacity: 0;
+    animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rise {
+      opacity: 1;
+      animation: none;
+    }
+  }
+</style>

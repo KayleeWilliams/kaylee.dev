@@ -13,11 +13,15 @@ import "@/src/styles/globals.css";
 type Props = {
   title?: string;
   description?: string;
+  // "minimal" renders a single centered column with no sidebar, OSS graph, or
+  // nav — used by the Linktree-style /connect page.
+  variant?: "default" | "minimal";
 };
 
 const {
   title = pageSeo.home.title,
   description = pageSeo.home.description,
+  variant = "default",
 } = Astro.props;
 const ogImageUrl = new URL("/opengraph-image", personConfig.siteUrl).toString();
 const originRoot = Astro.url.origin.replace(/\/+$/, "");
@@ -175,30 +179,43 @@ const jsonLd = {
     ></script>
     <ClientRouter />
   </head>
-  <body class="grid-background antialiased">
-    <div class="min-h-screen">
-      <div class="container mx-auto max-w-(--breakpoint-lg) px-4 py-8">
-        <div class="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-x-10">
-          <aside
-            class="contents md:col-span-1 md:block md:sticky md:top-8 md:self-start md:space-y-6"
-            transition:persist="sidebar"
-          >
-            <Profile />
-            {
-              githubUsername ? (
-                <div class="order-last md:order-none">
-                  <OSSActivity username={githubUsername} />
-                </div>
-              ) : null
-            }
-          </aside>
-          <main class="space-y-6 md:col-span-2">
-            <Header />
+  <body
+    class:list={[
+      "grid-background antialiased",
+      variant === "minimal" && "flex min-h-dvh flex-col",
+    ]}
+  >
+    {
+      variant === "minimal" ? (
+        <main class="flex flex-1 flex-col justify-center px-4 py-10">
+          <div class="mx-auto w-full max-w-md">
             <slot />
-          </main>
+          </div>
+        </main>
+      ) : (
+        <div class="min-h-screen">
+          <div class="container mx-auto max-w-(--breakpoint-lg) px-4 py-8">
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-x-10">
+              <aside
+                class="contents md:col-span-1 md:block md:sticky md:top-8 md:self-start md:space-y-6"
+                transition:persist="sidebar"
+              >
+                <Profile />
+                {githubUsername ? (
+                  <div class="order-last md:order-none">
+                    <OSSActivity username={githubUsername} />
+                  </div>
+                ) : null}
+              </aside>
+              <main class="space-y-6 md:col-span-2">
+                <Header />
+                <slot />
+              </main>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      )
+    }
     <Footer />
     <VercelAnalytics />
     <SpeedInsights />

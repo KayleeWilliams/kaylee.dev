@@ -111,7 +111,9 @@ async function projectsBody(): Promise<string> {
       ...(project.stars
         ? [`- ${project.stars.toLocaleString()} GitHub stars`]
         : []),
-      ...(project.tags.length > 0 ? [`- Tags: ${project.tags.join(", ")}`] : []),
+      ...(project.tags.length > 0
+        ? [`- Tags: ${project.tags.join(", ")}`]
+        : []),
       ""
     );
   }
@@ -128,6 +130,14 @@ function connectBody(): string {
   for (const social of socialConfig) {
     lines.push(`- ${social.name}: ${social.url}`);
   }
+  lines.push(
+    "",
+    "## Explore",
+    "",
+    `- Portfolio: ${personConfig.siteUrl}`,
+    "- Inth: https://inth.com",
+    `- c15t: ${personConfig.primaryProjectUrl}`
+  );
   return lines.join("\n").trimEnd();
 }
 
@@ -235,8 +245,12 @@ export function markdownResponse(
     contentType?: string;
   } = {}
 ): Response {
-  const { base, canonicalPath, status = 200, contentType = "text/markdown" } =
-    options;
+  const {
+    base,
+    canonicalPath,
+    status = 200,
+    contentType = "text/markdown",
+  } = options;
   const headers: Record<string, string> = {
     "Content-Type": `${contentType}; charset=utf-8`,
     "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
