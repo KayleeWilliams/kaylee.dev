@@ -1,0 +1,43 @@
+---
+import QRCode from "qrcode";
+import ConnectProfile from "@/src/components/ConnectProfile.astro";
+import BaseLayout from "@/src/layouts/BaseLayout.astro";
+import { personConfig } from "@/lib/site-config";
+
+// The QR points at the public /connect linktree; this page is the presenter
+// view Kaylee holds up at events for others to scan.
+const connectUrl = `${personConfig.siteUrl}/connect`;
+const qrSvg = await QRCode.toString(connectUrl, {
+  type: "svg",
+  color: { dark: "#6d28d9", light: "#ffffff" },
+  margin: 2,
+  width: 280,
+});
+const displayUrl = connectUrl.replace(/^https?:\/\/(www\.)?/, "");
+---
+
+<BaseLayout
+  title="Scan to connect — Kaylee Williams"
+  description="Scan the QR code to open Kaylee Williams' links: GitHub, LinkedIn, X, Bluesky, Inth, and c15t."
+  variant="minimal"
+>
+  <div class="flex flex-col gap-6">
+    <ConnectProfile class="rise" />
+
+    <div
+      class="rise flex flex-col items-center gap-5 rounded-lg border border-slate-200 bg-white p-6 shadow-xs"
+      style="animation-delay:120ms"
+    >
+      <div
+        aria-label={`QR code linking to ${displayUrl}`}
+        class="w-full max-w-[280px] [&>svg]:h-auto [&>svg]:w-full"
+        role="img"
+        set:html={qrSvg}
+      />
+      <div class="text-center">
+        <p class="font-semibold text-slate-900">Scan to connect</p>
+        <p class="mt-0.5 text-slate-500 text-sm">{displayUrl}</p>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

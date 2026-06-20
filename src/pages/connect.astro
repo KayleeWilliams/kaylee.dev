@@ -2,22 +2,14 @@
 import { getImage } from "astro:assets";
 import c15tLogo from "@/src/assets/c15t.png";
 import inthLogo from "@/src/assets/inth.png";
-import kayleeImage from "@/src/assets/kaylee.jpg";
+import ConnectProfile from "@/src/components/ConnectProfile.astro";
 import Icon from "@/src/components/Icon.astro";
-import Pill from "@/src/components/Pill.astro";
 import BaseLayout from "@/src/layouts/BaseLayout.astro";
 import { pageSeo } from "@/lib/seo";
 import { personConfig, socialConfig } from "@/lib/site-config";
 import { withUtm } from "@/lib/utils/utm";
 
-const [avatar, c15tIcon, inthIcon] = await Promise.all([
-  getImage({
-    src: kayleeImage,
-    width: 240,
-    height: 240,
-    format: "webp",
-    quality: 82,
-  }),
+const [c15tIcon, inthIcon] = await Promise.all([
   getImage({
     src: c15tLogo,
     width: 96,
@@ -94,38 +86,7 @@ const sites: Site[] = [
   variant="minimal"
 >
   <div class="flex flex-col gap-6">
-    <header
-      class="rise relative flex items-center gap-4 rounded-lg border border-border bg-card p-5 shadow-xs"
-    >
-      <Pill class="-top-2.5 -right-2 rotate-[8deg]">SAY HI</Pill>
-      <img
-        alt="Kaylee Williams"
-        class="size-20 shrink-0 rounded-full border-2 border-gray-200 object-cover object-top shadow-sm"
-        decoding="async"
-        fetchpriority="high"
-        height="240"
-        src={avatar.src}
-        width="240"
-      />
-      <div class="min-w-0">
-        <h1 class="font-bold text-2xl leading-tight tracking-tight">
-          {personConfig.name}
-        </h1>
-        <p class="mt-1.5 text-pretty text-foreground/75 text-sm leading-snug">
-          Founding engineer at Inth (YC P26) and co-author of
-          <a
-            class="font-semibold text-primary underline-offset-2 hover:underline"
-            href={withUtm(
-              personConfig.primaryProjectUrl,
-              "connect-profile",
-              "c15t"
-            )}
-            rel="noopener noreferrer"
-            target="_blank">c15t</a
-          >.
-        </p>
-      </div>
-    </header>
+    <ConnectProfile class="rise" />
 
     <nav
       aria-label="Social profiles"
@@ -192,28 +153,3 @@ const sites: Site[] = [
     </ul>
   </div>
 </BaseLayout>
-
-<style>
-  @keyframes rise {
-    from {
-      opacity: 0;
-      transform: translateY(12px);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-
-  .rise {
-    opacity: 0;
-    animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .rise {
-      opacity: 1;
-      animation: none;
-    }
-  }
-</style>
