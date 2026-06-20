@@ -1,6 +1,7 @@
 ---
 import { getImage } from "astro:assets";
 import c15tLogo from "@/src/assets/c15t.png";
+import inthLogo from "@/src/assets/inth.png";
 import kayleeImage from "@/src/assets/kaylee.jpg";
 import Icon from "@/src/components/Icon.astro";
 import Pill from "@/src/components/Pill.astro";
@@ -9,7 +10,7 @@ import { pageSeo } from "@/lib/seo";
 import { personConfig, socialConfig } from "@/lib/site-config";
 import { withUtm } from "@/lib/utils/utm";
 
-const [avatar, c15tIcon] = await Promise.all([
+const [avatar, c15tIcon, inthIcon] = await Promise.all([
   getImage({
     src: kayleeImage,
     width: 240,
@@ -24,15 +25,22 @@ const [avatar, c15tIcon] = await Promise.all([
     format: "webp",
     quality: 90,
   }),
+  getImage({
+    src: inthLogo,
+    width: 96,
+    height: 96,
+    format: "webp",
+    quality: 90,
+  }),
 ]);
 
-type IconName = "github" | "linkedin" | "twitter" | "bluesky";
+type IconName = "github" | "linkedin" | "x" | "bluesky";
 
 // Icon-only row, so the brand glyph IS the label. Keyed by socials.json name.
 const socialMeta: Record<string, { icon: IconName; label: string }> = {
   Github: { icon: "github", label: "GitHub" },
   LinkedIn: { icon: "linkedin", label: "LinkedIn" },
-  Twitter: { icon: "twitter", label: "X" },
+  Twitter: { icon: "x", label: "X" },
   Bluesky: { icon: "bluesky", label: "Bluesky" },
 };
 
@@ -64,7 +72,7 @@ const sites: Site[] = [
     external: false,
   },
   {
-    img: { src: "/experience/inth/favicon.ico", alt: "Inth logo" },
+    img: { src: inthIcon.src, alt: "Inth logo" },
     label: "Inth",
     sub: "inth.com",
     href: withUtm("https://inth.com", "connect", "inth"),
