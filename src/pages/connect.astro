@@ -3,6 +3,7 @@ import { getImage } from "astro:assets";
 import c15tLogo from "@/src/assets/c15t.png";
 import kayleeImage from "@/src/assets/kaylee.jpg";
 import Icon from "@/src/components/Icon.astro";
+import Pill from "@/src/components/Pill.astro";
 import BaseLayout from "@/src/layouts/BaseLayout.astro";
 import { pageSeo } from "@/lib/seo";
 import { personConfig, socialConfig } from "@/lib/site-config";
@@ -86,8 +87,9 @@ const sites: Site[] = [
 >
   <div class="flex flex-col gap-6">
     <header
-      class="rise flex items-center gap-4 rounded-lg border border-border bg-card p-5 shadow-xs"
+      class="rise relative flex items-center gap-4 rounded-lg border border-border bg-card p-5 shadow-xs"
     >
+      <Pill class="-top-2.5 -right-2 rotate-[8deg]">IRL</Pill>
       <img
         alt="Kaylee Williams"
         class="size-20 shrink-0 rounded-full border-2 border-gray-200 object-cover object-top shadow-sm"
