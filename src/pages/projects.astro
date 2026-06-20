@@ -44,11 +44,6 @@ function liveUrl(project: { url?: string; github?: string }) {
       <Card class="border-violet-200 bg-linear-to-br from-violet-50 to-card dark:border-violet-500/30 dark:from-violet-950/20 dark:to-card">
         <div class="flex flex-col gap-4 p-6">
           <div class="flex flex-col gap-1.5">
-            {flagship.tags.length > 0 && (
-              <p class="text-muted-foreground text-xs">
-                {flagship.tags.join(" · ")}
-              </p>
-            )}
             <a
               class="group flex w-fit items-center gap-2 font-bold text-2xl text-primary"
               href={withUtm(liveUrl(flagship), "projects", flagship.slug)}
@@ -134,10 +129,7 @@ function liveUrl(project: { url?: string; github?: string }) {
               <p class="max-w-prose text-muted-foreground text-sm">
                 {project.description}
               </p>
-              <div class="flex items-center justify-between gap-4">
-                <span class="text-muted-foreground text-xs">
-                  {project.tags.join(" · ")}
-                </span>
+              <div class="flex items-center gap-4">
                 {project.github && (
                   <a
                     class="flex shrink-0 items-center gap-1.5 text-primary text-sm hover:underline"

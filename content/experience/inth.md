@@ -1,6 +1,6 @@
 ---
 role: "Founding Engineer"
-description: "Building open-source compliance infrastructure: consent, data rights, and policy evidence, in code."
+description: "Consent, data rights, and policy evidence, in code."
 logo: "/experience/inth/favicon.ico"
 logoDark: "/experience/inth/favicon.ico"
 company: "Inth"
