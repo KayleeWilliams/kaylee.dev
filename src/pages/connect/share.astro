@@ -26,16 +26,19 @@ const displayUrl = connectUrl.replace(/^https?:\/\/(www\.)?/, "");
     <ConnectProfile class="rise" pill={null} />
 
     <div
-      class="rise relative flex flex-col items-center rounded-lg border border-slate-200 bg-white p-6 shadow-xs"
+      class="rise relative flex flex-col items-center rounded-lg border border-border bg-card p-5 shadow-xs"
       style="animation-delay:120ms"
     >
       <Pill class="-top-2.5 -right-2 rotate-[8deg]">SCAN ME</Pill>
-      <div
-        aria-label={`QR code linking to ${displayUrl}`}
-        class="w-full max-w-[280px] [&>svg]:h-auto [&>svg]:w-full"
-        role="img"
-        set:html={qrSvg}
-      />
+      {/* White panel is the QR's quiet zone — dark-on-light keeps it scannable in both themes. */}
+      <div class="w-full rounded-md bg-white p-4">
+        <div
+          aria-label={`QR code linking to ${displayUrl}`}
+          class="[&>svg]:block [&>svg]:h-auto [&>svg]:w-full"
+          role="img"
+          set:html={qrSvg}
+        />
+      </div>
     </div>
   </div>
 </BaseLayout>
