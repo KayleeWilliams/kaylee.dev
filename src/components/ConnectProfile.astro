@@ -9,9 +9,11 @@ import { withUtm } from "@/lib/utils/utm";
 // QR share view can never drift apart.
 type Props = {
   class?: string;
+  // Sticker copy; pass null to drop it (e.g. the QR share view).
+  pill?: string | null;
 };
 
-const { class: className = "" } = Astro.props;
+const { class: className = "", pill = "SAY HI" } = Astro.props;
 
 const avatar = await getImage({
   src: kayleeImage,
@@ -28,7 +30,7 @@ const avatar = await getImage({
     className,
   ]}
 >
-  <Pill class="-top-2.5 -right-2 rotate-[8deg]">SAY HI</Pill>
+  {pill ? <Pill class="-top-2.5 -right-2 rotate-[8deg]">{pill}</Pill> : null}
   <img
     alt="Kaylee Williams"
     class="size-20 shrink-0 rounded-full border-2 border-gray-200 object-cover object-top shadow-sm"

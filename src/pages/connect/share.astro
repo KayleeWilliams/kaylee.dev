@@ -1,6 +1,7 @@
 ---
 import QRCode from "qrcode";
 import ConnectProfile from "@/src/components/ConnectProfile.astro";
+import Pill from "@/src/components/Pill.astro";
 import BaseLayout from "@/src/layouts/BaseLayout.astro";
 import { personConfig } from "@/lib/site-config";
 
@@ -22,22 +23,19 @@ const displayUrl = connectUrl.replace(/^https?:\/\/(www\.)?/, "");
   variant="minimal"
 >
   <div class="flex flex-col gap-6">
-    <ConnectProfile class="rise" />
+    <ConnectProfile class="rise" pill={null} />
 
     <div
-      class="rise flex flex-col items-center gap-5 rounded-lg border border-slate-200 bg-white p-6 shadow-xs"
+      class="rise relative flex flex-col items-center rounded-lg border border-slate-200 bg-white p-6 shadow-xs"
       style="animation-delay:120ms"
     >
+      <Pill class="-top-2.5 -right-2 rotate-[8deg]">SCAN ME</Pill>
       <div
         aria-label={`QR code linking to ${displayUrl}`}
         class="w-full max-w-[280px] [&>svg]:h-auto [&>svg]:w-full"
         role="img"
         set:html={qrSvg}
       />
-      <div class="text-center">
-        <p class="font-semibold text-slate-900">Scan to connect</p>
-        <p class="mt-0.5 text-slate-500 text-sm">{displayUrl}</p>
-      </div>
     </div>
   </div>
 </BaseLayout>
