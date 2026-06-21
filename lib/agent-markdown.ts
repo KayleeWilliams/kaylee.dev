@@ -15,11 +15,13 @@ const PAGE_PATHS: Record<PageKey, { path: string; mdPath: string }> = {
   connect: { path: "/connect", mdPath: "/connect.md" },
 };
 
-const normalizeBase = (base: string) => base.replace(/\/+$/, "");
+const TRAILING_SLASHES_REGEX = /\/+$/;
+const normalizeBase = (base: string) =>
+  base.replace(TRAILING_SLASHES_REGEX, "");
 
 /** Map an HTML page path to its PageKey, or null if it is not a mirrored page. */
 export function pageKeyFromPath(pathname: string): PageKey | null {
-  const path = pathname.replace(/\/+$/, "") || "/";
+  const path = pathname.replace(TRAILING_SLASHES_REGEX, "") || "/";
   const entry = (
     Object.entries(PAGE_PATHS) as [PageKey, { path: string }][]
   ).find(([, meta]) => meta.path === path);
@@ -150,14 +152,16 @@ export async function renderPageMarkdown(
   const { path } = PAGE_PATHS[key];
   const { title, description } = pageSeo[key];
   const dateModified = new Date().toISOString();
-  const body =
-    key === "home"
-      ? (await renderPortfolioMarkdown()).trim()
-      : key === "about"
-        ? await aboutBody()
-        : key === "projects"
-          ? await projectsBody()
-          : connectBody();
+  let body: string;
+  if (key === "home") {
+    body = (await renderPortfolioMarkdown()).trim();
+  } else if (key === "about") {
+    body = await aboutBody();
+  } else if (key === "projects") {
+    body = await projectsBody();
+  } else {
+    body = connectBody();
+  }
 
   return `${frontmatter(title, description, `${base}${path}`, dateModified)}${body}\n\n${sitemapSection(base)}\n`;
 }
@@ -203,7 +207,7 @@ export function renderLlmsIndex(baseUrl: string): string {
 
 /** llms-full.txt — the entire profile inlined. */
 export async function renderLlmsFull(): Promise<string> {
-  return renderPortfolioMarkdown();
+  return await renderPortfolioMarkdown();
 }
 
 /** sitemap.md — Markdown sitemap mirroring the site hierarchy. */

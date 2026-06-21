@@ -1,5 +1,7 @@
 import { renderLlmsFull } from "@/lib/agent-markdown";
 
+export const prerender = true;
+
 // /llms-full.txt — the entire profile inlined as plain text.
 export async function GET(): Promise<Response> {
   return new Response(await renderLlmsFull(), {

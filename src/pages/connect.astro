@@ -9,6 +9,8 @@ import { pageSeo } from "@/lib/seo";
 import { personConfig, socialConfig } from "@/lib/site-config";
 import { withUtm } from "@/lib/utils/utm";
 
+export const prerender = true;
+
 const [c15tIcon, inthIcon] = await Promise.all([
   getImage({
     src: c15tLogo,

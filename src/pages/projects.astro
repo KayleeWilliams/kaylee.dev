@@ -8,6 +8,8 @@ import { pageSeo } from "@/lib/seo";
 import { formatDownloads } from "@/lib/utils/format-downloads";
 import { withUtm } from "@/lib/utils/utm";
 
+export const prerender = true;
+
 const projects = await getAllProjects({ includeStars: true });
 const active = projects.filter((project) => project.active);
 const flagship = active.find((project) => project.featured) ?? active[0];

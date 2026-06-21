@@ -14,6 +14,8 @@ const AI_BOTS = [
   "CCBot",
 ];
 
+export const prerender = true;
+
 export function GET(): Response {
   const body = [
     "User-agent: *",

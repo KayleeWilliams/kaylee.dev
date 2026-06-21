@@ -1,4 +1,5 @@
 import { withMemoryCache } from "./cache";
+import { STAR_SNAPSHOTS } from "./data-snapshots";
 import { githubHeaders } from "./github-auth";
 
 const GITHUB_URL_PATTERN = /github\.com\/([^/]+)\/([^/]+)/;
@@ -17,9 +18,11 @@ export async function fetchStars(repoUrl: string): Promise<number | undefined> {
 
     const [, owner, repo] = match;
     const cleanRepo = repo.replace(GIT_SUFFIX_PATTERN, "");
+    const repoKey = `${owner}/${cleanRepo}`;
+    const fallback = STAR_SNAPSHOTS[repoKey.toLowerCase()];
 
     return await withMemoryCache(
-      `github-stars:${owner}/${cleanRepo}`,
+      `github-stars:${repoKey}`,
       CACHE_TTL,
       async () => {
         const response = await fetch(
@@ -35,7 +38,8 @@ export async function fetchStars(repoUrl: string): Promise<number | undefined> {
 
         const data = await response.json();
         return data.stargazers_count;
-      }
+      },
+      fallback ? { fallback } : undefined
     );
   } catch {
     return;

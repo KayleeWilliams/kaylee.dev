@@ -1,6 +1,8 @@
 import type { APIContext } from "astro";
 import { renderLlmsIndex } from "@/lib/agent-markdown";
 
+export const prerender = true;
+
 // /llms.txt — concise index (llmstxt.org format) linking the Markdown mirrors.
 export function GET({ url }: APIContext): Response {
   return new Response(renderLlmsIndex(url.origin), {
