@@ -1,7 +1,11 @@
 import type { APIContext } from "astro";
 
+export const prerender = true;
+
+const TRAILING_SLASHES_REGEX = /\/+$/;
+
 export function GET({ url }: APIContext): Response {
-  const base = url.origin.replace(/\/+$/, "");
+  const base = url.origin.replace(TRAILING_SLASHES_REGEX, "");
   const now = new Date().toISOString();
   const routes = [
     { path: "/", priority: "1" },

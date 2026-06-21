@@ -5,6 +5,10 @@ interface CacheEntry<T> {
   value: T;
 }
 
+interface CacheOptions<T> {
+  fallback?: T;
+}
+
 const memory = new Map<string, CacheEntry<unknown>>();
 const inflight = new Map<string, Promise<unknown>>();
 
@@ -15,6 +19,12 @@ const RUNTIME_TAG = "github-data";
 
 function isEmpty(value: unknown): boolean {
   return value == null || (Array.isArray(value) && value.length === 0);
+}
+
+function hasFallback<T>(
+  options: CacheOptions<T> | undefined
+): options is { fallback: T } {
+  return options != null && "fallback" in options;
 }
 
 // Vercel Runtime Cache: per-region, shared across instances, survives cold
@@ -30,7 +40,7 @@ function runtimeCache() {
   }
 }
 
-async function load<T>(
+function load<T>(
   key: string,
   ttlSeconds: number,
   loader: () => Promise<T>
@@ -96,10 +106,11 @@ async function load<T>(
  * cold miss → await. Concurrent calls for a key share one in-flight request,
  * and failed/empty results expire quickly so they self-heal.
  */
-export async function withMemoryCache<T>(
+export function withMemoryCache<T>(
   key: string,
   ttlSeconds: number,
-  loader: () => Promise<T>
+  loader: () => Promise<T>,
+  options?: CacheOptions<T>
 ): Promise<T> {
   const cached = memory.get(key) as CacheEntry<T> | undefined;
 
@@ -108,10 +119,17 @@ export async function withMemoryCache<T>(
   }
 
   if (cached) {
-    void load(key, ttlSeconds, loader).catch(() => {
+    load(key, ttlSeconds, loader).catch(() => {
       /* keep serving stale on failure */
     });
     return cached.value;
+  }
+
+  if (hasFallback(options)) {
+    load(key, ttlSeconds, loader).catch(() => {
+      /* keep serving the local snapshot on failure */
+    });
+    return options.fallback;
   }
 
   return load(key, ttlSeconds, loader);

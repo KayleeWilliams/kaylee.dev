@@ -8,6 +8,8 @@ import { type Appearance, personConfig } from "@/lib/site-config";
 import { renderMarkdown } from "@/lib/render-markdown";
 import { formatDate } from "@/lib/utils/format-date";
 
+export const prerender = true;
+
 const [about, experience] = await Promise.all([
   getSiteContent("about"),
   getAllExperience(),

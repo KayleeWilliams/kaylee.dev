@@ -19,6 +19,10 @@ function isPageLike(pathname: string): boolean {
 // via `Accept: text/markdown` or an AI User-Agent. Unknown pages get a 200
 // Markdown soft-404 (agents discard 404 bodies).
 export const onRequest = defineMiddleware(async (context, next) => {
+  if (context.isPrerendered) {
+    return next();
+  }
+
   const accept = context.request.headers.get("accept") ?? "";
   const userAgent = context.request.headers.get("user-agent") ?? "";
   const wantsMarkdown =

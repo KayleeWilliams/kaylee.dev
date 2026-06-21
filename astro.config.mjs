@@ -9,6 +9,7 @@ const adapter =
     : vercel();
 
 export default defineConfig({
+  site: "https://www.kaylee.dev",
   output: "server",
   adapter,
   // /connect is the canonical page; /contact is a permanent alias so anyone

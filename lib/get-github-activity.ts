@@ -1,4 +1,5 @@
 import { withMemoryCache } from "./cache";
+import { GITHUB_ACTIVITY_SNAPSHOTS } from "./data-snapshots";
 import { githubHeaders } from "./github-auth";
 
 interface GitHubEvent {
@@ -78,6 +79,8 @@ function fetchPullRequestSummary(
 export async function getRecentGitHubActivity(
   username: string
 ): Promise<RepoActivity[]> {
+  const fallback = GITHUB_ACTIVITY_SNAPSHOTS[username];
+
   return await withMemoryCache(
     `github-activity:${username}`,
     CACHE_TTL,
@@ -208,6 +211,7 @@ export async function getRecentGitHubActivity(
       } catch {
         return [];
       }
-    }
+    },
+    fallback ? { fallback } : undefined
   );
 }
