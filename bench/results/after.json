@@ -1,0 +1,340 @@
+{
+  "label": "after",
+  "env": {
+    "node": "v24.14.0",
+    "astro": "7.0.0",
+    "adapterNode": "11.0.0",
+    "adapterVercel": "11.0.0",
+    "tailwindVite": "4.3.0",
+    "os": "darwin arm64"
+  },
+  "config": {
+    "BUILD_RUNS": 5,
+    "LH_RUNS": 3
+  },
+  "build": {
+    "runsMs": [
+      1722.1421249999999,
+      1558.4984169999998,
+      1774.4160419999998,
+      1449.4165410000005,
+      1601.600375
+    ],
+    "minMs": 1449.4165410000005,
+    "medianMs": 1601.600375
+  },
+  "dist": {
+    "totalBytes": 1182678,
+    "totalFiles": 44,
+    "server": {
+      "totalBytes": 506776,
+      "files": 17
+    },
+    "client": {
+      "totalBytes": 675902,
+      "files": 27,
+      "jsBytes": 15656,
+      "cssBytes": 63816
+    },
+    "byExt": {
+      ".md": 8623,
+      ".css": 63816,
+      ".js": 15656,
+      ".webp": 16516,
+      ".jpg": 29203,
+      ".html": 105356,
+      ".jpeg": 416044,
+      ".ico": 15406,
+      ".txt": 3519,
+      "(none)": 1175,
+      ".xml": 588,
+      ".mjs": 506776
+    }
+  },
+  "runtime": {
+    "lighthouseVersion": "12.8.2",
+    "preset": "desktop",
+    "pages": [
+      {
+        "name": "Home",
+        "path": "/",
+        "runs": [
+          {
+            "performanceScore": 100,
+            "fcp": 323.8111,
+            "lcp": 363.8111,
+            "tbt": 0,
+            "cls": 0.002352960663860588,
+            "speedIndex": 323.8111,
+            "tti": 363.8111,
+            "maxFid": 16,
+            "ttfb": 0.882,
+            "totalByteWeight": 109208,
+            "domSize": 101,
+            "mainThreadWork": 177.66900000000055,
+            "bootupTime": 26.933000000000057,
+            "requests": 8
+          },
+          {
+            "performanceScore": 100,
+            "fcp": 322.7227,
+            "lcp": 362.7227,
+            "tbt": 0,
+            "cls": 0.002352960663860588,
+            "speedIndex": 322.7227,
+            "tti": 362.72270000000003,
+            "maxFid": 16,
+            "ttfb": 0.704,
+            "totalByteWeight": 109207,
+            "domSize": 101,
+            "mainThreadWork": 125.96299999999982,
+            "bootupTime": 19.77399999999996,
+            "requests": 8
+          },
+          {
+            "performanceScore": 100,
+            "fcp": 321.8224,
+            "lcp": 464.9756,
+            "tbt": 0,
+            "cls": 0,
+            "speedIndex": 321.8224,
+            "tti": 464.9756,
+            "maxFid": 16,
+            "ttfb": 0.576,
+            "totalByteWeight": 109207,
+            "domSize": 101,
+            "mainThreadWork": 108.03799999999998,
+            "bootupTime": 1.5369999999999997,
+            "requests": 8
+          }
+        ],
+        "metrics": {
+          "performanceScore": 100,
+          "fcp": 322.7227,
+          "lcp": 363.8111,
+          "tbt": 0,
+          "cls": 0.002352960663860588,
+          "speedIndex": 322.7227,
+          "tti": 363.8111,
+          "maxFid": 16,
+          "ttfb": 0.704,
+          "totalByteWeight": 109207,
+          "domSize": 101,
+          "mainThreadWork": 125.96299999999982,
+          "bootupTime": 19.77399999999996,
+          "requests": 8
+        }
+      },
+      {
+        "name": "About",
+        "path": "/about",
+        "runs": [
+          {
+            "performanceScore": 100,
+            "fcp": 327.9225,
+            "lcp": 471.07045,
+            "tbt": 0,
+            "cls": 0,
+            "speedIndex": 327.9225,
+            "tti": 471.07045000000005,
+            "maxFid": 16,
+            "ttfb": 0.9490000000000001,
+            "totalByteWeight": 116475,
+            "domSize": 139,
+            "mainThreadWork": 170.88600000000005,
+            "bootupTime": 19.298999999999953,
+            "requests": 10
+          },
+          {
+            "performanceScore": 100,
+            "fcp": 324.0374,
+            "lcp": 468.2318,
+            "tbt": 0,
+            "cls": 0.004140434664653882,
+            "speedIndex": 324.0374,
+            "tti": 468.2318000000001,
+            "maxFid": 16,
+            "ttfb": 1.8659999999999999,
+            "totalByteWeight": 116476,
+            "domSize": 139,
+            "mainThreadWork": 205.09300000000047,
+            "bootupTime": 28.91500000000005,
+            "requests": 10
+          },
+          {
+            "performanceScore": 100,
+            "fcp": 327.4297,
+            "lcp": 471.70285,
+            "tbt": 0,
+            "cls": 0,
+            "speedIndex": 327.4297,
+            "tti": 471.70285,
+            "maxFid": 16,
+            "ttfb": 0.504,
+            "totalByteWeight": 116476,
+            "domSize": 139,
+            "mainThreadWork": 171.60900000000106,
+            "bootupTime": 19.347999999999978,
+            "requests": 10
+          }
+        ],
+        "metrics": {
+          "performanceScore": 100,
+          "fcp": 327.4297,
+          "lcp": 471.07045,
+          "tbt": 0,
+          "cls": 0,
+          "speedIndex": 327.4297,
+          "tti": 471.07045000000005,
+          "maxFid": 16,
+          "ttfb": 0.9490000000000001,
+          "totalByteWeight": 116476,
+          "domSize": 139,
+          "mainThreadWork": 171.60900000000106,
+          "bootupTime": 19.347999999999978,
+          "requests": 10
+        }
+      },
+      {
+        "name": "Projects",
+        "path": "/projects",
+        "runs": [
+          {
+            "performanceScore": 100,
+            "fcp": 321.7385,
+            "lcp": 323.7385,
+            "tbt": 0,
+            "cls": 0,
+            "speedIndex": 321.7385,
+            "tti": 323.7385,
+            "maxFid": 16,
+            "ttfb": 0.831,
+            "totalByteWeight": 116253,
+            "domSize": 136,
+            "mainThreadWork": 182.4440000000003,
+            "bootupTime": 22.297999999999973,
+            "requests": 8
+          },
+          {
+            "performanceScore": 100,
+            "fcp": 322.0021,
+            "lcp": 476.44894999999997,
+            "tbt": 0,
+            "cls": 0.00432419969897776,
+            "speedIndex": 322.0021,
+            "tti": 476.44894999999997,
+            "maxFid": 16,
+            "ttfb": 0.525,
+            "totalByteWeight": 116253,
+            "domSize": 136,
+            "mainThreadWork": 198.46500000000026,
+            "bootupTime": 25.781999999999982,
+            "requests": 8
+          },
+          {
+            "performanceScore": 100,
+            "fcp": 321.6425,
+            "lcp": 323.6425,
+            "tbt": 0,
+            "cls": 0,
+            "speedIndex": 321.6425,
+            "tti": 323.64250000000004,
+            "maxFid": 16,
+            "ttfb": 0.493,
+            "totalByteWeight": 116252,
+            "domSize": 136,
+            "mainThreadWork": 146.39499999999998,
+            "bootupTime": 18.820999999999998,
+            "requests": 8
+          }
+        ],
+        "metrics": {
+          "performanceScore": 100,
+          "fcp": 321.7385,
+          "lcp": 323.7385,
+          "tbt": 0,
+          "cls": 0,
+          "speedIndex": 321.7385,
+          "tti": 323.7385,
+          "maxFid": 16,
+          "ttfb": 0.525,
+          "totalByteWeight": 116253,
+          "domSize": 136,
+          "mainThreadWork": 182.4440000000003,
+          "bootupTime": 22.297999999999973,
+          "requests": 8
+        }
+      },
+      {
+        "name": "Connect",
+        "path": "/connect",
+        "runs": [
+          {
+            "performanceScore": 100,
+            "fcp": 322.6478,
+            "lcp": 480.9967,
+            "tbt": 0,
+            "cls": 0,
+            "speedIndex": 347.92388034443206,
+            "tti": 480.9967,
+            "maxFid": 16,
+            "ttfb": 3.057,
+            "totalByteWeight": 109573,
+            "domSize": 69,
+            "mainThreadWork": 158.23799999999946,
+            "bootupTime": 21.001000000000015,
+            "requests": 10
+          },
+          {
+            "performanceScore": 100,
+            "fcp": 327.7762,
+            "lcp": 366.7762,
+            "tbt": 0,
+            "cls": 0,
+            "speedIndex": 327.7762,
+            "tti": 367.0762000000001,
+            "maxFid": 16,
+            "ttfb": 0.5730000000000001,
+            "totalByteWeight": 109572,
+            "domSize": 69,
+            "mainThreadWork": 124.36399999999972,
+            "bootupTime": 15.320999999999968,
+            "requests": 10
+          },
+          {
+            "performanceScore": 100,
+            "fcp": 326.5773,
+            "lcp": 463.65635,
+            "tbt": 0,
+            "cls": 0,
+            "speedIndex": 326.5773,
+            "tti": 463.65635,
+            "maxFid": 16,
+            "ttfb": 0.471,
+            "totalByteWeight": 109572,
+            "domSize": 69,
+            "mainThreadWork": 123.8699999999997,
+            "bootupTime": 15.06499999999997,
+            "requests": 10
+          }
+        ],
+        "metrics": {
+          "performanceScore": 100,
+          "fcp": 326.5773,
+          "lcp": 463.65635,
+          "tbt": 0,
+          "cls": 0,
+          "speedIndex": 327.7762,
+          "tti": 463.65635,
+          "maxFid": 16,
+          "ttfb": 0.5730000000000001,
+          "totalByteWeight": 109572,
+          "domSize": 69,
+          "mainThreadWork": 124.36399999999972,
+          "bootupTime": 15.320999999999968,
+          "requests": 10
+        }
+      }
+    ]
+  }
+}
