@@ -1,0 +1,10 @@
+{
+  "name": "portfolio-bench",
+  "private": true,
+  "type": "module",
+  "description": "Isolated benchmark harness (kept out of the app's dependency graph).",
+  "dependencies": {
+    "chrome-launcher": "^1.1.2",
+    "lighthouse": "^12.8.2"
+  }
+}
