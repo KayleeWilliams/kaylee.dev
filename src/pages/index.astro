@@ -1,12 +1,20 @@
 ---
+import GitHubContributionGraph from "@/src/components/GitHubContributionGraph.astro";
 import Hero from "@/src/components/Hero.astro";
 import Stats from "@/src/components/Stats.astro";
 import BaseLayout from "@/src/layouts/BaseLayout.astro";
+import { personConfig } from "@/lib/site-config";
 
 export const prerender = true;
+
+const githubUrl = personConfig.sameAs.find((url) =>
+  url.includes("github.com/")
+);
+const githubUsername = githubUrl?.split("/").at(-1);
 ---
 
 <BaseLayout>
   <Hero />
   <Stats />
+  {githubUsername ? <GitHubContributionGraph username={githubUsername} /> : null}
 </BaseLayout>
