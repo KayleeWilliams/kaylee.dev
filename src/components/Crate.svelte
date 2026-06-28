@@ -73,7 +73,7 @@ function fitHeading() {
   title.style.fontSize = "";
   let size = Number.parseFloat(getComputedStyle(title).fontSize);
   let guard = 0;
-  while (box.scrollHeight > box.clientHeight && size > 15 && guard < 60) {
+  while (box.scrollHeight > box.clientHeight && size > 11 && guard < 80) {
     size -= 1;
     title.style.fontSize = `${size}px`;
     guard += 1;
@@ -769,7 +769,11 @@ $effect(() => {
   }
 
   .heading {
+    /* Fixed height on every layout so the title font scales to fit and the
+       chips, Discogs link and cover wall never shift. */
     width: 100%;
+    height: clamp(6.25rem, 20vw, 8.5rem);
+    overflow: hidden;
   }
 
   .now-artist {
