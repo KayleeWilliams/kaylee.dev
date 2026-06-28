@@ -413,11 +413,14 @@ $effect(() => {
          of any length — even a 7-line one — can never move the prev/next
          buttons. The title grows downward into otherwise-empty space. */
       align-items: start;
-      gap: clamp(1.5rem, 4vw, 3rem);
+      /* generous gap BETWEEN the columns, tight gap DOWN to the cover wall */
+      column-gap: clamp(1.5rem, 4vw, 3rem);
+      row-gap: 1.25rem;
     }
     .crate.split .stage {
       order: 1;
-      height: clamp(280px, 34vw, 380px);
+      /* tighter around the coverflow so the card isn't mostly empty space */
+      height: clamp(250px, 26vw, 300px);
     }
     .crate.split .info {
       order: 0;
@@ -450,10 +453,12 @@ $effect(() => {
       width: clamp(140px, 22vw, 240px);
       height: clamp(140px, 22vw, 240px);
     }
-    /* The cover wall spans the full width beneath the meta|artwork row. */
+    /* The cover wall spans the full width beneath the meta|artwork row; the
+       grid row-gap above already spaces it, so drop the stacked margin. */
     .crate.split .wall {
       grid-column: 1 / -1;
       order: 2;
+      margin-top: 0;
     }
   }
 
