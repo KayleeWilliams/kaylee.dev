@@ -329,7 +329,6 @@ $effect(() => {
     </div>
   {/if}
 
-  <p class="hint" aria-hidden="true">Drag to flip · scroll · or use ← →</p>
   </div>
 
   <div class="wall">
@@ -377,7 +376,6 @@ $effect(() => {
     --sleeve-shadow: 0 1px 1px rgba(15, 23, 42, 0.18),
       0 18px 34px -16px rgba(30, 17, 64, 0.5);
     --disc-core: var(--card);
-    --hint: var(--muted-foreground);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -436,10 +434,6 @@ $effect(() => {
       margin-top: 0;
       max-width: none;
       text-align: left;
-    }
-    .crate.split .hint {
-      order: 2;
-      margin-top: 0.9rem;
     }
     .crate.split .chips {
       justify-content: flex-start;
@@ -810,13 +804,6 @@ $effect(() => {
     outline: 2px solid var(--primary);
     outline-offset: 3px;
     border-radius: 6px;
-  }
-
-  .hint {
-    margin-top: 1.6rem;
-    font-size: 0.78rem;
-    color: var(--hint);
-    letter-spacing: 0.01em;
   }
 
   .wall {
