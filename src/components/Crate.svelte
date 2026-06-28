@@ -28,6 +28,7 @@ let reduceMotion = $state(false);
 let snapInstant = $state(false);
 
 let stageEl: HTMLDivElement;
+let headingEl: HTMLDivElement;
 let startX = 0;
 let moved = false;
 let started = false;
@@ -58,6 +59,25 @@ function setActive(next: number) {
 // Just the medium: "LP, Album" → "LP", "12\", 45 RPM, Single" → "12\"".
 function shortFormat(record: ClientRecord): string {
   return (record.formatDetail ?? record.format).split(",")[0].trim();
+}
+
+// Scale the title down so the artist + title always fit a fixed-height box,
+// keeping everything below (chips, link, cover wall) from shifting as titles
+// change length. No-op when the heading isn't height-constrained (mobile).
+function fitHeading() {
+  const box = headingEl;
+  const title = box?.querySelector(".now-title") as HTMLElement | null;
+  if (!(box && title)) {
+    return;
+  }
+  title.style.fontSize = "";
+  let size = Number.parseFloat(getComputedStyle(title).fontSize);
+  let guard = 0;
+  while (box.scrollHeight > box.clientHeight && size > 15 && guard < 60) {
+    size -= 1;
+    title.style.fontSize = `${size}px`;
+    guard += 1;
+  }
 }
 
 function itemStyle(index: number): string {
@@ -196,6 +216,19 @@ $effect(() => {
     }
   };
 });
+
+// Refit the title whenever the record changes.
+$effect(() => {
+  void current?.id;
+  fitHeading();
+});
+
+// Refit on viewport resize (column width changes how the title wraps).
+$effect(() => {
+  const onResize = () => fitHeading();
+  window.addEventListener("resize", onResize);
+  return () => window.removeEventListener("resize", onResize);
+});
 </script>
 
 <!-- Key handling is delegated to the wrapper so the arrow keys work whether the
@@ -306,8 +339,10 @@ $effect(() => {
 
   {#if current}
     <div class="details">
-      <p class="now-artist">{current.artist}</p>
-      <p class="now-title">{current.title}</p>
+      <div class="heading" bind:this={headingEl}>
+        <p class="now-artist">{current.artist}</p>
+        <p class="now-title">{current.title}</p>
+      </div>
       <div class="chips">
         {#if current.year}<span class="chip">{current.year}</span>{/if}
         <span class="chip chip-format">{shortFormat(current)}</span>
@@ -434,6 +469,12 @@ $effect(() => {
       margin-top: 0;
       max-width: none;
       text-align: left;
+    }
+    /* Fixed-height heading: the title font scales (in JS) to fit, so the chips,
+       Discogs link and cover wall never shift as titles change length. */
+    .crate.split .heading {
+      height: 8.5rem;
+      overflow: hidden;
     }
     .crate.split .chips {
       justify-content: flex-start;
@@ -725,6 +766,10 @@ $effect(() => {
     margin-top: 1.6rem;
     margin-inline: auto;
     text-align: center;
+  }
+
+  .heading {
+    width: 100%;
   }
 
   .now-artist {
