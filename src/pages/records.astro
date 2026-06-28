@@ -1,0 +1,117 @@
+---
+import { getImage } from "astro:assets";
+import kayleeImage from "@/src/assets/kaylee.jpg";
+import Crate from "@/src/components/Crate.svelte";
+import Nav from "@/src/components/Nav.astro";
+import ThemeSwitcher from "@/src/components/ThemeSwitcher.astro";
+import BaseLayout from "@/src/layouts/BaseLayout.astro";
+import {
+  getDiscogsCollection,
+  toClientRecords,
+} from "@/lib/get-discogs-collection";
+import { personConfig } from "@/lib/site-config";
+
+// Server-rendered (not prerendered) so the crate refreshes as records get added
+// without a redeploy. The data layer + edge SWR headers keep it instant.
+export const prerender = false;
+
+const collection = await getDiscogsCollection(personConfig.discogsUsername);
+const records = collection ? toClientRecords(collection.records) : [];
+const hasRecords = records.length > 0;
+
+const collectionUrl = `https://www.discogs.com/user/${personConfig.discogsUsername}/collection`;
+
+const avatar = await getImage({
+  src: kayleeImage,
+  width: 240,
+  height: 240,
+  format: "webp",
+  quality: 82,
+});
+
+const title = `The Crate — ${personConfig.name}`;
+const description =
+  "Records and CDs I actually own, pulled live from my Discogs collection.";
+---
+
+<BaseLayout description={description} title={title} variant="immersive">
+  {/* Dedicated layout for this page: a compact identity card + nav share one
+      row (matching gaps), with the crate full-width below. */}
+  <header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+    <a
+      class="group flex h-14 shrink-0 items-center gap-2.5 rounded-lg border border-border bg-card px-3 text-card-foreground shadow-xs transition-colors duration-150 hover:border-violet-300 dark:hover:border-violet-500/40"
+      href="/"
+    >
+      <img
+        alt="Kaylee Williams"
+        class="size-9 shrink-0 rounded-full border border-border object-cover object-top"
+        decoding="async"
+        height="240"
+        src={avatar.src}
+        width="240"
+      />
+      <span class="leading-tight">
+        <span class="block whitespace-nowrap font-bold text-foreground text-sm">
+          {personConfig.name}
+        </span>
+        <span
+          class="block whitespace-nowrap text-muted-foreground text-xs"
+        >
+          {personConfig.jobTitle} @ Inth · Co-author of c15t
+        </span>
+      </span>
+    </a>
+
+    <div class="flex flex-1 items-center gap-2 sm:gap-4">
+      <div
+        class="flex h-14 flex-1 items-center rounded-lg border border-border bg-card px-2 text-card-foreground shadow-xs"
+      >
+        <Nav />
+      </div>
+      <ThemeSwitcher />
+    </div>
+  </header>
+
+  <main class="mt-6">
+    <h1 class="sr-only">The Crate</h1>
+    {
+      hasRecords ? (
+        <Crate client:load records={records} split />
+      ) : (
+        <div class="rounded-2xl border border-border bg-card px-6 py-12 text-center">
+          <div
+            aria-hidden="true"
+            class="mx-auto grid size-14 place-items-center rounded-full bg-violet-500/10"
+          >
+            <svg class="size-7 text-primary" fill="none" viewBox="0 0 24 24">
+              <circle
+                cx="12"
+                cy="12"
+                r="9"
+                stroke="currentColor"
+                stroke-width="1.6"
+              />
+              <circle cx="12" cy="12" r="2.4" fill="currentColor" />
+            </svg>
+          </div>
+          <p class="mt-4 font-bold text-foreground text-lg">
+            The crate's being restocked
+          </p>
+          <p class="mt-2 text-muted-foreground text-sm">
+            My records aren't loading right now. You can flip through the whole
+            collection on{" "}
+            <a
+              class="font-medium text-primary hover:underline"
+              href={collectionUrl}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Discogs
+            </a>{" "}
+            in the meantime.
+          </p>
+        </div>
+      )
+    }
+  </main>
+</BaseLayout>

@@ -35,8 +35,40 @@ const currentYear = new Date().getFullYear();
         <Icon class="size-4" name="github" />
         <span>View Source</span>
       </a>
-      <span>·</span>
+      <a
+        aria-label="Dig through my record crate"
+        class="vinyl-wink transition-colors duration-150 hover:text-primary"
+        href="/records"
+      >
+        <svg class="vinyl size-3.5" fill="none" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="9.2" stroke="currentColor" stroke-width="1.4" />
+          <circle
+            cx="12"
+            cy="12"
+            opacity="0.55"
+            r="5.4"
+            stroke="currentColor"
+            stroke-width="0.9"
+          />
+          <circle cx="12" cy="12" fill="currentColor" r="2.1" />
+        </svg>
+      </a>
       <p>© {currentYear} {personConfig.name}</p>
     </div>
   </div>
 </footer>
+
+<style>
+  /* Earned whimsy: the record only spins for whoever bothers to hover it. */
+  .vinyl {
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .vinyl-wink:hover .vinyl {
+    animation: vinyl-wink-spin 4.5s linear infinite;
+  }
+  @keyframes vinyl-wink-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+</style>
