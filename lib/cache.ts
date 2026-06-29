@@ -115,21 +115,21 @@ export function withMemoryCache<T>(
   const cached = memory.get(key) as CacheEntry<T> | undefined;
 
   if (cached && cached.expiresAt > Date.now()) {
-    return cached.value;
+    return Promise.resolve(cached.value);
   }
 
   if (cached) {
     load(key, ttlSeconds, loader).catch(() => {
       /* keep serving stale on failure */
     });
-    return cached.value;
+    return Promise.resolve(cached.value);
   }
 
   if (hasFallback(options)) {
     load(key, ttlSeconds, loader).catch(() => {
       /* keep serving the local snapshot on failure */
     });
-    return options.fallback;
+    return Promise.resolve(options.fallback);
   }
 
   return load(key, ttlSeconds, loader);
