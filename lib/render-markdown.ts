@@ -10,9 +10,3 @@ export function renderMarkdown(content: string): string {
     async: false,
   }) as string;
 }
-
-export function renderInlineMarkdown(content: string): string {
-  return marked.parseInline(content, {
-    async: false,
-  }) as string;
-}

@@ -2,7 +2,7 @@ import { withMemoryCache } from "./cache";
 
 type ContributionLevel = 0 | 1 | 2 | 3 | 4;
 
-export interface GitHubContributionDay {
+interface GitHubContributionDay {
   count: number;
   date: string;
   level: ContributionLevel;
