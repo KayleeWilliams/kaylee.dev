@@ -39,7 +39,7 @@ const description =
       row (matching gaps), with the crate full-width below. */}
   <header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
     <a
-      class="group flex h-14 shrink-0 items-center gap-2.5 rounded-lg border border-border bg-card px-3 text-card-foreground shadow-xs transition-colors duration-150 hover:border-violet-300 dark:hover:border-violet-500/40"
+      class="group flex min-h-14 shrink-0 items-center gap-2.5 rounded-lg border border-border bg-card px-3 py-2 text-card-foreground shadow-xs transition-colors duration-150 hover:border-violet-300 dark:hover:border-violet-500/40"
       href="/"
     >
       <img
@@ -54,10 +54,8 @@ const description =
         <span class="block whitespace-nowrap font-bold text-foreground text-sm">
           {personConfig.name}
         </span>
-        <span
-          class="block whitespace-nowrap text-muted-foreground text-xs"
-        >
-          {personConfig.jobTitle} @ Inth · Co-author of c15t
+        <span class="block max-w-[13.5rem] text-balance text-muted-foreground text-xs">
+          {personConfig.bio}
         </span>
       </span>
     </a>
