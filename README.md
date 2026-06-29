@@ -21,7 +21,7 @@ It's a personal site — the live version is the real story. This is just how it
 
 [![Svelte](https://shieldcn.dev/badge/Svelte-5-FF3E00.svg?logo=svelte)](https://svelte.dev)
 [![Tailwind CSS](https://shieldcn.dev/badge/Tailwind_CSS-4-38BDF8.svg?logo=tailwindcss)](https://tailwindcss.com)
-[![TypeScript](https://shieldcn.dev/badge/TypeScript-5-3178C6.svg?logo=typescript)](https://www.typescriptlang.org)
+[![TypeScript](https://shieldcn.dev/badge/TypeScript-7-3178C6.svg?logo=typescript)](https://www.typescriptlang.org)
 [![Vercel](https://shieldcn.dev/badge/Vercel-deploy-000.svg?logo=vercel)](https://vercel.com)
 [![Bun](https://shieldcn.dev/badge/Bun-runtime-FBF0DF.svg?logo=bun)](https://bun.sh)
 [![Biome](https://shieldcn.dev/badge/Biome-lint-60A5FA.svg?logo=biome)](https://biomejs.dev)
@@ -36,7 +36,7 @@ It's a personal site — the live version is the real story. This is just how it
 
 ## Getting started
 
-**Prerequisites:** [Bun](https://bun.sh) and Node.js 20+.
+**Prerequisites:** [Bun](https://bun.sh) and Node.js 24+ (see `.nvmrc`).
 
 ```bash
 bun install

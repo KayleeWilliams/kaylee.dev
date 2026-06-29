@@ -1,9 +1,12 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "extends": ["ultracite/core"],
+  "extends": ["ultracite/biome/core"],
   "files": {
     "includes": [
       "**/*.{js,jsx,ts,tsx,json,jsonc,css}",
+      // bench/ is a standalone harness with its own package.json (also excluded
+      // from tsconfig); it isn't part of the shipped app, so don't lint it.
+      "!bench",
       "!src/**/*.astro",
       // Biome lints a .svelte file's <script> but not its {template}, so every
       // handler bound only in markup reads as "unused". Svelte has its own tooling.
