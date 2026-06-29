@@ -35,40 +35,40 @@ const description =
 ---
 
 <BaseLayout description={description} title={title} variant="immersive">
-  {/* Dedicated layout for this page: a compact identity card + nav share one
-      row (matching gaps), with the crate full-width below. */}
-  <header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-    <a
-      class="group flex min-h-14 shrink-0 items-center gap-2.5 rounded-lg border border-border bg-card px-3 py-2 text-card-foreground shadow-xs transition-colors duration-150 hover:border-violet-300 dark:hover:border-violet-500/40"
-      href="/"
-    >
-      <img
-        alt="Kaylee Williams"
-        class="size-9 shrink-0 rounded-full border border-border object-cover object-top"
-        decoding="async"
-        height="240"
-        src={avatar.src}
-        width="240"
-      />
-      <span class="leading-tight">
-        <span class="block whitespace-nowrap font-bold text-foreground text-sm">
-          {personConfig.name}
-        </span>
-        <span
-          class="block whitespace-normal text-muted-foreground text-xs sm:whitespace-nowrap"
-        >
-          {personConfig.bio}
-        </span>
-      </span>
-    </a>
-
-    <div class="flex flex-1 items-center gap-2 sm:gap-4">
-      <div
-        class="flex h-14 flex-1 items-center rounded-lg border border-border bg-card px-2 text-card-foreground shadow-xs"
+  {/* Dedicated layout: the profile fills the top row beside the theme toggle,
+      then a full-width nav that lines up with the crate card below it. */}
+  <header class="flex flex-col gap-3 sm:gap-4">
+    <div class="flex items-stretch gap-3 sm:gap-4">
+      <a
+        class="group flex min-h-14 flex-1 items-center gap-2.5 rounded-lg border border-border bg-card px-3 py-2 text-card-foreground shadow-xs transition-colors duration-150 hover:border-violet-300 dark:hover:border-violet-500/40"
+        href="/"
       >
-        <Nav />
-      </div>
+        <img
+          alt="Kaylee Williams"
+          class="size-9 shrink-0 rounded-full border border-border object-cover object-top"
+          decoding="async"
+          height="240"
+          src={avatar.src}
+          width="240"
+        />
+        <span class="leading-tight">
+          <span class="block whitespace-nowrap font-bold text-foreground text-sm">
+            {personConfig.name}
+          </span>
+          <span
+            class="block whitespace-normal text-muted-foreground text-xs sm:whitespace-nowrap"
+          >
+            {personConfig.bio}
+          </span>
+        </span>
+      </a>
       <ThemeSwitcher />
+    </div>
+
+    <div
+      class="flex h-14 items-center rounded-lg border border-border bg-card px-2 text-card-foreground shadow-xs"
+    >
+      <Nav />
     </div>
   </header>
 
