@@ -223,10 +223,18 @@ $effect(() => {
   };
 });
 
-// Refit the title whenever the record changes.
+// Refit the title whenever the record changes. The synchronous pass keeps
+// normal navigation flash-free (the DOM already holds the new title by the time
+// this runs). The deferred pass covers the random landing on mount: there the
+// effect fires in the same flush that sets `active`, before Svelte paints the
+// new title, so the sync measure sees the index-0 title and skips scaling — and
+// since `current.id` is already the landed record's, it never re-fires. The
+// extra frame lets the real title paint, then refits a long one down.
 $effect(() => {
   void current?.id;
   fitHeading();
+  const frame = requestAnimationFrame(fitHeading);
+  return () => cancelAnimationFrame(frame);
 });
 
 // Refit on viewport resize (column width changes how the title wraps).
@@ -459,7 +467,7 @@ $effect(() => {
          buttons. The title grows downward into otherwise-empty space. */
       align-items: start;
       /* generous gap BETWEEN the columns, tight gap DOWN to the cover wall */
-      column-gap: clamp(1.5rem, 4vw, 3rem);
+      column-gap: 2.5rem;
       row-gap: 1.25rem;
     }
     .crate.split .stage {
