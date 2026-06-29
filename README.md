@@ -19,13 +19,6 @@ It's a personal site — the live version is the real story. This is just how it
 
 ## Tech stack
 
-[![Svelte](https://shieldcn.dev/badge/Svelte-5-FF3E00.svg?logo=svelte)](https://svelte.dev)
-[![Tailwind CSS](https://shieldcn.dev/badge/Tailwind_CSS-4-38BDF8.svg?logo=tailwindcss)](https://tailwindcss.com)
-[![TypeScript](https://shieldcn.dev/badge/TypeScript-7-3178C6.svg?logo=typescript)](https://www.typescriptlang.org)
-[![Vercel](https://shieldcn.dev/badge/Vercel-deploy-000.svg?logo=vercel)](https://vercel.com)
-[![Bun](https://shieldcn.dev/badge/Bun-runtime-FBF0DF.svg?logo=bun)](https://bun.sh)
-[![Biome](https://shieldcn.dev/badge/Biome-lint-60A5FA.svg?logo=biome)](https://biomejs.dev)
-
 - **[Astro 7](https://astro.build)** in `server` output, deployed via the [Vercel adapter](https://docs.astro.build/en/guides/integrations-guide/vercel/) (with a [Node adapter](https://docs.astro.build/en/guides/integrations-guide/node/) fallback for self-hosting).
 - **[Svelte 5](https://svelte.dev)** for the one interactive island (`/records`).
 - **[Tailwind CSS 4](https://tailwindcss.com)** via the Vite plugin.
