@@ -18,44 +18,98 @@ const fmt3 = (v) => (v == null ? "—" : v.toFixed(3));
 const fmtScore = (v) => (v == null ? "—" : String(v));
 
 // dir: +1 means higher-is-better, -1 means lower-is-better
-function deltaCell(b, a, dir, fmt) {
-  if (b == null || a == null) return { html: "—", cls: "neutral" };
+function deltaCell(b, a, dir) {
+  if (b == null || a == null) {
+    return { html: "—", cls: "neutral" };
+  }
   const diff = a - b;
-  const pct = b === 0 ? (a === 0 ? 0 : 100) : (diff / Math.abs(b)) * 100;
+  let pct;
+  if (b === 0) {
+    pct = a === 0 ? 0 : 100;
+  } else {
+    pct = (diff / Math.abs(b)) * 100;
+  }
   const improved = dir > 0 ? diff > 0 : diff < 0;
   const worse = dir > 0 ? diff < 0 : diff > 0;
   const near = Math.abs(pct) < 0.5;
-  const cls = near ? "neutral" : improved ? "good" : worse ? "bad" : "neutral";
+  let cls = "neutral";
+  if (!near) {
+    if (improved) {
+      cls = "good";
+    } else if (worse) {
+      cls = "bad";
+    }
+  }
   const sign = diff > 0 ? "+" : "";
-  const arrow = near ? "→" : improved ? "▲" : "▼";
+  let arrow = "→";
+  if (!near) {
+    arrow = improved ? "▲" : "▼";
+  }
   const pctStr = `${sign}${pct.toFixed(1)}%`;
   return { html: `${arrow} ${pctStr}`, cls, diff, pct };
 }
 
 const METRICS = [
-  { key: "performanceScore", label: "Performance score", dir: +1, fmt: fmtScore, cwv: false, note: "0–100" },
-  { key: "lcp", label: "Largest Contentful Paint", dir: -1, fmt: fmtMs, cwv: true, note: "CWV" },
-  { key: "cls", label: "Cumulative Layout Shift", dir: -1, fmt: fmt3, cwv: true, note: "CWV" },
-  { key: "tbt", label: "Total Blocking Time", dir: -1, fmt: fmtMs, cwv: true, note: "INP proxy" },
+  {
+    key: "performanceScore",
+    label: "Performance score",
+    dir: +1,
+    fmt: fmtScore,
+    cwv: false,
+    note: "0–100",
+  },
+  {
+    key: "lcp",
+    label: "Largest Contentful Paint",
+    dir: -1,
+    fmt: fmtMs,
+    cwv: true,
+    note: "CWV",
+  },
+  {
+    key: "cls",
+    label: "Cumulative Layout Shift",
+    dir: -1,
+    fmt: fmt3,
+    cwv: true,
+    note: "CWV",
+  },
+  {
+    key: "tbt",
+    label: "Total Blocking Time",
+    dir: -1,
+    fmt: fmtMs,
+    cwv: true,
+    note: "INP proxy",
+  },
   { key: "fcp", label: "First Contentful Paint", dir: -1, fmt: fmtMs },
   { key: "speedIndex", label: "Speed Index", dir: -1, fmt: fmtMs },
   { key: "tti", label: "Time to Interactive", dir: -1, fmt: fmtMs },
   { key: "maxFid", label: "Max Potential FID", dir: -1, fmt: fmtMs },
   { key: "ttfb", label: "Server Response (TTFB)", dir: -1, fmt: fmtMs },
-  { key: "totalByteWeight", label: "Total transfer weight", dir: -1, fmt: fmtKiB },
+  {
+    key: "totalByteWeight",
+    label: "Total transfer weight",
+    dir: -1,
+    fmt: fmtKiB,
+  },
   { key: "requests", label: "Network requests", dir: -1, fmt: fmtInt },
   { key: "domSize", label: "DOM elements", dir: -1, fmt: fmtInt },
   { key: "mainThreadWork", label: "Main-thread work", dir: -1, fmt: fmtMs },
   { key: "bootupTime", label: "JS execution time", dir: -1, fmt: fmtMs },
 ];
 
-const pageByName = (data, name) => data.runtime.pages.find((p) => p.name === name);
+const pageByName = (data, name) =>
+  data.runtime.pages.find((p) => p.name === name);
 const avgScore = (data) =>
-  Math.round(data.runtime.pages.reduce((s, p) => s + p.metrics.performanceScore, 0) / data.runtime.pages.length);
+  Math.round(
+    data.runtime.pages.reduce((s, p) => s + p.metrics.performanceScore, 0) /
+      data.runtime.pages.length
+  );
 
 // ---- summary tiles ---------------------------------------------------------
 function tile(title, b, a, dir, fmt, sub) {
-  const d = deltaCell(b, a, dir, fmt);
+  const d = deltaCell(b, a, dir);
   return `<div class="tile">
     <div class="tile-title">${title}</div>
     <div class="tile-vals"><span class="was">${fmt(b)}</span><span class="arrow">→</span><span class="now">${fmt(a)}</span></div>
@@ -65,10 +119,38 @@ function tile(title, b, a, dir, fmt, sub) {
 }
 
 const summary = [
-  tile("Build time (fastest)", before.build.minMs, after.build.minMs, -1, fmtS, `median ${fmtS(before.build.medianMs)} → ${fmtS(after.build.medianMs)}`),
-  tile("Build output size", before.dist.totalBytes, after.dist.totalBytes, -1, fmtKiB, `${before.dist.totalFiles} → ${after.dist.totalFiles} files`),
-  tile("Client JS shipped", before.dist.client.jsBytes, after.dist.client.jsBytes, -1, fmtKiB, "static _astro/*.js"),
-  tile("Avg performance score", avgScore(before), avgScore(after), +1, fmtScore, "mean across pages"),
+  tile(
+    "Build time (fastest)",
+    before.build.minMs,
+    after.build.minMs,
+    -1,
+    fmtS,
+    `median ${fmtS(before.build.medianMs)} → ${fmtS(after.build.medianMs)}`
+  ),
+  tile(
+    "Build output size",
+    before.dist.totalBytes,
+    after.dist.totalBytes,
+    -1,
+    fmtKiB,
+    `${before.dist.totalFiles} → ${after.dist.totalFiles} files`
+  ),
+  tile(
+    "Client JS shipped",
+    before.dist.client.jsBytes,
+    after.dist.client.jsBytes,
+    -1,
+    fmtKiB,
+    "static _astro/*.js"
+  ),
+  tile(
+    "Avg performance score",
+    avgScore(before),
+    avgScore(after),
+    +1,
+    fmtScore,
+    "mean across pages"
+  ),
 ];
 
 // ---- per-page metric tables ------------------------------------------------
@@ -78,8 +160,13 @@ function metricTable(pageName) {
   const rows = METRICS.map((m) => {
     const b = pb.metrics[m.key];
     const a = pa.metrics[m.key];
-    const d = deltaCell(b, a, m.dir, m.fmt);
-    const tag = m.cwv ? `<span class="cwv">${m.note}</span>` : m.note ? `<span class="muted">${m.note}</span>` : "";
+    const d = deltaCell(b, a, m.dir);
+    let tag = "";
+    if (m.cwv) {
+      tag = `<span class="cwv">${m.note}</span>`;
+    } else if (m.note) {
+      tag = `<span class="muted">${m.note}</span>`;
+    }
     return `<tr class="${m.cwv ? "is-cwv" : ""}">
       <td class="metric">${m.label} ${tag}</td>
       <td class="num">${m.fmt(b)}</td>
@@ -97,7 +184,7 @@ const pageSections = before.runtime.pages
     (p) => `<section class="page">
       <h3>${p.name} <span class="path">${p.path}</span></h3>
       ${metricTable(p.name)}
-    </section>`,
+    </section>`
   )
   .join("");
 
@@ -105,8 +192,16 @@ const pageSections = before.runtime.pages
 function sizeRows() {
   const rows = [
     ["Total dist", before.dist.totalBytes, after.dist.totalBytes],
-    ["Server bundle", before.dist.server.totalBytes, after.dist.server.totalBytes],
-    ["Client total", before.dist.client.totalBytes, after.dist.client.totalBytes],
+    [
+      "Server bundle",
+      before.dist.server.totalBytes,
+      after.dist.server.totalBytes,
+    ],
+    [
+      "Client total",
+      before.dist.client.totalBytes,
+      after.dist.client.totalBytes,
+    ],
     ["Client JS", before.dist.client.jsBytes, after.dist.client.jsBytes],
     ["Client CSS", before.dist.client.cssBytes, after.dist.client.cssBytes],
     ["File count", before.dist.totalFiles, after.dist.totalFiles],
@@ -115,7 +210,7 @@ function sizeRows() {
     .map(([name, b, a]) => {
       const isCount = name === "File count";
       const fmt = isCount ? fmtInt : fmtKiB;
-      const d = deltaCell(b, a, -1, fmt);
+      const d = deltaCell(b, a, -1);
       return `<tr><td class="metric">${name}</td><td class="num">${fmt(b)}</td><td class="num">${fmt(a)}</td><td class="num"><span class="badge ${d.cls}">${d.html}</span></td></tr>`;
     })
     .join("");
@@ -125,14 +220,18 @@ function sizeRows() {
 const buildRunsRows = before.build.runsMs
   .map((b, i) => {
     const a = after.build.runsMs[i];
-    return `<tr><td class="metric">Cold build #${i + 1}</td><td class="num">${fmtS(b)}</td><td class="num">${fmtS(a)}</td><td class="num"><span class="badge ${deltaCell(b, a, -1, fmtS).cls}">${deltaCell(b, a, -1, fmtS).html}</span></td></tr>`;
+    return `<tr><td class="metric">Cold build #${i + 1}</td><td class="num">${fmtS(b)}</td><td class="num">${fmtS(a)}</td><td class="num"><span class="badge ${deltaCell(b, a, -1).cls}">${deltaCell(b, a, -1).html}</span></td></tr>`;
   })
   .join("");
 
 // ---- html ------------------------------------------------------------------
 const afterPrerelease = after.env.astro.includes("-");
-const buildDeltaMedian = deltaCell(before.build.medianMs, after.build.medianMs, -1, fmtS);
-const buildDeltaFastest = deltaCell(before.build.minMs, after.build.minMs, -1, fmtS);
+const buildDeltaMedian = deltaCell(
+  before.build.medianMs,
+  after.build.medianMs,
+  -1
+);
+const buildDeltaFastest = deltaCell(before.build.minMs, after.build.minMs, -1);
 
 const html = `<!doctype html>
 <html lang="en">
@@ -306,7 +405,9 @@ const html = `<!doctype html>
       Runtime metrics via Lighthouse ${after.runtime.lighthouseVersion} (<code>${after.runtime.preset}</code> preset, simulated throttling —
       robust to host CPU load), ${before.config.LH_RUNS} runs per page against a local <code>node dist/server/entry.mjs</code>, median per metric.
       Both runs measured back-to-back on the same machine. Lower is better for every metric except performance score.${
-        afterPrerelease ? ` <strong>Note:</strong> Astro ${after.env.astro} is a pre-release.` : ""
+        afterPrerelease
+          ? ` <strong>Note:</strong> Astro ${after.env.astro} is a pre-release.`
+          : ""
       }
     </div>
   </header>
