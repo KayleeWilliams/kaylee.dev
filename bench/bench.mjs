@@ -11,17 +11,17 @@
 //
 // Chrome is driven headless against a locally served `node dist/server/entry.mjs`.
 
-import { execFileSync } from "node:child_process";
-import { spawn } from "node:child_process";
-import { createRequire } from "node:module";
+import { execFileSync, spawn } from "node:child_process";
 import fs from "node:fs";
+import { createRequire } from "node:module";
 import path from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
 
 const require = createRequire(import.meta.url);
 const { launch } = require("chrome-launcher");
 const lighthouse = require("lighthouse").default;
-const desktopConfig = require("lighthouse/core/config/desktop-config.js").default;
+const desktopConfig =
+  require("lighthouse/core/config/desktop-config.js").default;
 
 const ROOT = path.resolve(import.meta.dirname, "..");
 const RESULTS_DIR = path.join(import.meta.dirname, "results");
@@ -49,27 +49,34 @@ const log = (...a) => console.log(`[bench:${label}]`, ...a);
 
 function pkgVersion(name) {
   try {
-    return require(path.join(ROOT, "node_modules", name, "package.json")).version;
+    return require(path.join(ROOT, "node_modules", name, "package.json"))
+      .version;
   } catch {
     return null;
   }
 }
 
 function rmrf(...rels) {
-  for (const rel of rels) fs.rmSync(path.join(ROOT, rel), { recursive: true, force: true });
+  for (const rel of rels) {
+    fs.rmSync(path.join(ROOT, rel), { recursive: true, force: true });
+  }
 }
 
 function dirStats(dir) {
   // Returns { total, byExt: {ext: bytes}, files }
   const out = { total: 0, byExt: {}, files: 0 };
-  if (!fs.existsSync(dir)) return out;
+  if (!fs.existsSync(dir)) {
+    return out;
+  }
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
       const sub = dirStats(full);
       out.total += sub.total;
       out.files += sub.files;
-      for (const [ext, n] of Object.entries(sub.byExt)) out.byExt[ext] = (out.byExt[ext] || 0) + n;
+      for (const [ext, n] of Object.entries(sub.byExt)) {
+        out.byExt[ext] = (out.byExt[ext] || 0) + n;
+      }
     } else if (entry.isFile()) {
       const size = fs.statSync(full).size;
       const ext = path.extname(entry.name).toLowerCase() || "(none)";
@@ -97,7 +104,11 @@ function timeBuilds() {
     execFileSync("bun", ["run", "build:node"], {
       cwd: ROOT,
       stdio: ["ignore", "ignore", "pipe"],
-      env: { ...process.env, ASTRO_ADAPTER: "node", ASTRO_TELEMETRY_DISABLED: "1" },
+      env: {
+        ...process.env,
+        ASTRO_ADAPTER: "node",
+        ASTRO_TELEMETRY_DISABLED: "1",
+      },
     });
     const ms = performance.now() - t0;
     times.push(ms);
@@ -131,8 +142,12 @@ async function waitForServer(url, tries = 80) {
   for (let i = 0; i < tries; i++) {
     try {
       const r = await fetch(url, { signal: AbortSignal.timeout(1000) });
-      if (r.ok) return;
-    } catch {}
+      if (r.ok) {
+        return;
+      }
+    } catch {
+      // server not accepting connections yet; retry after the delay below
+    }
     await sleep(250);
   }
   throw new Error(`server did not become ready at ${url}`);
@@ -172,7 +187,9 @@ function medianMetrics(runs) {
 function freePort(port) {
   // Defensive: kill any process still bound to the bench port from a prior crash.
   try {
-    const pids = execFileSync("lsof", ["-ti", `tcp:${port}`], { stdio: ["ignore", "pipe", "ignore"] })
+    const pids = execFileSync("lsof", ["-ti", `tcp:${port}`], {
+      stdio: ["ignore", "pipe", "ignore"],
+    })
       .toString()
       .trim()
       .split("\n")
@@ -180,9 +197,13 @@ function freePort(port) {
     for (const pid of pids) {
       try {
         process.kill(Number(pid), "SIGKILL");
-      } catch {}
+      } catch {
+        // process already exited between lsof and kill
+      }
     }
-  } catch {}
+  } catch {
+    // lsof found nothing (or isn't available) — nothing to free
+  }
 }
 
 async function runLighthouse() {
@@ -198,7 +219,12 @@ async function runLighthouse() {
     await waitForServer(`http://${HOST}:${PORT}/`);
     log("server ready; launching headless chrome…");
     chrome = await launch({
-      chromeFlags: ["--headless=new", "--no-sandbox", "--disable-gpu", "--disable-dev-shm-usage"],
+      chromeFlags: [
+        "--headless=new",
+        "--no-sandbox",
+        "--disable-gpu",
+        "--disable-dev-shm-usage",
+      ],
     });
     const lhVersion = require("lighthouse/package.json").version;
 
@@ -210,21 +236,30 @@ async function runLighthouse() {
       for (let i = 0; i < LH_RUNS; i++) {
         const result = await lighthouse(
           url,
-          { port: chrome.port, output: "json", logLevel: "error", onlyCategories: ["performance"] },
-          desktopConfig,
+          {
+            port: chrome.port,
+            output: "json",
+            logLevel: "error",
+            onlyCategories: ["performance"],
+          },
+          desktopConfig
         );
         runs.push(extractMetrics(result.lhr));
       }
       pages.push({ ...page, runs, metrics: medianMetrics(runs) });
       const m = pages.at(-1).metrics;
-      log(`  ${page.name}: score=${m.performanceScore} LCP=${Math.round(m.lcp)}ms CLS=${m.cls.toFixed(3)}`);
+      log(
+        `  ${page.name}: score=${m.performanceScore} LCP=${Math.round(m.lcp)}ms CLS=${m.cls.toFixed(3)}`
+      );
     }
     return { lighthouseVersion: lhVersion, preset: "desktop", pages };
   } finally {
     if (chrome) {
       try {
         await chrome.kill();
-      } catch {}
+      } catch {
+        // chrome already gone
+      }
     }
     server.kill("SIGKILL");
   }
@@ -246,8 +281,17 @@ const dist = measureDist();
 const runtime = await runLighthouse();
 
 fs.mkdirSync(RESULTS_DIR, { recursive: true });
-const result = { label, env, config: { BUILD_RUNS, LH_RUNS }, build, dist, runtime };
+const result = {
+  label,
+  env,
+  config: { BUILD_RUNS, LH_RUNS },
+  build,
+  dist,
+  runtime,
+};
 const outPath = path.join(RESULTS_DIR, `${label}.json`);
 fs.writeFileSync(outPath, JSON.stringify(result, null, 2));
 log(`wrote ${path.relative(ROOT, outPath)}`);
-log(`build median: ${(build.medianMs / 1000).toFixed(2)}s | dist: ${(dist.totalBytes / 1024).toFixed(0)} KiB`);
+log(
+  `build median: ${(build.medianMs / 1000).toFixed(2)}s | dist: ${(dist.totalBytes / 1024).toFixed(0)} KiB`
+);

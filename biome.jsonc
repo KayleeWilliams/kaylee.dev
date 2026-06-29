@@ -4,9 +4,9 @@
   "files": {
     "includes": [
       "**/*.{js,jsx,ts,tsx,json,jsonc,css}",
-      // bench/ is a standalone harness with its own package.json (also excluded
-      // from tsconfig); it isn't part of the shipped app, so don't lint it.
-      "!bench",
+      // bench/ generated output (report HTML + result snapshots), not source.
+      "!bench/benchmark-report.html",
+      "!bench/results",
       "!src/**/*.astro",
       // Biome lints a .svelte file's <script> but not its {template}, so every
       // handler bound only in markup reads as "unused". Svelte has its own tooling.
