@@ -55,7 +55,7 @@ export async function GET({ url }: APIContext): Promise<Response> {
     "",
     "# The Crate",
     "",
-    `${personConfig.name}'s personal collection of records and CDs she actually owns, filed alphabetically by artist and pulled live from [Discogs](${collectionUrl}). A hidden page on ${personConfig.siteUrl}/records that renders the collection as an interactive coverflow.`,
+    `${personConfig.name}'s personal collection of records and CDs she actually owns, filed alphabetically by artist and pulled live from [Discogs](${collectionUrl}).`,
     "",
   ];
 
