@@ -187,8 +187,6 @@ $effect(() => {
   };
   query.addEventListener("change", onChange);
 
-  const timers: ReturnType<typeof setTimeout>[] = [];
-
   // Open on a random record so every visit is a fresh dig. SSR renders index 0
   // (so no-JS degrades cleanly and hydration matches); we land instantly here,
   // with no sweep. Reduced-motion visitors keep the stable alphabetical start.
@@ -205,16 +203,6 @@ $effect(() => {
         requestAnimationFrame(() => {
           snapInstant = false;
           reveal();
-          // One-shot nudge: a gentle tug that peeks the neighbouring sleeves,
-          // hinting the crate is draggable. Animates via the normal transition.
-          timers.push(
-            setTimeout(() => {
-              dragDx = 26;
-            }, 550),
-            setTimeout(() => {
-              dragDx = 0;
-            }, 1050)
-          );
         })
       );
     } else {
@@ -225,9 +213,6 @@ $effect(() => {
 
   return () => {
     query.removeEventListener("change", onChange);
-    for (const timer of timers) {
-      clearTimeout(timer);
-    }
   };
 });
 
