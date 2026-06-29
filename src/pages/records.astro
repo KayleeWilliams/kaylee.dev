@@ -78,7 +78,9 @@ const description =
     <h1 class="sr-only">The Crate</h1>
     {
       hasRecords ? (
-        <Crate client:load records={records} split />
+        <div class="crate-reveal">
+          <Crate client:load records={records} split />
+        </div>
       ) : (
         <div class="rounded-2xl border border-border bg-card px-6 py-12 text-center">
           <div
@@ -116,4 +118,23 @@ const description =
       )
     }
   </main>
+
+  {/* Hold the crate hidden until the island lands on the record to show, then
+      fade it in — avoids flashing the SSR'd first record. No-JS shows it. */}
+  <style is:global>
+    .crate-reveal {
+      opacity: 0;
+    }
+    .crate-reveal.is-ready {
+      opacity: 1;
+      transition: opacity 0.35s ease;
+    }
+  </style>
+  <noscript>
+    <style is:inline>
+      .crate-reveal {
+        opacity: 1;
+      }
+    </style>
+  </noscript>
 </BaseLayout>

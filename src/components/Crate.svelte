@@ -194,12 +194,17 @@ $effect(() => {
   // with no sweep. Reduced-motion visitors keep the stable alphabetical start.
   if (!started) {
     started = true;
+    // Reveal the crate only once we've landed on the record to show, so the
+    // SSR'd index-0 record never flashes before the random landing.
+    const reveal = () =>
+      stageEl?.closest(".crate-reveal")?.classList.add("is-ready");
     if (!query.matches && count > 1) {
       snapInstant = true;
       active = Math.floor(Math.random() * count);
       requestAnimationFrame(() =>
         requestAnimationFrame(() => {
           snapInstant = false;
+          reveal();
           // One-shot nudge: a gentle tug that peeks the neighbouring sleeves,
           // hinting the crate is draggable. Animates via the normal transition.
           timers.push(
@@ -212,6 +217,9 @@ $effect(() => {
           );
         })
       );
+    } else {
+      // Reduced-motion / single record: no random landing, reveal right away.
+      requestAnimationFrame(reveal);
     }
   }
 
