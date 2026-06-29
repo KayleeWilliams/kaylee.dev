@@ -1,3 +1,4 @@
+import recordNames from "../content/site/record-names.json";
 import { withMemoryCache } from "./cache";
 import { discogsHeaders } from "./discogs-auth";
 
@@ -12,11 +13,19 @@ const API_BASE = "https://api.discogs.com";
 // Discogs appends " (2)", " (3)" … to disambiguate same-named artists/labels.
 const DISAMBIGUATION_SUFFIX = /\s*\(\d+\)$/;
 
+// Discogs stores CJK artist/album names in native script only. This file layers
+// on romanized/English display names, keyed by Discogs release id (as a string).
+const NAME_OVERRIDES = recordNames as Record<
+  string,
+  { artistRoman?: string; titleRoman?: string }
+>;
+
 type DiscKind = "vinyl" | "cd" | "none";
 
 /** Client-safe shape rendered by the crate island. No raw Discogs URLs. */
 export interface ClientRecord {
   artist: string;
+  artistRoman?: string;
   catno: string | null;
   coverPath: string;
   disc: DiscKind;
@@ -28,6 +37,7 @@ export interface ClientRecord {
   id: number;
   label: string | null;
   title: string;
+  titleRoman?: string;
   year: number | null;
 }
 
@@ -145,7 +155,7 @@ function normalizeRelease(release: RawRelease): CollectionRecord | null {
     .filter(Boolean);
   const cover = hasRealCover(info.cover_image) ? info.cover_image : null;
 
-  return {
+  const record: CollectionRecord = {
     id,
     title: info.title?.trim() || "Untitled",
     artist: formatArtists(info.artists),
@@ -161,6 +171,16 @@ function normalizeRelease(release: RawRelease): CollectionRecord | null {
     coverImage: cover,
     discogsUrl: `https://www.discogs.com/release/${id}`,
   };
+
+  const override = NAME_OVERRIDES[String(id)];
+  if (override?.artistRoman) {
+    record.artistRoman = override.artistRoman;
+  }
+  if (override?.titleRoman) {
+    record.titleRoman = override.titleRoman;
+  }
+
+  return record;
 }
 
 async function fetchPage(

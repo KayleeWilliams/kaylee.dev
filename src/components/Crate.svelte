@@ -37,7 +37,7 @@ let wheelAccum = 0;
 const current = $derived(records[active]);
 const announce = $derived(
   current
-    ? `Now showing ${current.title} by ${current.artist}, ${active + 1} of ${count}`
+    ? `Now showing ${current.titleRoman ?? current.title} by ${current.artistRoman ?? current.artist}, ${active + 1} of ${count}`
     : ""
 );
 
@@ -59,6 +59,12 @@ function setActive(next: number) {
 // Just the medium: "LP, Album" → "LP", "12\", 45 RPM, Single" → "12\"".
 function shortFormat(record: ClientRecord): string {
   return (record.formatDetail ?? record.format).split(",")[0].trim();
+}
+
+// Prefer romanized names for screen readers (and English-reading users) when a
+// native-script record has a Latin equivalent.
+function label(record: ClientRecord): string {
+  return `${record.artistRoman ?? record.artist} – ${record.titleRoman ?? record.title}`;
 }
 
 // Scale the title down so the artist + title always fit a fixed-height box,
@@ -273,7 +279,7 @@ $effect(() => {
             class:is-active={index === active}
             type="button"
             tabindex="-1"
-            aria-label={`${record.artist} – ${record.title}`}
+            aria-label={label(record)}
             aria-pressed={index === active}
             onclick={() => onSleeveClick(index)}
           >
@@ -340,8 +346,14 @@ $effect(() => {
   {#if current}
     <div class="details">
       <div class="heading" bind:this={headingEl}>
-        <p class="now-artist">{current.artist}</p>
-        <p class="now-title">{current.title}</p>
+        <p class="now-artist">{current.artistRoman ?? current.artist}</p>
+        {#if current.artistRoman}
+          <p class="now-sub now-artist-sub">{current.artist}</p>
+        {/if}
+        <p class="now-title">{current.titleRoman ?? current.title}</p>
+        {#if current.titleRoman}
+          <p class="now-sub now-title-sub">{current.title}</p>
+        {/if}
       </div>
       <div class="chips">
         {#if current.year}<span class="chip">{current.year}</span>{/if}
@@ -374,7 +386,7 @@ $effect(() => {
           class="tile"
           class:tile-active={index === active}
           type="button"
-          aria-label={`${record.artist} – ${record.title}`}
+          aria-label={label(record)}
           aria-pressed={index === active}
           onclick={() => setActive(index)}
         >
@@ -474,6 +486,7 @@ $effect(() => {
        Discogs link and cover wall never shift as titles change length. */
     .crate.split .heading {
       height: 8.5rem;
+      justify-content: flex-start;
       overflow: hidden;
     }
     .crate.split .chips {
@@ -769,16 +782,28 @@ $effect(() => {
   }
 
   .heading {
-    /* Fixed height on every layout so the title font scales to fit and the
-       chips, Discogs link and cover wall never shift. */
+    /* Fixed height on every layout so the title font scales (in JS) to fit and
+       nothing below shifts. Top-anchored (like desktop) so the artist stays put
+       and the title grows downward — the heading never jumps between records. */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
     width: 100%;
     height: clamp(6.25rem, 20vw, 8.5rem);
     overflow: hidden;
   }
 
   .now-artist {
+    /* Always exactly two lines (reserved + clamped) so a short vs long artist
+       name never moves the title below it. */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    min-height: 2.1rem;
+    overflow: hidden;
     font-size: 0.8rem;
     font-weight: 700;
+    line-height: 1.3;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--primary);
@@ -792,6 +817,29 @@ $effect(() => {
     text-wrap: balance;
     overflow-wrap: anywhere;
     color: var(--foreground);
+  }
+
+  /* Native-script line for CJK records: the romanized/English reading is the
+     primary line (matching every Latin-script record), with the native script
+     kept beneath it, muted — the cover art already carries it prominently. */
+  .now-sub {
+    color: var(--muted-foreground);
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+
+  .now-artist-sub {
+    margin-top: 0.15rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+  }
+
+  .now-title-sub {
+    margin-top: 0.25rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-wrap: balance;
   }
 
   .chips {
