@@ -41,9 +41,10 @@ export interface ClientRecord {
   year: number | null;
 }
 
-/** Server-side record; keeps the raw cover URL for the same-origin proxy. */
+/** Server-side record; keeps the raw cover URLs for the same-origin proxy. */
 export interface CollectionRecord extends ClientRecord {
   coverImage: string | null;
+  thumbImage: string | null;
 }
 
 export interface DiscogsCollection {
@@ -154,6 +155,8 @@ function normalizeRelease(release: RawRelease): CollectionRecord | null {
     .map((g) => g.trim())
     .filter(Boolean);
   const cover = hasRealCover(info.cover_image) ? info.cover_image : null;
+  // Discogs' ~150px thumbnail — used for the small cover-wall tiles.
+  const thumb = hasRealCover(info.thumb) ? info.thumb : cover;
 
   const record: CollectionRecord = {
     id,
@@ -169,6 +172,7 @@ function normalizeRelease(release: RawRelease): CollectionRecord | null {
     hasCover: Boolean(cover),
     coverPath: `/records/cover/${id}`,
     coverImage: cover,
+    thumbImage: thumb,
     discogsUrl: `https://www.discogs.com/release/${id}`,
   };
 
@@ -251,17 +255,23 @@ export function getDiscogsCollection(
   );
 }
 
-/** Strip the raw cover URL before handing records to the client island. */
+/** Strip the raw Discogs URLs before handing records to the client island. */
 export function toClientRecords(records: CollectionRecord[]): ClientRecord[] {
-  return records.map(({ coverImage: _coverImage, ...rest }) => rest);
+  return records.map(
+    ({ coverImage: _cover, thumbImage: _thumb, ...rest }) => rest
+  );
 }
 
-/** Resolve a single release's raw cover URL for the same-origin image proxy. */
+/** Resolve a release's raw cover (or thumbnail) URL for the image proxy. */
 export async function getCoverImageUrl(
   username: string,
-  releaseId: number
+  releaseId: number,
+  thumb = false
 ): Promise<string | null> {
   const collection = await getDiscogsCollection(username);
   const record = collection?.records.find((r) => r.id === releaseId);
-  return record?.coverImage ?? null;
+  if (!record) {
+    return null;
+  }
+  return (thumb ? record.thumbImage : record.coverImage) ?? null;
 }

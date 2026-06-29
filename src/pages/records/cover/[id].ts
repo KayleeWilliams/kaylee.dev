@@ -13,13 +13,19 @@ const ALLOWED_HOST = /(^|\.)discogs\.com$/;
 
 const notFound = () => new Response("Not found", { status: 404 });
 
-export const GET: APIRoute = async ({ params }) => {
+export const GET: APIRoute = async ({ params, url }) => {
   const id = Number.parseInt(params.id ?? "", 10);
   if (!(Number.isInteger(id) && id > 0)) {
     return notFound();
   }
 
-  const coverUrl = await getCoverImageUrl(personConfig.discogsUsername, id);
+  // `?thumb` serves Discogs' ~150px thumbnail (for the small cover-wall tiles).
+  const thumb = url.searchParams.has("thumb");
+  const coverUrl = await getCoverImageUrl(
+    personConfig.discogsUsername,
+    id,
+    thumb
+  );
   if (!coverUrl) {
     return notFound();
   }

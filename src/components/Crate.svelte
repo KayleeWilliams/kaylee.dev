@@ -409,7 +409,7 @@ $effect(() => {
           {#if record.hasCover}
             <img
               class="tile-cover"
-              src={record.coverPath}
+              src={`${record.coverPath}?thumb`}
               alt=""
               loading="lazy"
               decoding="async"
