@@ -453,7 +453,7 @@ $effect(() => {
   @media (min-width: 768px) {
     .crate.split {
       display: grid;
-      grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
       /* Top-align both columns and put the controls ABOVE the title, so a title
          of any length — even a 7-line one — can never move the prev/next
          buttons. The title grows downward into otherwise-empty space. */
