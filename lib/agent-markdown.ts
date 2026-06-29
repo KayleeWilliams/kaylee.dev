@@ -229,6 +229,7 @@ export function renderSitemapMarkdown(baseUrl: string): string {
     `- [About](${base}/about) — [markdown](${base}/about.md)`,
     `- [Projects](${base}/projects) — [markdown](${base}/projects.md)`,
     `- [Connect](${base}/connect) — [markdown](${base}/connect.md)`,
+    `- [The Crate](${base}/records) — [markdown](${base}/records.md)`,
     "",
     "## Agent resources",
     "",

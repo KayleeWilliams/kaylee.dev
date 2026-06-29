@@ -14,8 +14,10 @@ type Props = {
   title?: string;
   description?: string;
   // "minimal" renders a single centered column with no sidebar, OSS graph, or
-  // nav — used by the Linktree-style /connect page.
-  variant?: "default" | "minimal";
+  // nav — used by the Linktree-style /connect page. "immersive" keeps the nav
+  // and theme toggle but drops the sidebar so a full-width surface (the record
+  // crate) gets room to breathe.
+  variant?: "default" | "minimal" | "immersive";
 };
 
 const {
@@ -162,7 +164,7 @@ const jsonLd = {
     />
     <script
       is:inline
-      set:html={`console.log("%cconsole.log(\\"here?\\") — yep, you found it 👀","color:#8b5cf6;font-weight:700;font-size:13px");console.log("%cHi, I'm Kaylee. I build c15t → https://c15t.com","color:#a78bfa");`}
+      set:html={`console.log("%cconsole.log(\\"here?\\") — yep, you found it 👀","color:#8b5cf6;font-weight:700;font-size:13px");console.log("%cHi, I'm Kaylee. I build c15t → https://c15t.com","color:#a78bfa");console.log("%cps — my record crate lives at /records 🎶","color:#a78bfa");`}
     />
     <script
       type="application/ld+json"
@@ -192,6 +194,12 @@ const jsonLd = {
             <slot />
           </div>
         </main>
+      ) : variant === "immersive" ? (
+        <div class="min-h-screen">
+          <div class="container mx-auto max-w-(--breakpoint-lg) px-4 py-8">
+            <slot />
+          </div>
+        </div>
       ) : (
         <div class="min-h-screen">
           <div class="container mx-auto max-w-(--breakpoint-lg) px-4 py-8">
