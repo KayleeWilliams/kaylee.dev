@@ -362,10 +362,12 @@ $effect(() => {
   {#if current}
     <div class="details">
       <div class="heading" bind:this={headingEl}>
-        <p class="now-artist">{current.artistRoman ?? current.artist}</p>
-        {#if current.artistRoman}
-          <p class="now-sub now-artist-sub">{current.artist}</p>
-        {/if}
+        <div class="artist-block">
+          <p class="now-artist">{current.artistRoman ?? current.artist}</p>
+          {#if current.artistRoman}
+            <p class="now-sub now-artist-sub">{current.artist}</p>
+          {/if}
+        </div>
         <p class="now-title">{current.titleRoman ?? current.title}</p>
         {#if current.titleRoman}
           <p class="now-sub now-title-sub">{current.title}</p>
@@ -809,13 +811,21 @@ $effect(() => {
     overflow: hidden;
   }
 
+  .artist-block {
+    /* Fixed height keeps the romanized artist + its native subtitle tight
+       together, and reserves the same space on records without a subtitle, so
+       the title below never shifts. flex-shrink:0 stops a tall title from
+       squeezing it before fitHeading scales the title down. */
+    flex-shrink: 0;
+    height: 2.35rem;
+    overflow: hidden;
+  }
+
   .now-artist {
-    /* Always exactly two lines (reserved + clamped) so a short vs long artist
-       name never moves the title below it. */
+    /* Clamp long collab names to two lines; the .artist-block reserves the room. */
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
-    min-height: 2.1rem;
     overflow: hidden;
     font-size: 0.8rem;
     font-weight: 700;
@@ -826,7 +836,7 @@ $effect(() => {
   }
 
   .now-title {
-    margin-top: 0.2rem;
+    margin-top: 0.55rem;
     font-size: clamp(1.25rem, 5vw, 2.1rem);
     font-weight: 800;
     line-height: 1.12;
