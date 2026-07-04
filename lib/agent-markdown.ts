@@ -189,7 +189,7 @@ export function renderLlmsIndex(baseUrl: string): string {
   return `${[
     `# ${personConfig.name}`,
     "",
-    "> Founding Engineer at Inth (YC P26) and co-author of c15t, the open-source consent layer. Working on consent, data rights, policy evidence, and agent-readable docs.",
+    "> Founding engineer at Inth (YC P26) and co-author of c15t. Building the open-source compliance stack — consent (c15t), data rights (DSAR), performance (Cookiebench), and agent-readable docs (Leadtype). Compliance belongs in code.",
     "",
     "## Pages",
     "",
