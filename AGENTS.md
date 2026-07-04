@@ -2,6 +2,8 @@
 
 Personal site for Kaylee Williams — [kaylee.dev](https://www.kaylee.dev). Astro 7 + Svelte + Tailwind 4, built with Bun, deployed on Vercel.
 
+> Note: `public/AGENTS.md` is a different file — it deploys verbatim to `kaylee.dev/AGENTS.md` for agents visiting the live site. This root file is for agents working in the repo. When positioning copy changes, update both (the writing skill has the full surface map).
+
 ## Commands
 
 - `bun install` — install dependencies

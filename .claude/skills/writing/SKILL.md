@@ -44,6 +44,9 @@ The throughline across everything: **compliance belongs in code.** c15t (consent
 | `content/site/person.json` | `description` = homepage SEO meta. `bio` = records-page subtitle — **it truncates, keep it short**. `headline`/`tagline` currently unused. `appearances` render on `/about`. |
 | `content/experience/*.md` | Frontmatter `description` shows in the `/about` experience list. Bodies no longer render as HTML pages (`/experience/*` 301s to `/about`) but **do ship to agents via `/llms-full.txt`** — keep them clean. |
 | `content/projects/*.md` | Project cards on `/projects`. |
+| `public/AGENTS.md` | Deploys verbatim to `kaylee.dev/AGENTS.md` — the agent-facing site doc. **Not the same file as the repo-root `AGENTS.md`** (contributor doc). Its one-line positioning must stay in sync with the thesis. |
+| `lib/agent-markdown.ts` | Hardcoded strings for `/llms.txt` (the summary blockquote), `/sitemap.md`, and the 404 markdown. `/llms.txt` is the first agent entrypoint — update its summary whenever positioning changes. |
+| `lib/seo.ts` | Per-page `<title>`/meta descriptions. |
 
 ## Checklist before finishing a copy change
 
