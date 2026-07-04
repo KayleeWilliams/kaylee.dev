@@ -24,7 +24,7 @@ For any copy or content change, follow the writing skill at `.claude/skills/writ
 ## Anti-references (what this site must never become)
 
 - **Generic AI-slop portfolio** — identical card grids, hero-metric template, no point of view.
-- **A clone of burnedchris.com** — her boss's site is the quality bar, not a template. Borrow his clarity, one-line positioning, and headline-metric habit; never his bold-serif founder-editorial voice.
+- **A clone of burnedchris.com** — her boss's site is the quality bar, not a template. Borrow his clarity and one-line positioning; never his founder-editorial voice, his headline-metrics-in-prose habit, or narrated career moments ("the case I made on stage…"). Kaylee confirmed this preference directly: no static stats in copy, no self-mythologizing.
 - **Try-hard cringe** — emoji buzzword soup, labels that announce personality ("TypeScript Maximalist 💜") instead of demonstrating it.
 - **Corporate / sterile** — over-polished agency-template feel with no warmth.
 
