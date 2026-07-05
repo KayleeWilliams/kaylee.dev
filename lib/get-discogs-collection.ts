@@ -22,6 +22,15 @@ const NAME_OVERRIDES = recordNames as Record<
 
 type DiscKind = "vinyl" | "cd" | "none";
 
+/** A playable 30s Apple Music preview, attached to a record server-side. */
+export interface TrackPreview {
+  appleUrl: string;
+  /** Present only when the record's artist doesn't imply it ("Various", scores). */
+  artistName?: string;
+  previewUrl: string;
+  trackName: string;
+}
+
 /** Client-safe shape rendered by the crate island. No raw Discogs URLs. */
 export interface ClientRecord {
   artist: string;
@@ -36,6 +45,8 @@ export interface ClientRecord {
   hasCover: boolean;
   id: number;
   label: string | null;
+  /** Resolved server-side; absent = no preview. */
+  preview?: TrackPreview;
   title: string;
   titleRoman?: string;
   year: number | null;
@@ -133,6 +144,25 @@ function hasRealCover(url: string | undefined): url is string {
   return Boolean(url) && !(url as string).includes("spacer.gif");
 }
 
+// Discogs writes some non-Latin titles as "Native = Transliteration". Keep the
+// native script for display; the transliteration becomes the romanized line
+// and drives the Apple search (the combined string finds nothing there).
+const TITLE_TRANSLITERATION = / = /;
+// Only split when the left side is non-Latin, so titles like "E = mc²" stay intact.
+const NON_LATIN =
+  /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}\p{Script=Cyrillic}]/u;
+function splitTitle(raw: string): { title: string; roman?: string } {
+  const at = raw.search(TITLE_TRANSLITERATION);
+  if (at === -1) {
+    return { title: raw };
+  }
+  const native = raw.slice(0, at).trim();
+  const roman = raw.slice(at + 3).trim();
+  return native && roman && NON_LATIN.test(native)
+    ? { title: native, roman }
+    : { title: raw };
+}
+
 function normalizeRelease(release: RawRelease): CollectionRecord | null {
   const info = release.basic_information;
   const id = info?.id ?? release.id;
@@ -158,9 +188,13 @@ function normalizeRelease(release: RawRelease): CollectionRecord | null {
   // Discogs' ~150px thumbnail — used for the small cover-wall tiles.
   const thumb = hasRealCover(info.thumb) ? info.thumb : cover;
 
+  const { title: displayTitle, roman: derivedRoman } = splitTitle(
+    info.title?.trim() || "Untitled"
+  );
+
   const record: CollectionRecord = {
     id,
-    title: info.title?.trim() || "Untitled",
+    title: displayTitle,
     artist: formatArtists(info.artists),
     year: info.year && info.year > 0 ? info.year : null,
     label: labelName,
@@ -175,6 +209,10 @@ function normalizeRelease(release: RawRelease): CollectionRecord | null {
     thumbImage: thumb,
     discogsUrl: `https://www.discogs.com/release/${id}`,
   };
+
+  if (derivedRoman) {
+    record.titleRoman = derivedRoman;
+  }
 
   const override = NAME_OVERRIDES[String(id)];
   if (override?.artistRoman) {

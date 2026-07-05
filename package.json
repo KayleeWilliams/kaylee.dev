@@ -10,6 +10,7 @@
     "build": "ASTRO_TELEMETRY_DISABLED=1 astro build",
     "build:node": "ASTRO_ADAPTER=node ASTRO_TELEMETRY_DISABLED=1 astro build",
     "start": "bun run build:node && HOST=127.0.0.1 PORT=4321 node dist/server/entry.mjs",
+    "curate": "bun run scripts/curate.ts",
     "fmt": "biome check --write"
   },
   "dependencies": {
@@ -28,6 +29,7 @@
   "devDependencies": {
     "@astrojs/node": "^11.0.0",
     "@biomejs/biome": "^2.5.1",
+    "@clack/prompts": "^1.6.0",
     "@types/node": "^24",
     "@types/qrcode": "^1.5.5",
     "tailwindcss": "^4.1.18",
