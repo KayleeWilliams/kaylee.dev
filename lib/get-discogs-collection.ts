@@ -214,15 +214,21 @@ function normalizeRelease(release: RawRelease): CollectionRecord | null {
     record.titleRoman = derivedRoman;
   }
 
-  const override = NAME_OVERRIDES[String(id)];
-  if (override?.artistRoman) {
-    record.artistRoman = override.artistRoman;
-  }
-  if (override?.titleRoman) {
-    record.titleRoman = override.titleRoman;
-  }
+  applyNameOverrides(record);
 
   return record;
+}
+
+// Skip an override that matches the Discogs name (e.g. an entry that got
+// romanized upstream) so the crate doesn't render the same line twice.
+function applyNameOverrides(record: CollectionRecord): void {
+  const override = NAME_OVERRIDES[String(record.id)];
+  if (override?.artistRoman && override.artistRoman !== record.artist) {
+    record.artistRoman = override.artistRoman;
+  }
+  if (override?.titleRoman && override.titleRoman !== record.title) {
+    record.titleRoman = override.titleRoman;
+  }
 }
 
 async function fetchPage(
