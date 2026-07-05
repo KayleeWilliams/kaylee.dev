@@ -9,6 +9,7 @@ import {
   getDiscogsCollection,
   toClientRecords,
 } from "@/lib/get-discogs-collection";
+import { withPreviews } from "@/lib/get-track-preview";
 import { personConfig } from "@/lib/site-config";
 
 // Server-rendered (not prerendered) so the crate refreshes as records get added
@@ -16,7 +17,10 @@ import { personConfig } from "@/lib/site-config";
 export const prerender = false;
 
 const collection = await getDiscogsCollection(personConfig.discogsUsername);
-const records = collection ? toClientRecords(collection.records) : [];
+// Previews resolve server-side so the island ships with them inline.
+const records = collection
+  ? await withPreviews(toClientRecords(collection.records))
+  : [];
 const hasRecords = records.length > 0;
 
 const collectionUrl = `https://www.discogs.com/user/${personConfig.discogsUsername}/collection`;

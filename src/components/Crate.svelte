@@ -17,6 +17,7 @@ const BRIGHT_FALLOFF = 0.12;
 const FADE_START = 4; // records this far out begin fading
 const FADE_RANGE = 4;
 const WINDOW = 9; // only render this many sleeves either side of centre
+const RING = 2 * Math.PI * 20; // circumference of the play button's progress ring
 
 const count = records.length;
 
@@ -26,15 +27,21 @@ let dragDx = $state(0);
 let reduceMotion = $state(false);
 // Suppresses the slide transition for the one-off random landing on mount.
 let snapInstant = $state(false);
+let playing = $state(false);
+// 0–1 position through the 30s clip, for the play button's progress ring.
+let progress = $state(0);
 
 let stageEl: HTMLDivElement;
 let headingEl: HTMLDivElement;
+let audioEl: HTMLAudioElement;
 let startX = 0;
 let moved = false;
 let started = false;
 let wheelAccum = 0;
+let audioCtx: AudioContext | null = null;
 
 const current = $derived(records[active]);
+const preview = $derived(current?.preview ?? null);
 const announce = $derived(
   current
     ? `Now showing ${current.titleRoman ?? current.title} by ${current.artistRoman ?? current.artist}, ${active + 1} of ${count}`
@@ -236,6 +243,64 @@ $effect(() => {
   window.addEventListener("resize", onResize);
   return () => window.removeEventListener("resize", onResize);
 });
+
+// Stop playback whenever the focused record changes.
+$effect(() => {
+  void current?.id;
+  audioEl?.pause();
+  progress = 0;
+});
+
+// Compressor so a hot-mastered preview can't blast out after a quiet one.
+// Built on first play (an AudioContext needs a user gesture);
+// createMediaElementSource may run once per element, hence the guard.
+function ensureLimiter() {
+  if (audioCtx || !window.AudioContext) {
+    return;
+  }
+  try {
+    audioCtx = new AudioContext();
+    const source = audioCtx.createMediaElementSource(audioEl);
+    const limiter = audioCtx.createDynamicsCompressor();
+    limiter.threshold.value = -20; // start taming around -20 dB
+    limiter.knee.value = 24;
+    limiter.ratio.value = 8; // hold loud previews close to the threshold
+    limiter.attack.value = 0.003;
+    limiter.release.value = 0.25;
+    source.connect(limiter);
+    limiter.connect(audioCtx.destination);
+  } catch {
+    audioCtx = null; // unsupported / tainted — fall back to the raw element
+  }
+}
+
+// The clip is hotlinked from Apple's CDN, loaded only on first play.
+async function togglePlay() {
+  if (!(preview && audioEl)) {
+    return;
+  }
+  if (audioEl.src !== preview.previewUrl) {
+    audioEl.src = preview.previewUrl;
+  }
+  if (audioEl.paused) {
+    ensureLimiter();
+    // iOS starts contexts suspended; playing against one is silent.
+    await audioCtx?.resume().catch(() => {});
+    // The record may have flipped while resume was in flight.
+    if (audioEl.src !== preview?.previewUrl) {
+      return;
+    }
+    audioEl.play().catch(() => {
+      /* autoplay rejection */
+    });
+  } else {
+    audioEl.pause();
+  }
+}
+
+function onTimeUpdate() {
+  progress = audioEl?.duration ? audioEl.currentTime / audioEl.duration : 0;
+}
 </script>
 
 <!-- Key handling is delegated to the wrapper so the arrow keys work whether the
@@ -365,17 +430,87 @@ $effect(() => {
           <span class="chip chip-ghost">{genre}</span>
         {/each}
       </div>
-      <a
-        class="discogs-link"
-        href={current.discogsUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        View on Discogs
-        <svg viewBox="0 0 24 24" aria-hidden="true"
-          ><path fill="currentColor" d="M9 5v2h6.59L4 18.59 5.41 20 17 8.41V15h2V5z" /></svg
+      <div class="player">
+        {#if preview}
+          <div class="preview">
+            <!-- aria-pressed carries the play state; keep the label constant. -->
+            <button
+              class="play"
+              type="button"
+              aria-pressed={playing}
+              aria-label={`Play 30-second preview of ${preview.trackName}`}
+              onclick={togglePlay}
+            >
+              <!-- Not named "ring" — that's a Tailwind utility. -->
+              <svg class="progress-ring" viewBox="0 0 44 44" aria-hidden="true">
+                <circle class="ring-track" cx="22" cy="22" r="20" />
+                <circle
+                  class="ring-progress"
+                  cx="22"
+                  cy="22"
+                  r="20"
+                  style={`stroke-dasharray:${RING.toFixed(2)};stroke-dashoffset:${(RING * (1 - progress)).toFixed(2)}`}
+                />
+              </svg>
+              <span class="play-icon">
+                {#if playing}
+                  <svg viewBox="0 0 24 24" aria-hidden="true"
+                    ><path fill="currentColor" d="M7 5h3.4v14H7zm6.6 0H17v14h-3.4z" /></svg
+                  >
+                {:else}
+                  <svg class="play-icon-tri" viewBox="0 0 24 24" aria-hidden="true"
+                    ><path fill="currentColor" d="M8 5v14l11-7z" /></svg
+                  >
+                {/if}
+              </span>
+            </button>
+            <div class="preview-meta">
+              <div class="preview-titles">
+                <p class="preview-track">{preview.trackName}</p>
+                {#if preview.artistName}
+                  <p class="preview-artist">{preview.artistName}</p>
+                {/if}
+              </div>
+              <a
+                class="apple-link"
+                href={preview.appleUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Preview courtesy of Apple Music"
+              >
+                Listen on Apple Music
+                <svg viewBox="0 0 24 24" aria-hidden="true"
+                  ><path fill="currentColor" d="M9 5v2h6.59L4 18.59 5.41 20 17 8.41V15h2V5z" /></svg
+                >
+              </a>
+            </div>
+          </div>
+        {/if}
+        <a
+          class="discogs-link"
+          class:discogs-secondary={preview !== null}
+          href={current.discogsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
         >
-      </a>
+          View on Discogs
+          <svg viewBox="0 0 24 24" aria-hidden="true"
+            ><path fill="currentColor" d="M9 5v2h6.59L4 18.59 5.41 20 17 8.41V15h2V5z" /></svg
+          >
+        </a>
+      </div>
+      <audio
+        bind:this={audioEl}
+        crossorigin="anonymous"
+        preload="none"
+        ontimeupdate={onTimeUpdate}
+        onplay={() => (playing = true)}
+        onpause={() => (playing = false)}
+        onended={() => {
+          playing = false;
+          progress = 0;
+        }}
+      ></audio>
     </div>
   {/if}
 
@@ -434,6 +569,9 @@ $effect(() => {
        clip; clipping here on the non-3D wrapper reliably contains them and stops
        horizontal page scroll on narrow screens. */
     overflow-x: clip;
+    /* Room inside the clip so focus rings aren't shaved; margin keeps the box put. */
+    padding-inline: 6px;
+    margin-inline: -6px;
   }
 
   :global(html.dark) .crate {
@@ -494,6 +632,9 @@ $effect(() => {
     }
     .crate.split .chips {
       justify-content: flex-start;
+    }
+    .crate.split .player {
+      align-items: flex-start;
     }
     .crate.split .now-title {
       font-size: clamp(1.6rem, 2.4vw, 2.5rem);
@@ -912,6 +1053,175 @@ $effect(() => {
     outline: 2px solid var(--primary);
     outline-offset: 3px;
     border-radius: 6px;
+  }
+
+  /* Fixed height so flipping records never shifts the cover wall below. */
+  .player {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.7rem;
+    min-height: 6rem;
+    margin-top: 1.3rem;
+  }
+
+  .preview {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+  }
+
+  .play {
+    position: relative;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 3rem;
+    height: 3rem;
+    padding: 0;
+    border: none;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--primary) 10%, var(--card));
+    color: var(--primary);
+    cursor: pointer;
+    transition:
+      transform 0.18s var(--ease-crate),
+      background-color 0.18s ease;
+  }
+
+  .play:hover {
+    transform: translateY(-1px);
+    background: color-mix(in oklab, var(--primary) 18%, var(--card));
+  }
+
+  .play:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  .progress-ring {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg); /* start the sweep at 12 o'clock */
+  }
+
+  .ring-track,
+  .ring-progress {
+    fill: none;
+    stroke-width: 2.5;
+  }
+
+  .ring-track {
+    stroke: color-mix(in oklab, var(--primary) 22%, transparent);
+  }
+
+  .ring-progress {
+    stroke: var(--primary);
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.2s linear;
+  }
+
+  .play-icon {
+    display: grid;
+    place-items: center;
+  }
+
+  .play-icon svg {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+
+  /* Optically centre the play triangle (its visual mass sits left of centre). */
+  .play-icon-tri {
+    transform: translateX(1px);
+  }
+
+  .preview-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+    min-width: 0;
+    text-align: left;
+  }
+
+  /* Fixed height (same trick as .artist-block) so the links below never shift
+     when the artist line comes and goes. */
+  .preview-titles {
+    height: 2.35rem;
+    overflow: hidden;
+  }
+
+  .preview-track {
+    max-width: 15rem;
+    overflow: hidden;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--foreground);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .preview-artist {
+    max-width: 15rem;
+    margin-top: 0.1rem;
+    overflow: hidden;
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--muted-foreground);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .apple-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--primary);
+    transition: opacity 0.18s ease;
+  }
+
+  .apple-link svg {
+    width: 0.95rem;
+    height: 0.95rem;
+    transition: transform 0.18s var(--ease-crate);
+  }
+
+  .apple-link:hover {
+    opacity: 0.8;
+  }
+
+  .apple-link:hover svg {
+    transform: translate(2px, -2px);
+  }
+
+  .apple-link:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  .discogs-secondary {
+    margin-top: 0;
+    font-size: 0.82rem;
+    opacity: 0.85;
+  }
+
+  /* The ring still fills — it's the only playback-position feedback. */
+  @media (prefers-reduced-motion: reduce) {
+    .play,
+    .ring-progress,
+    .apple-link,
+    .apple-link svg {
+      transition: none;
+    }
   }
 
   .wall {
