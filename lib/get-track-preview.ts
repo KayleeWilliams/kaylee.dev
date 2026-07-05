@@ -288,18 +288,6 @@ async function loadPreview(record: ClientRecord): Promise<TrackPreview | null> {
   return toPreview(track, album.collectionViewUrl);
 }
 
-// Keep the track's own artist only when the record can't imply it ("Various"
-// compilations, multi-composer scores).
-function trimRedundantArtist(
-  record: ClientRecord,
-  preview: TrackPreview
-): TrackPreview {
-  if (preview.artistName && artistMatches(record, preview.artistName)) {
-    return { ...preview, artistName: undefined };
-  }
-  return preview;
-}
-
 /** Resolve (and hard-cache) the preview for one record. */
 export function resolvePreview(
   record: ClientRecord
@@ -314,12 +302,9 @@ export function resolvePreview(
     pin = `a${override.appleAlbumId}`;
   }
   return withMemoryCache(
-    `apple-preview:v4:${record.id}:${pin}`,
+    `apple-preview:v6:${record.id}:${pin}`,
     PREVIEW_TTL,
-    () =>
-      loadPreview(record).then((preview) =>
-        preview ? trimRedundantArtist(record, preview) : null
-      )
+    () => loadPreview(record)
   );
 }
 
