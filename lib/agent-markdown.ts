@@ -1,5 +1,6 @@
 import { getAllExperience } from "@/lib/get-all-experience";
 import { getAllProjects } from "@/lib/get-all-projects";
+import { getBlogPosts } from "@/lib/get-blog-posts";
 import { getSiteContent } from "@/lib/get-site-content";
 import { renderPortfolioMarkdown } from "@/lib/render-portfolio-markdown";
 import { pageSeo, type SeoKey } from "@/lib/seo";
@@ -12,6 +13,7 @@ const PAGE_PATHS: Record<PageKey, { path: string; mdPath: string }> = {
   home: { path: "/", mdPath: "/index.md" },
   about: { path: "/about", mdPath: "/about.md" },
   projects: { path: "/projects", mdPath: "/projects.md" },
+  blog: { path: "/blog", mdPath: "/blog.md" },
   connect: { path: "/connect", mdPath: "/connect.md" },
 };
 
@@ -143,6 +145,20 @@ function connectBody(): string {
   return lines.join("\n").trimEnd();
 }
 
+async function blogBody(base: string): Promise<string> {
+  const posts = await getBlogPosts();
+  const lines = ["# Blog", ""];
+  for (const post of posts) {
+    lines.push(
+      `## [${post.data.title}](${base}/blog/${post.id}.md)`,
+      "",
+      post.data.description,
+      ""
+    );
+  }
+  return lines.join("\n").trimEnd();
+}
+
 /** Full Markdown mirror of an HTML page: frontmatter + body + sitemap link. */
 export async function renderPageMarkdown(
   key: PageKey,
@@ -159,6 +175,8 @@ export async function renderPageMarkdown(
     body = await aboutBody();
   } else if (key === "projects") {
     body = await projectsBody();
+  } else if (key === "blog") {
+    body = await blogBody(base);
   } else {
     body = connectBody();
   }
@@ -177,6 +195,7 @@ export function renderNotFoundMarkdown(baseUrl: string): string {
     `- [Home](${base}/) — [markdown](${base}/index.md)`,
     `- [About](${base}/about) — [markdown](${base}/about.md)`,
     `- [Projects](${base}/projects) — [markdown](${base}/projects.md)`,
+    `- [Blog](${base}/blog) — [markdown](${base}/blog.md)`,
     `- [Connect](${base}/connect) — [markdown](${base}/connect.md)`,
     "",
     `See [the full sitemap](${base}/sitemap.md).`,
@@ -196,6 +215,7 @@ export function renderLlmsIndex(baseUrl: string): string {
     `- [Home](${base}/index.md): Overview, current work, and selected projects`,
     `- [About](${base}/about.md): Bio, experience, and appearances`,
     `- [Projects](${base}/projects.md): Open-source work — c15t, Cookiebench, DSAR, Leadtype, Joyful`,
+    `- [Blog](${base}/blog.md): Notes on compliance, developer tooling, and software craft`,
     `- [Connect](${base}/connect.md): Social and contact links`,
     "",
     "## More",
@@ -211,9 +231,10 @@ export async function renderLlmsFull(): Promise<string> {
 }
 
 /** sitemap.md — Markdown sitemap mirroring the site hierarchy. */
-export function renderSitemapMarkdown(baseUrl: string): string {
+export async function renderSitemapMarkdown(baseUrl: string): Promise<string> {
   const base = normalizeBase(baseUrl);
   const dateModified = new Date().toISOString();
+  const posts = await getBlogPosts();
   return `${[
     "---",
     `title: "Sitemap — ${personConfig.name}"`,
@@ -228,8 +249,13 @@ export function renderSitemapMarkdown(baseUrl: string): string {
     `- [Home](${base}/) — [markdown](${base}/index.md)`,
     `- [About](${base}/about) — [markdown](${base}/about.md)`,
     `- [Projects](${base}/projects) — [markdown](${base}/projects.md)`,
+    `- [Blog](${base}/blog) — [markdown](${base}/blog.md)`,
     `- [Connect](${base}/connect) — [markdown](${base}/connect.md)`,
     `- [The Crate](${base}/records) — [markdown](${base}/records.md)`,
+    ...posts.map(
+      (post) =>
+        `- [${post.data.title}](${base}/blog/${post.id}) — [markdown](${base}/blog/${post.id}.md)`
+    ),
     "",
     "## Agent resources",
     "",

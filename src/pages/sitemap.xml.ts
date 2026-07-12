@@ -1,16 +1,20 @@
 import type { APIContext } from "astro";
+import { getBlogPosts } from "@/lib/get-blog-posts";
 
 export const prerender = true;
 
 const TRAILING_SLASHES_REGEX = /\/+$/;
 
-export function GET({ url }: APIContext): Response {
+export async function GET({ url }: APIContext): Promise<Response> {
   const base = url.origin.replace(TRAILING_SLASHES_REGEX, "");
   const now = new Date().toISOString();
+  const posts = await getBlogPosts();
   const routes = [
     { path: "/", priority: "1" },
     { path: "/about", priority: "0.8" },
     { path: "/projects", priority: "0.8" },
+    { path: "/blog", priority: "0.7" },
+    ...posts.map((post) => ({ path: `/blog/${post.id}`, priority: "0.6" })),
     { path: "/connect", priority: "0.5" },
     { path: "/records", priority: "0.4" },
   ];

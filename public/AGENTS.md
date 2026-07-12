@@ -9,7 +9,7 @@ stack: consent, data rights, performance, and agent-readable docs, in code.
 - `/llms.txt` — concise index (llmstxt.org format)
 - `/llms-full.txt` — the full profile inlined, including live OSS activity
 - `/sitemap.md` — Markdown sitemap; `/sitemap.xml` — XML sitemap
-- Every page has a Markdown mirror: `/index.md`, `/about.md`, `/projects.md`, `/connect.md`
+- Every page has a Markdown mirror: `/index.md`, `/about.md`, `/projects.md`, `/blog.md`, `/connect.md`, and `/blog/{slug}.md`
 - Pages also answer `Accept: text/markdown` with their Markdown mirror
 
 ## Usage

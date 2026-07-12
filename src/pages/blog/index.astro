@@ -1,0 +1,69 @@
+---
+import BaseLayout from "@/src/layouts/BaseLayout.astro";
+import { getBlogPosts } from "@/lib/get-blog-posts";
+import { pageSeo } from "@/lib/seo";
+
+export const prerender = true;
+
+const posts = await getBlogPosts();
+const dateFormat = new Intl.DateTimeFormat("en-GB", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+});
+---
+
+<BaseLayout title={pageSeo.blog.title} description={pageSeo.blog.description}>
+  <header class="space-y-2">
+    <h2 class="font-bold text-3xl tracking-tight">Blog</h2>
+    <p class="max-w-prose text-muted-foreground">
+      Notes on compliance, developer tools, and the small decisions that make software
+      hold together.
+    </p>
+  </header>
+
+  {
+    posts.length > 0 ? (
+      <ol class="divide-y divide-border" aria-label="Blog posts">
+        {posts.map((post) => (
+          <li class="py-5 first:pt-0">
+            <article class="flex flex-col gap-2">
+                <div class="flex items-baseline justify-between gap-4">
+                  <a
+                    class="group font-semibold text-lg text-primary"
+                    href={`/blog/${post.id}`}
+                  >
+                    <span class="group-hover:underline">{post.data.title}</span>
+                  </a>
+                  <time
+                    class="shrink-0 text-muted-foreground text-sm tabular-nums"
+                    datetime={post.data.publishedAt.toISOString()}
+                  >
+                    {dateFormat.format(post.data.publishedAt)}
+                  </time>
+                </div>
+                <p class="max-w-prose text-muted-foreground text-sm">
+                  {post.data.description}
+                </p>
+                {post.data.tags.length > 0 ? (
+                  <ul
+                    class="flex flex-wrap gap-x-3 gap-y-1 text-muted-foreground text-xs"
+                    aria-label="Topics"
+                  >
+                    {post.data.tags.map((tag) => (
+                      <li>{tag}</li>
+                    ))}
+                  </ul>
+                ) : null}
+            </article>
+          </li>
+        ))}
+      </ol>
+    ) : (
+      <div class="rounded-lg border border-dashed border-border px-6 py-10 text-center">
+        <p class="font-semibold">Nothing published yet.</p>
+        <p class="mt-1 text-muted-foreground text-sm">The drafts are behaving themselves.</p>
+      </div>
+    )
+  }
+</BaseLayout>
