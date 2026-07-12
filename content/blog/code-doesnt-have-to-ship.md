@@ -8,7 +8,7 @@ tags:
   - experiments
 draft: false
 ---
-At [AI Engineer Miami](https://www.ai.engineer/miami) and [React Miami](https://www.reactmiami.com/) in April, a conversation with [https://x.com/tannerlinsley](https://x.com/tannerlinsley) left me with a question: what if we used coding models to test new shapes for a product, not just clear its existing backlog?
+In April, a conversation with [https://x.com/tannerlinsley](https://x.com/tannerlinsley) at [AI Engineer Miami](https://www.ai.engineer/miami) and [React Miami](https://www.reactmiami.com/) left me with a question: what if we used coding models to test new shapes for a product, not just clear its existing backlog?
 
 I had somewhere to test it. For c15t v3, I was working on the server-rendered path for consent experiences.
 
