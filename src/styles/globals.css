@@ -313,7 +313,7 @@ h3 {
   text-decoration-thickness: 0.13em;
 }
 
-.blog-prose .inline-profile {
+.blog-prose a.inline-profile {
   display: inline-flex;
   gap: 0.32em;
   align-items: center;
@@ -323,7 +323,7 @@ h3 {
   font-size: 0.9em;
   line-height: 1.4;
   vertical-align: -0.18em;
-  color: var(--foreground);
+  color: var(--primary);
   white-space: nowrap;
   text-decoration: none;
   background: color-mix(in srgb, var(--primary) 8%, var(--card));
