@@ -4,6 +4,7 @@ import {
   type ClientRecord,
   getDiscogsCollection,
 } from "@/lib/get-discogs-collection";
+import { recordsSeo } from "@/lib/seo";
 import { personConfig } from "@/lib/site-config";
 
 // Dynamic, like the page itself, so the listing reflects the live collection.
@@ -43,19 +44,18 @@ export async function GET({ url }: APIContext): Promise<Response> {
 
   const base = url.origin.replace(TRAILING_SLASHES, "");
   const collectionUrl = `https://www.discogs.com/user/${personConfig.discogsUsername}/collection`;
-  const description = `Browse the records and CDs ${personConfig.name} owns, pulled live from Discogs with album artwork and song previews.`;
 
   const lines: string[] = [
     "---",
-    `title: "Records — ${personConfig.name}"`,
-    `description: "${description}"`,
+    `title: "${recordsSeo.title}"`,
+    `description: "${recordsSeo.description}"`,
     `canonical_url: "${base}/records.md"`,
     `last_updated: "${new Date().toISOString()}"`,
     "---",
     "",
     "# Records",
     "",
-    `${personConfig.name}'s personal collection of records and CDs she actually owns, filed alphabetically by artist and pulled live from [Discogs](${collectionUrl}).`,
+    `The records and CDs ${personConfig.name} actually owns, filed alphabetically by artist and pulled live from [Discogs](${collectionUrl}).`,
     "",
   ];
 
@@ -68,7 +68,7 @@ export async function GET({ url }: APIContext): Promise<Response> {
   } else {
     const cdLabel = cds === 1 ? "CD" : "CDs";
     lines.push(
-      `## Collection — ${total} releases (${vinyl} vinyl, ${cds} ${cdLabel})`,
+      `## Collection: ${total} releases (${vinyl} vinyl, ${cds} ${cdLabel})`,
       "",
       ...records.map(recordLine),
       ""

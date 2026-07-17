@@ -10,6 +10,7 @@ import {
   toClientRecords,
 } from "@/lib/get-discogs-collection";
 import { withPreviews } from "@/lib/get-track-preview";
+import { recordsSeo } from "@/lib/seo";
 import { personConfig } from "@/lib/site-config";
 
 // Server-rendered (not prerendered) so the crate refreshes as records get added
@@ -33,12 +34,13 @@ const avatar = await getImage({
   quality: 82,
 });
 
-const title = `Records — ${personConfig.name}`;
-const description =
-  "Browse the records and CDs I own, pulled live from Discogs with album artwork and song previews.";
 ---
 
-<BaseLayout description={description} title={title} variant="immersive">
+<BaseLayout
+  description={recordsSeo.description}
+  title={recordsSeo.title}
+  variant="immersive"
+>
   {/* Header columns mirror the crate's split below: card 1 (profile) lines up
       with the title/meta column, card 2 (nav + theme) with the artwork column. */}
   <header

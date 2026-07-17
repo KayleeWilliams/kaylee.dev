@@ -1,7 +1,7 @@
 # AGENTS.md
 
-The personal website of **Kaylee Williams** — founding engineer at Inth (YC P26)
-and co-author of [c15t](https://c15t.com), building the open-source compliance
+The personal website of **Kaylee Williams**, founding engineer at Inth (YC P26)
+and co-author of [c15t](https://c15t.com). She builds the open-source compliance
 stack: consent, data rights, performance, and agent-readable docs, in code.
 
 ## Machine-readable surfaces
