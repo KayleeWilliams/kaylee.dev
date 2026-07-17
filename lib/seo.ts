@@ -28,3 +28,13 @@ export const pageSeo: Record<SeoKey, { title: string; description: string }> = {
       "Connect with Kaylee Williams on GitHub, LinkedIn, X, and Bluesky, or follow the work at Inth and c15t.",
   },
 };
+
+/**
+ * Records lives outside SeoKey because it has its own Markdown renderer
+ * (records.md.ts), not the shared per-page mirror keyed by PageKey.
+ */
+export const recordsSeo = {
+  title: "Kaylee Williams' Record Collection",
+  description:
+    "Browse the records and CDs Kaylee Williams owns, pulled live from Discogs with album artwork and song previews.",
+};

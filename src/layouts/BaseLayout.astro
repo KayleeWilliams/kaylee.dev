@@ -25,7 +25,10 @@ const {
   description = pageSeo.home.description,
   variant = "default",
 } = Astro.props;
-const ogImageUrl = new URL("/opengraph-image", personConfig.siteUrl).toString();
+const ogImageUrl = new URL(
+  "/opengraph-image.png",
+  personConfig.siteUrl
+).toString();
 const originRoot = Astro.url.origin.replace(/\/+$/, "");
 const canonicalUrl = `${originRoot}${Astro.url.pathname}`;
 const trimmedPath = Astro.url.pathname.replace(/\/+$/, "");
@@ -152,6 +155,9 @@ const jsonLd = {
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
