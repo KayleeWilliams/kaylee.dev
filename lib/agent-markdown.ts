@@ -189,13 +189,13 @@ export function renderLlmsIndex(baseUrl: string): string {
   return `${[
     `# ${personConfig.name}`,
     "",
-    "> Founding engineer at Inth (YC P26) and co-author of c15t. Building the open-source compliance stack — consent (c15t), data rights (DSAR), performance (Cookiebench), and agent-readable docs (Leadtype). Compliance belongs in code.",
+    "> Founding engineer at Inth (YC P26) and co-author of c15t. Building the open-source compliance stack: consent (c15t), data rights (DSAR), performance (Cookiebench), and agent-readable docs (Leadtype). Compliance belongs in code.",
     "",
     "## Pages",
     "",
     `- [Home](${base}/index.md): Overview, current work, and selected projects`,
     `- [About](${base}/about.md): Bio, experience, and appearances`,
-    `- [Projects](${base}/projects.md): Open-source work — c15t, Cookiebench, DSAR, Leadtype, Joyful`,
+    `- [Projects](${base}/projects.md): Open-source work, including c15t, Cookiebench, DSAR, Leadtype, and Joyful`,
     `- [Connect](${base}/connect.md): Social and contact links`,
     "",
     "## More",
@@ -216,7 +216,7 @@ export function renderSitemapMarkdown(baseUrl: string): string {
   const dateModified = new Date().toISOString();
   return `${[
     "---",
-    `title: "Sitemap — ${personConfig.name}"`,
+    `title: "Sitemap: ${personConfig.name}"`,
     `canonical_url: "${base}/sitemap.md"`,
     `last_updated: "${dateModified}"`,
     "---",
