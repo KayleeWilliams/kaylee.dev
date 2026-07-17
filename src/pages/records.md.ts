@@ -43,17 +43,17 @@ export async function GET({ url }: APIContext): Promise<Response> {
 
   const base = url.origin.replace(TRAILING_SLASHES, "");
   const collectionUrl = `https://www.discogs.com/user/${personConfig.discogsUsername}/collection`;
-  const description = `The records and CDs ${personConfig.name} owns, from her Discogs collection.`;
+  const description = `Browse the records and CDs ${personConfig.name} owns, pulled live from Discogs with album artwork and song previews.`;
 
   const lines: string[] = [
     "---",
-    `title: "The Crate — ${personConfig.name}"`,
+    `title: "Records — ${personConfig.name}"`,
     `description: "${description}"`,
     `canonical_url: "${base}/records.md"`,
     `last_updated: "${new Date().toISOString()}"`,
     "---",
     "",
-    "# The Crate",
+    "# Records",
     "",
     `${personConfig.name}'s personal collection of records and CDs she actually owns, filed alphabetically by artist and pulled live from [Discogs](${collectionUrl}).`,
     "",

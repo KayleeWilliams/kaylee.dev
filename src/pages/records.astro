@@ -33,9 +33,9 @@ const avatar = await getImage({
   quality: 82,
 });
 
-const title = `The Crate — ${personConfig.name}`;
+const title = `Records — ${personConfig.name}`;
 const description =
-  "Records and CDs I actually own, pulled live from my Discogs collection.";
+  "Browse the records and CDs I own, pulled live from Discogs with album artwork and song previews.";
 ---
 
 <BaseLayout description={description} title={title} variant="immersive">
@@ -79,7 +79,7 @@ const description =
   </header>
 
   <main class="mt-6">
-    <h1 class="sr-only">The Crate</h1>
+    <h1 class="sr-only">Records</h1>
     {
       hasRecords ? (
         <div class="crate-reveal">
