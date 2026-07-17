@@ -594,6 +594,7 @@ function onTimeUpdate() {
   @media (min-width: 768px) {
     .crate.split {
       display: grid;
+      width: auto;
       grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
       /* Top-align both columns and put the controls ABOVE the title, so a title
          of any length — even a 7-line one — can never move the prev/next
@@ -605,8 +606,9 @@ function onTimeUpdate() {
     }
     .crate.split .stage {
       order: 1;
-      /* tighter around the coverflow so the card isn't mostly empty space */
-      height: clamp(250px, 26vw, 300px);
+      align-self: stretch;
+      height: auto;
+      min-height: clamp(250px, 26vw, 300px);
     }
     .crate.split .info {
       order: 0;

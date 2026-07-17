@@ -36,8 +36,7 @@ const currentYear = new Date().getFullYear();
         <span>View Source</span>
       </a>
       <a
-        aria-label="Dig through my record crate"
-        class="vinyl-wink transition-colors duration-150 hover:text-primary"
+        class="vinyl-wink flex items-center gap-1 transition-colors duration-150 hover:text-primary"
         href="/records"
       >
         <svg class="vinyl size-3.5" fill="none" viewBox="0 0 24 24">
@@ -52,6 +51,7 @@ const currentYear = new Date().getFullYear();
           />
           <circle cx="12" cy="12" fill="currentColor" r="2.1" />
         </svg>
+        <span>Records</span>
       </a>
       <p>© {currentYear} {personConfig.name}</p>
     </div>
