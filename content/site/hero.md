@@ -1,6 +1,6 @@
 ---
 title: "c15t"
-description: "Open-source consent and privacy infrastructure that ships in your bundle instead of bolting on top."
+description: "Open-source consent infrastructure you ship in your bundle and style with your own components."
 github: "https://github.com/c15t/c15t"
 npmPackage: "c15t"
 projectUrl: "https://c15t.com"
@@ -10,5 +10,5 @@ currentWork:
   - "Founding Engineer at [Inth](https://inth.com)"
   - "YC P26"
   - "Co-author of [c15t](https://c15t.com)"
-  - "Shipping consent infrastructure for teams that care about performance and UX"
+  - "Building consent infrastructure that ships with product code instead of through a third-party script"
 ---

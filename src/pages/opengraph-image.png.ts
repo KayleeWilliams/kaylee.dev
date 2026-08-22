@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { Resvg } from "@resvg/resvg-js";
 
@@ -21,7 +20,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" v
   <rect width="1200" height="630" fill="url(#bg)"/>
   <rect width="1200" height="630" fill="url(#grid)"/>
   <text x="600" y="280" text-anchor="middle" font-family="Nunito" font-size="72" font-weight="700" fill="#171717">Kaylee Williams</text>
-  <text x="600" y="340" text-anchor="middle" font-family="Nunito" font-size="36" fill="#8b5cf6">Founding Engineer</text>
+  <text x="600" y="340" text-anchor="middle" font-family="Nunito" font-size="36" fill="#8b5cf6">Founding engineer</text>
   <text x="600" y="394" text-anchor="middle" font-family="Nunito" font-size="24" fill="#6b7280">Inth (YC P26) · co-author of c15t</text>
   <text x="600" y="570" text-anchor="middle" font-family="Nunito" font-size="20" fill="#9ca3af">kaylee.dev</text>
 </svg>`;
