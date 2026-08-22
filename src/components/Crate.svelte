@@ -71,7 +71,7 @@ function shortFormat(record: ClientRecord): string {
 // Prefer romanized names for screen readers (and English-reading users) when a
 // native-script record has a Latin equivalent.
 function label(record: ClientRecord): string {
-  return `${record.artistRoman ?? record.artist} – ${record.titleRoman ?? record.title}`;
+  return `${record.titleRoman ?? record.title} by ${record.artistRoman ?? record.artist}`;
 }
 
 // Scale the title down so the artist + title always fit a fixed-height box,

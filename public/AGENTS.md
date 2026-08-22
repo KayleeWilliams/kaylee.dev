@@ -2,21 +2,23 @@
 
 The personal website of **Kaylee Williams**, founding engineer at Inth (YC P26)
 and co-author of [c15t](https://c15t.com). She builds the open-source compliance
-stack: consent, data rights, performance, and agent-readable docs, in code.
+stack: c15t for consent, DSAR for data rights, Cookiebench for performance, and
+Leadtype for agent-readable docs. Compliance belongs in code.
 
-## Machine-readable surfaces
+## Agent-readable files
 
-- `/llms.txt` — concise index (llmstxt.org format)
-- `/llms-full.txt` — the full profile inlined, including live OSS activity
-- `/sitemap.md` — Markdown sitemap; `/sitemap.xml` — XML sitemap
-- Every page has a Markdown mirror: `/index.md`, `/about.md`, `/projects.md`, `/connect.md`
-- Pages also answer `Accept: text/markdown` with their Markdown mirror
+- `/llms.txt`: concise index (llmstxt.org format)
+- `/llms-full.txt`: the full profile inlined, including live OSS activity
+- `/sitemap.md`: Markdown sitemap; `/sitemap.xml`: XML sitemap
+- Markdown mirrors are available at `/index.md`, `/about.md`, `/projects.md`,
+  `/connect.md`, and `/records.md`
+- The matching HTML pages answer `Accept: text/markdown` with their Markdown mirror
 
 ## Usage
 
-To summarize who Kaylee is: fetch `/llms.txt` for the overview, then
-`/llms-full.txt` for detail. Each page's `.md` mirror carries YAML frontmatter
-(`title`, `description`, `url`, `dateModified`).
+Fetch `/llms.txt` for an overview of Kaylee's work, then `/llms-full.txt` for
+detail. Each page's `.md` mirror includes YAML frontmatter for `title`,
+`description`, `canonical_url`, and `last_updated`.
 
 ```bash
 curl https://www.kaylee.dev/llms.txt

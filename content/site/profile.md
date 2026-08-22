@@ -1,4 +1,4 @@
 ---
-title: "About Me"
+title: "About me"
 ---
-Co-author of [c15t](https://c15t.com). Founding engineer at [Inth](https://inth.com), part of YC P26. I think compliance belongs in your codebase, not bolted on top of it. I like building things that are fast, with great DX & UX.
+I co-author [c15t](https://c15t.com) and work as a founding engineer at [Inth](https://inth.com), part of YC P26. I build consent that ships in the app bundle, data-rights tools, performance benchmarks, and docs agents can read. Compliance belongs in code.

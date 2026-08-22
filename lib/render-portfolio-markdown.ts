@@ -45,7 +45,7 @@ export async function renderPortfolioMarkdown(): Promise<string> {
     "## Profile",
     "",
     ...(profile ? [profile.content.trim(), ""] : []),
-    "## Current Work",
+    "## Current work",
     "",
     ...(hero?.currentWork ? hero.currentWork.map((item) => `- ${item}`) : []),
     ...(stars || downloads
@@ -66,7 +66,7 @@ export async function renderPortfolioMarkdown(): Promise<string> {
     ...experience.flatMap((item) => [
       `### ${item.role} · ${item.company}`,
       "",
-      `- ${formatDate(item.startDate)} - ${item.endDate ? formatDate(item.endDate) : "Present"}`,
+      `- ${formatDate(item.startDate)} to ${item.endDate ? formatDate(item.endDate) : "Present"}`,
       ...(item.url ? [`- ${item.url}`] : []),
       `- ${item.description}`,
       "",

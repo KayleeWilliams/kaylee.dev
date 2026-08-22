@@ -1,6 +1,6 @@
 ---
 title: "DSAR"
-description: "An open-source standard for handling DSAR (data subject access request) flows programmatically, so privacy teams can automate what is usually manual."
+description: "An open-source standard for data subject access requests. It turns work that privacy teams usually handle by hand into code."
 date: "2025-09-01"
 tags: ["TypeScript", "Privacy"]
 url: "https://dsar-sdk.com"

@@ -30,9 +30,9 @@ function recordLine(record: ClientRecord): string {
   // Surface the native script too when we display a romanized name.
   const native =
     record.artistRoman || record.titleRoman
-      ? ` (${record.artist} — ${record.title})`
+      ? ` (${record.artist}: ${record.title})`
       : "";
-  return `- **${artist} — ${title}**${native} — ${recordMeta(record)} — ${record.discogsUrl}`;
+  return `- **${title}** by **${artist}**${native}; ${recordMeta(record)}; ${record.discogsUrl}`;
 }
 
 export async function GET({ url }: APIContext): Promise<Response> {
@@ -68,7 +68,9 @@ export async function GET({ url }: APIContext): Promise<Response> {
   } else {
     const cdLabel = cds === 1 ? "CD" : "CDs";
     lines.push(
-      `## Collection: ${total} releases (${vinyl} vinyl, ${cds} ${cdLabel})`,
+      "## Collection",
+      "",
+      `${total} releases. ${vinyl} vinyl, ${cds} ${cdLabel}.`,
       "",
       ...records.map(recordLine),
       ""
@@ -79,7 +81,7 @@ export async function GET({ url }: APIContext): Promise<Response> {
     "## More",
     "",
     `- Full collection on Discogs: ${collectionUrl}`,
-    `- [Home](${base}/) — [markdown](${base}/index.md)`,
+    `- [Home](${base}/): [markdown](${base}/index.md)`,
     `- [Sitemap](${base}/sitemap.md)`
   );
 
