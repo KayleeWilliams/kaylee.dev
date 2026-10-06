@@ -1,102 +1,104 @@
 # kaylee.dev
 
-The personal site of **Kaylee Williams** — founding engineer at [Inth](https://inth.com) (YC P26) and co-author of [c15t](https://c15t.com), the open-source consent layer.
+The source for [Kaylee Williams' personal site](https://www.kaylee.dev). I'm a founding engineer at [Inth](https://inth.com), part of YC P26. I also co-author [c15t](https://c15t.com), the open-source consent layer.
 
 [![kaylee.dev](https://shieldcn.dev/badge/kaylee.dev-live-7c3aed.svg)](https://www.kaylee.dev)
 [![GitHub](https://shieldcn.dev/badge/GitHub-KayleeWilliams-181717.svg?logo=github)](https://github.com/KayleeWilliams)
 [![X](https://shieldcn.dev/x/follow/kaylee_dev.svg)](https://x.com/kaylee_dev)
 [![Bluesky](https://shieldcn.dev/badge/Bluesky-@kaylee.dev-0285FF.svg?logo=bluesky)](https://bsky.app/profile/kaylee.dev)
 
-It's a personal site — the live version is the real story. This is just how it's built and how to run it.
+The live site shows what I build. This README explains how the site itself works.
 
-## Highlights
+## How it works
 
-- **Privacy-first by design.** No cookie banner because there are no tracking cookies — fitting for someone who builds consent infrastructure for a living.
-- **Mostly static, selectively dynamic.** Framework-free Astro for everything; a single Svelte 5 island powers the `/records` crate.
-- **Live, not hardcoded.** OSS activity, GitHub stars, npm downloads, the contribution graph, and a Discogs record collection are all fetched live — with baked-in snapshots so the site never breaks when a token or an API is missing.
-- **Agent-readable.** Every page has a Markdown mirror, plus `/llms.txt`, `/llms-full.txt`, content negotiation, and dynamic OpenGraph images. (Details below.)
-- **Fast on purpose.** Lighthouse runs are checked in under [`bench/`](#performance).
+- The site sets no tracking cookies, so it needs no cookie banner. If it did, it would use c15t.
+- Astro renders every page. Svelte only hydrates the record crate on `/records`.
+- Data from GitHub, npm, and Discogs comes from their APIs. Checked-in snapshots take over when a token is missing or an API is unavailable.
+- The main pages have Markdown mirrors. `/llms.txt` and `/llms-full.txt` index that content for agents.
+- Lighthouse results live in [`bench/`](#performance).
 
 ## Tech stack
 
-- **[Astro 7](https://astro.build)** in `server` output, deployed via the [Vercel adapter](https://docs.astro.build/en/guides/integrations-guide/vercel/) (with a [Node adapter](https://docs.astro.build/en/guides/integrations-guide/node/) fallback for self-hosting).
-- **[Svelte 5](https://svelte.dev)** for the one interactive island (`/records`).
-- **[Tailwind CSS 4](https://tailwindcss.com)** via the Vite plugin.
-- **[TypeScript](https://www.typescriptlang.org)** throughout.
-- **[Biome](https://biomejs.dev)** (with the [Ultracite](https://www.ultracite.ai) preset) for lint + format.
-- **[Bun](https://bun.sh)** as the package manager.
-- **[Vercel Analytics](https://vercel.com/analytics)** + **[Speed Insights](https://vercel.com/docs/speed-insights)** for privacy-friendly metrics.
+- [Astro 7](https://astro.build) produces the server build. The [Vercel adapter](https://docs.astro.build/en/guides/integrations-guide/vercel/) handles deployment, and the [Node adapter](https://docs.astro.build/en/guides/integrations-guide/node/) supports self-hosting.
+- [Svelte 5](https://svelte.dev) powers the record crate on `/records`.
+- [Tailwind CSS 4](https://tailwindcss.com) runs through its Vite plugin.
+- The application is written in [TypeScript](https://www.typescriptlang.org).
+- [Biome](https://biomejs.dev), using the [Ultracite](https://www.ultracite.ai) preset, handles linting and formatting.
+- [Bun](https://bun.sh) installs packages and runs scripts.
+- [Vercel Analytics](https://vercel.com/analytics) and [Speed Insights](https://vercel.com/docs/speed-insights) collect site and performance metrics.
 
 ## Getting started
 
-**Prerequisites:** [Bun](https://bun.sh) and Node.js 24+ (see `.nvmrc`).
+Install [Bun](https://bun.sh) and Node.js 24 or newer. The `.nvmrc` file pins the Node version.
 
 ```bash
 bun install
 bun run dev
 ```
 
-Open <http://localhost:4321>. No environment variables are required — live data falls back to checked-in snapshots, so the site renders fully out of the box.
+Open <http://localhost:4321>. You do not need environment variables. The data loaders use checked-in snapshots when credentials are absent.
 
 ## Scripts
 
 | Command | Description |
 | --- | --- |
 | `bun run dev` | Start the Astro dev server. |
-| `bun run build` | Production build (Vercel adapter). |
+| `bun run build` | Create the production build with the Vercel adapter. |
 | `bun run build:node` | Production build with the standalone Node adapter. |
 | `bun run start` | Build with the Node adapter and serve on `127.0.0.1:4321`. |
-| `bun run fmt` | Lint + format with Biome (`--write`). |
+| `bun run fmt` | Lint and format with Biome. |
 
 ## Environment variables
 
-All optional — each one upgrades a live data source, and the site degrades gracefully without it.
+Both variables are optional. Without them, the data loaders use the checked-in snapshots.
 
 | Variable | Used for |
 | --- | --- |
-| `GH_TOKEN` / `GITHUB_TOKEN` | Higher GitHub API rate limits for OSS activity, stars, and the contribution graph. |
-| `DISCOGS_TOKEN` | Higher Discogs rate limit + access to the private record collection on `/records`. |
+| `GH_TOKEN` or `GITHUB_TOKEN` | Higher GitHub API rate limits for OSS activity, stars, and the contribution graph. |
+| `DISCOGS_TOKEN` | A higher Discogs rate limit and access to the private record collection on `/records`. |
 
-For local development, drop them in a `.env` file (gitignored). In production they're set as Vercel project env vars.
+For local development, add them to the gitignored `.env` file. In production, set them as Vercel project environment variables.
 
 ## Project structure
 
 ```
-content/          Markdown + JSON content collections
-  experience/     Roles (Inth, Everfund)
-  projects/       Featured work (c15t, cookiebench, …)
+content/          Markdown and JSON content collections
+  experience/     Roles at Inth and Everfund
+  projects/       Featured work
   site/           Hero, profile, socials, person schema
-lib/              Data fetching (GitHub, npm, Discogs), caching, Markdown + SEO helpers
+lib/              API clients, caching, Markdown helpers, and SEO
 src/
-  components/     Astro UI + the Svelte records crate
+  components/     Astro UI and the Svelte record crate
   layouts/        BaseLayout
-  pages/          Routes + their .md mirrors and machine-readable endpoints
-  styles/         Global CSS / Tailwind layer
-public/           Static assets + AGENTS.md
-bench/            Isolated Lighthouse benchmark harness
+  pages/          Routes, Markdown mirrors, and agent endpoints
+  styles/         Global CSS and Tailwind layer
+public/           Static assets and AGENTS.md
+bench/            Isolated Lighthouse benchmark runner
 ```
 
 ### Pages
 
 | Route | Page |
 | --- | --- |
-| `/` | Home — hero, current work, OSS activity, stats |
+| `/` | Home with current work, OSS activity, and stats |
 | `/about` | About |
 | `/projects` | Featured projects |
-| `/experience/[slug]` | Individual roles |
-| `/connect` | Linktree-style contact page (`/contact` → `/connect`) |
+| `/experience/[slug]` | Permanent redirect to `/about` |
+| `/connect` | Contact links. `/contact` redirects here. |
 | `/connect/share` | Shareable QR code |
-| `/records` | Discogs record collection (Svelte island) |
+| `/records` | Discogs record collection powered by Svelte |
 
-## Agent-readable surfaces
+## Agent-readable files
 
-The site is built to be summarized correctly by LLMs and answer engines — see [`public/AGENTS.md`](public/AGENTS.md). Every page exposes a Markdown twin alongside the HTML:
+The site publishes its page copy as Markdown for LLMs and answer engines. [`public/AGENTS.md`](public/AGENTS.md) tells agents where to start.
 
-- `/llms.txt` — concise index in the [llmstxt.org](https://llmstxt.org) format.
-- `/llms-full.txt` — the full profile inlined, including live OSS activity.
-- `/index.md`, `/about.md`, `/projects.md`, `/connect.md` — per-page Markdown mirrors with YAML frontmatter.
-- Content negotiation — any page also answers `Accept: text/markdown` with its mirror.
-- `/sitemap.xml` + `/sitemap.md`, and dynamic per-page OpenGraph images.
+- `/llms.txt`: concise index in the [llmstxt.org](https://llmstxt.org) format.
+- `/llms-full.txt`: the full profile, including live OSS activity.
+- `/index.md`, `/about.md`, `/projects.md`, and `/connect.md`: mirrors of the main pages with YAML frontmatter.
+- `/records.md`: the live Discogs collection in Markdown.
+- `/sitemap.xml` and `/sitemap.md`: site indexes for crawlers and agents.
+
+The four mirrored main pages return Markdown when a request sends `Accept: text/markdown` or uses a recognized crawler user agent.
 
 ```bash
 curl https://www.kaylee.dev/llms.txt
@@ -105,7 +107,7 @@ curl -H "Accept: text/markdown" https://www.kaylee.dev/about
 
 ## Performance
 
-`bench/` is a self-contained [Lighthouse](https://developer.chrome.com/docs/lighthouse) harness, deliberately kept out of the app's dependency graph. It measures cold build time, output size, and per-page Lighthouse metrics; before/after runs live in `bench/results/`.
+`bench/` has its own package file, so its [Lighthouse](https://developer.chrome.com/docs/lighthouse) dependencies do not ship with the site. It measures cold build time, output size, and per-page scores. Comparisons live in `bench/results/`.
 
 ```bash
 cd bench && bun install && cd ..
@@ -114,8 +116,8 @@ node bench/bench.mjs <label>   # writes bench/results/<label>.json
 
 ## Deployment
 
-Deployed on [Vercel](https://vercel.com) from `main`. The Node adapter (`bun run build:node`) produces a standalone server for self-hosting anywhere else.
+[Vercel](https://vercel.com) deploys `main`. Run `bun run build:node` to produce a standalone server for self-hosting.
 
 ## License
 
-Personal project — all rights reserved. Feel free to read the code for ideas; please don't ship it as your own personal site.
+This is a personal project. All rights reserved. Read the code for ideas, but please do not ship it as your own personal site.

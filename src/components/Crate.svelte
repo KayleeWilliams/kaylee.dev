@@ -11,6 +11,7 @@ const DEPTH = 60; // px each step pushes back in Z
 // The focused record floats forward so a tilted neighbour (whose near edge
 // rotates toward the viewer) can never clip through its plane.
 const POP = 72;
+const DISC_NUDGE = 8; // % of sleeve width the focused record shifts left
 const STEP = 130; // px of drag that advances one record
 const SCALE_FALLOFF = 0.07;
 const BRIGHT_FALLOFF = 0.12;
@@ -18,6 +19,9 @@ const FADE_START = 4; // records this far out begin fading
 const FADE_RANGE = 4;
 const WINDOW = 9; // only render this many sleeves either side of centre
 const RING = 2 * Math.PI * 20; // circumference of the play button's progress ring
+// The idle spin is 4.6s a turn; playing speeds it to 33⅓ rpm (1.8s a turn).
+const PLAYING_SPIN_RATE = 4.6 / 1.8;
+const SPIN_RAMP_MS = 900; // a turntable takes a moment to come up to speed
 
 const count = records.length;
 
@@ -71,7 +75,7 @@ function shortFormat(record: ClientRecord): string {
 // Prefer romanized names for screen readers (and English-reading users) when a
 // native-script record has a Latin equivalent.
 function label(record: ClientRecord): string {
-  return `${record.artistRoman ?? record.artist} – ${record.titleRoman ?? record.title}`;
+  return `${record.titleRoman ?? record.title} by ${record.artistRoman ?? record.artist}`;
 }
 
 // Scale the title down so the artist + title always fit a fixed-height box,
@@ -105,6 +109,9 @@ function itemStyle(index: number): string {
   const z = -distance * DEPTH + focus * POP;
   const scale = Math.max(0.6, 1 - distance * SCALE_FALLOFF);
   const lift = -focus * 14;
+  // Shift the focused sleeve left by a share of its own width so the pulled
+  // disc's extra reach stays inside the stage.
+  const nudge = records[index].disc === "none" ? 0 : focus * DISC_NUDGE;
   const brightness = Math.max(0.42, 1 - Math.min(distance, 4) * BRIGHT_FALLOFF);
   const blur = distance > 3 ? Math.min((distance - 3) * 0.7, 2.4) : 0;
   const opacity =
@@ -115,7 +122,7 @@ function itemStyle(index: number): string {
   const pointer = opacity < 0.12 ? "none" : "auto";
   const filter = `brightness(${brightness.toFixed(2)})${blur ? ` blur(${blur.toFixed(2)}px)` : ""}`;
   return (
-    `transform:translate3d(${x.toFixed(2)}px, ${lift}px, ${z.toFixed(1)}px) rotateY(${rotateY.toFixed(2)}deg) scale(${scale.toFixed(3)});` +
+    `transform:translate3d(calc(${x.toFixed(2)}px - ${nudge.toFixed(2)}%), ${lift}px, ${z.toFixed(1)}px) rotateY(${rotateY.toFixed(2)}deg) scale(${scale.toFixed(3)});` +
     `z-index:${zIndex};opacity:${opacity.toFixed(2)};filter:${filter};pointer-events:${pointer};` +
     (dragging || snapInstant ? "transition:none;" : "")
   );
@@ -301,6 +308,45 @@ async function togglePlay() {
 function onTimeUpdate() {
   progress = audioEl?.duration ? audioEl.currentTime / audioEl.duration : 0;
 }
+
+// timeupdate only fires ~4 times a second, so the ring would step. Sample it
+// every frame while playing.
+$effect(() => {
+  if (!playing) {
+    return;
+  }
+  let frame = requestAnimationFrame(function tick() {
+    onTimeUpdate();
+    frame = requestAnimationFrame(tick);
+  });
+  return () => cancelAnimationFrame(frame);
+});
+
+// Spin the focused disc up to speed while its preview plays, and back down
+// on pause. playbackRate keeps the current angle, so the change is seamless.
+$effect(() => {
+  const target = playing ? PLAYING_SPIN_RATE : 1;
+  // A drag or record change remounts the spin at idle speed; re-apply then.
+  void active;
+  void dragging;
+  const spin = stageEl
+    ?.querySelector(".disc-face.spinning")
+    ?.getAnimations()[0];
+  if (!spin) {
+    return;
+  }
+  const from = spin.playbackRate;
+  const start = performance.now();
+  let frame = requestAnimationFrame(function ramp(now) {
+    const t = Math.min(1, (now - start) / SPIN_RAMP_MS);
+    const eased = 1 - (1 - t) ** 3;
+    spin.playbackRate = from + (target - from) * eased;
+    if (t < 1) {
+      frame = requestAnimationFrame(ramp);
+    }
+  });
+  return () => cancelAnimationFrame(frame);
+});
 </script>
 
 <!-- Key handling is delegated to the wrapper so the arrow keys work whether the
@@ -332,12 +378,28 @@ function onTimeUpdate() {
                 class="disc-face disc-{record.disc}"
                 class:spinning={index === active && !dragging && !reduceMotion}
               >
-                <span class="disc-sheen"></span>
                 {#if record.disc === "vinyl"}
-                  <span class="disc-label"></span>
+                  <!-- The label reuses the sleeve's cover (already cached), so
+                       the spin reads and each record looks like its own. -->
+                  <span class="disc-label">
+                    {#if record.hasCover}
+                      <img
+                        src={record.coverPath}
+                        alt=""
+                        width="320"
+                        height="320"
+                        draggable="false"
+                        decoding="async"
+                        loading={Math.abs(index - active) <= 2 ? "eager" : "lazy"}
+                      />
+                    {/if}
+                  </span>
                 {/if}
                 <span class="disc-hole"></span>
               </div>
+              <!-- Light sits outside the spinning face: reflections stay fixed
+                   to the room while the disc turns beneath them. -->
+              <span class="disc-light disc-light-{record.disc}"></span>
             </div>
           {/if}
           <button
@@ -412,24 +474,44 @@ function onTimeUpdate() {
   {#if current}
     <div class="details">
       <div class="heading" bind:this={headingEl}>
-        <div class="artist-block">
-          <p class="now-artist">{current.artistRoman ?? current.artist}</p>
-          {#if current.artistRoman}
-            <p class="now-sub now-artist-sub">{current.artist}</p>
+        <!-- Keyed so the text fades in fresh on each record. Opacity and blur
+             only: a transform would add scroll overflow and trip fitHeading. -->
+        {#key current.id}
+          <div class="artist-block swap-in">
+            <p class="now-artist">{current.artistRoman ?? current.artist}</p>
+            {#if current.artistRoman}
+              <p class="now-sub now-artist-sub">{current.artist}</p>
+            {/if}
+          </div>
+          <p class="now-title swap-in">{current.titleRoman ?? current.title}</p>
+          {#if current.titleRoman}
+            <p class="now-sub now-title-sub swap-in">{current.title}</p>
           {/if}
+        {/key}
+      </div>
+      {#key current.id}
+        <div class="chips swap-in swap-late">
+          {#if current.year}<span class="chip">{current.year}</span>{/if}
+          <span class="chip chip-format">{shortFormat(current)}</span>
+          {#each current.genres.slice(0, 2) as genre}
+            <span class="chip chip-ghost">{genre}</span>
+          {/each}
         </div>
-        <p class="now-title">{current.titleRoman ?? current.title}</p>
-        {#if current.titleRoman}
-          <p class="now-sub now-title-sub">{current.title}</p>
-        {/if}
-      </div>
-      <div class="chips">
-        {#if current.year}<span class="chip">{current.year}</span>{/if}
-        <span class="chip chip-format">{shortFormat(current)}</span>
-        {#each current.genres.slice(0, 2) as genre}
-          <span class="chip chip-ghost">{genre}</span>
-        {/each}
-      </div>
+      {/key}
+      {#snippet discogsLink(text: string)}
+        <a
+          class="discogs-link"
+          href={current.discogsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`View ${label(current)} on Discogs`}
+        >
+          {text}
+          <svg viewBox="0 0 24 24" aria-hidden="true"
+            ><path fill="currentColor" d="M9 5v2h6.59L4 18.59 5.41 20 17 8.41V15h2V5z" /></svg
+          >
+        </a>
+      {/snippet}
       <div class="player">
         {#if preview}
           <div class="preview">
@@ -452,52 +534,48 @@ function onTimeUpdate() {
                   style={`stroke-dasharray:${RING.toFixed(2)};stroke-dashoffset:${(RING * (1 - progress)).toFixed(2)}`}
                 />
               </svg>
+              <!-- Both icons stay mounted so the swap can crossfade. -->
               <span class="play-icon">
-                {#if playing}
-                  <svg viewBox="0 0 24 24" aria-hidden="true"
-                    ><path fill="currentColor" d="M7 5h3.4v14H7zm6.6 0H17v14h-3.4z" /></svg
-                  >
-                {:else}
-                  <svg class="play-icon-tri" viewBox="0 0 24 24" aria-hidden="true"
-                    ><path fill="currentColor" d="M8 5v14l11-7z" /></svg
-                  >
-                {/if}
+                <svg class="icon-pause" class:shown={playing} viewBox="0 0 24 24" aria-hidden="true"
+                  ><path fill="currentColor" d="M7 5h3.4v14H7zm6.6 0H17v14h-3.4z" /></svg
+                >
+                <svg
+                  class="icon-play"
+                  class:shown={!playing}
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7z" /></svg
+                >
               </span>
             </button>
             <div class="preview-meta">
-              <div class="preview-titles">
-                <p class="preview-track">{preview.trackName}</p>
-                {#if preview.artistName}
-                  <p class="preview-artist">{preview.artistName}</p>
-                {/if}
-              </div>
-              <a
-                class="apple-link"
-                href={preview.appleUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                title="Preview courtesy of Apple Music"
-              >
-                Listen on Apple Music
-                <svg viewBox="0 0 24 24" aria-hidden="true"
-                  ><path fill="currentColor" d="M9 5v2h6.59L4 18.59 5.41 20 17 8.41V15h2V5z" /></svg
+              {#key current.id}
+                <div class="preview-titles swap-in swap-late">
+                  <p class="preview-track">{preview.trackName}</p>
+                  {#if preview.artistName}
+                    <p class="preview-artist">{preview.artistName}</p>
+                  {/if}
+                </div>
+              {/key}
+              <div class="links">
+                <a
+                  class="apple-link"
+                  href={preview.appleUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Preview courtesy of Apple Music"
                 >
-              </a>
+                  Listen on Apple Music
+                  <svg viewBox="0 0 24 24" aria-hidden="true"
+                    ><path fill="currentColor" d="M9 5v2h6.59L4 18.59 5.41 20 17 8.41V15h2V5z" /></svg
+                  >
+                </a>
+                {@render discogsLink("Discogs")}
+              </div>
             </div>
           </div>
+        {:else}
+          <div class="links">{@render discogsLink("View on Discogs")}</div>
         {/if}
-        <a
-          class="discogs-link"
-          class:discogs-secondary={preview !== null}
-          href={current.discogsUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          View on Discogs
-          <svg viewBox="0 0 24 24" aria-hidden="true"
-            ><path fill="currentColor" d="M9 5v2h6.59L4 18.59 5.41 20 17 8.41V15h2V5z" /></svg
-          >
-        </a>
       </div>
       <audio
         bind:this={audioEl}
@@ -561,6 +639,18 @@ function onTimeUpdate() {
     --sleeve-shadow: 0 1px 1px rgba(15, 23, 42, 0.18),
       0 18px 34px -16px rgba(30, 17, 64, 0.5);
     --disc-core: var(--card);
+    --vinyl-rim: rgba(255, 255, 255, 0.16);
+    --vinyl-smooth: #0d0d10;
+    --cd-metal: #dfe2e7;
+    --cd-metal-mid: #c9cdd4;
+    --cd-metal-edge: #9fa5ae;
+    --cd-clear: rgba(196, 202, 212, 0.55);
+    --cd-clear-thin: rgba(206, 212, 222, 0.3);
+    --cd-ring-hi: rgba(255, 255, 255, 0.85);
+    --cd-ring-lo: rgba(120, 128, 140, 0.55);
+    --cd-glint: rgba(255, 255, 255, 0.75);
+    --cd-shade: rgba(70, 78, 92, 0.22);
+    --cd-rainbow: 0.5;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -580,6 +670,18 @@ function onTimeUpdate() {
     --spot-strength: 0.16;
     --sleeve-shadow: 0 2px 2px rgba(0, 0, 0, 0.5),
       0 24px 44px -18px rgba(0, 0, 0, 0.8);
+    --vinyl-rim: rgba(255, 255, 255, 0.22);
+    /* Dimmer metal so the CD doesn't glow against a dark stage. */
+    --cd-metal: #b4b9c2;
+    --cd-metal-mid: #9ea4ae;
+    --cd-metal-edge: #7a818c;
+    --cd-clear: rgba(150, 158, 172, 0.4);
+    --cd-clear-thin: rgba(160, 168, 182, 0.2);
+    --cd-ring-hi: rgba(225, 230, 238, 0.6);
+    --cd-ring-lo: rgba(60, 66, 78, 0.6);
+    --cd-glint: rgba(240, 244, 250, 0.5);
+    --cd-shade: rgba(20, 24, 34, 0.3);
+    --cd-rainbow: 0.38;
   }
 
   .info {
@@ -594,6 +696,7 @@ function onTimeUpdate() {
   @media (min-width: 768px) {
     .crate.split {
       display: grid;
+      width: auto;
       grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
       /* Top-align both columns and put the controls ABOVE the title, so a title
          of any length — even a 7-line one — can never move the prev/next
@@ -605,8 +708,9 @@ function onTimeUpdate() {
     }
     .crate.split .stage {
       order: 1;
-      /* tighter around the coverflow so the card isn't mostly empty space */
-      height: clamp(250px, 26vw, 300px);
+      align-self: stretch;
+      height: auto;
+      min-height: clamp(250px, 26vw, 300px);
     }
     .crate.split .info {
       order: 0;
@@ -718,75 +822,195 @@ function onTimeUpdate() {
     z-index: 1;
     border-radius: 50%;
     transform: translateX(0);
-    transition: transform 0.7s var(--ease-crate);
+    /* Going back in is quick, so the next record isn't waiting on it. */
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.6, 1);
   }
 
+  /* Half out, so the hub clears the sleeve edge and the label shows. Waits a
+     beat so the sleeve lands first, then the record slides out. */
   .disc.out {
-    transform: translateX(42%);
+    transform: translateX(50%);
+    transition: transform 0.75s var(--ease-crate) 0.16s;
   }
 
   .disc-face {
     position: absolute;
     inset: 0;
     border-radius: 50%;
-    box-shadow: 0 10px 26px -10px rgba(0, 0, 0, 0.65);
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.35),
+      0 14px 30px -12px rgba(0, 0, 0, 0.6);
   }
 
+  /* Vinyl. Stops use `closest-side`, so percentages are of the radius:
+     label 0–34%, smooth run-out to 38%, grooves to 96%, smooth lead-in rim. */
   .disc-vinyl {
     background:
+      /* rim: a hairline edge so the disc separates from a dark stage */
+      radial-gradient(
+        circle closest-side,
+        transparent 98.4%,
+        var(--vinyl-rim) 99.2%,
+        transparent 100%
+      ),
+      /* run-out and lead-in are pressed smooth, no grooves */
+      radial-gradient(
+        circle closest-side,
+        transparent 34%,
+        var(--vinyl-smooth) 34% 38.5%,
+        transparent 38.5% 96.5%,
+        var(--vinyl-smooth) 96.5%
+      ),
+      /* gaps between tracks catch light as slightly brighter bands */
+      radial-gradient(
+        circle closest-side,
+        transparent 52%,
+        rgba(255, 255, 255, 0.05) 52.4% 53%,
+        transparent 53.4% 66%,
+        rgba(255, 255, 255, 0.05) 66.4% 67%,
+        transparent 67.4% 81%,
+        rgba(255, 255, 255, 0.05) 81.4% 82%,
+        transparent 82.4%
+      ),
       repeating-radial-gradient(
         circle at 50% 50%,
-        rgba(255, 255, 255, 0.05) 0 0.5px,
-        rgba(0, 0, 0, 0) 0.6px 2.4px
+        rgba(255, 255, 255, 0.045) 0 0.6px,
+        transparent 0.9px 2.2px
       ),
-      radial-gradient(circle at 50% 50%, #1b1b20 0 16.5%, transparent 17%),
-      #08080a;
+      radial-gradient(circle closest-side, #141418, #0a0a0c);
   }
 
+  /* Shiny side of a CD: clear hub with a stacking ring, metal from 38%,
+     clear polycarbonate rim. */
   .disc-cd {
     background:
-      conic-gradient(
-        from 210deg at 50% 50%,
-        #d8dadd,
-        #c4b5e8,
-        #b6e9df,
-        #ffe1ec,
-        #cdd0d4,
-        #d8dadd
+      radial-gradient(
+        circle closest-side,
+        var(--cd-clear) 12.5% 26.5%,
+        var(--cd-ring-hi) 27%,
+        var(--cd-ring-lo) 28%,
+        var(--cd-clear-thin) 28.5% 37%,
+        var(--cd-metal-edge) 37.5%,
+        var(--cd-metal) 38.5%,
+        var(--cd-metal-mid) 70%,
+        var(--cd-metal) 97.5%,
+        var(--cd-clear) 98%
       );
-  }
-
-  .disc-sheen {
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: radial-gradient(
-      circle at 36% 30%,
-      rgba(255, 255, 255, 0.28),
-      transparent 42%
-    );
   }
 
   .disc-label {
     position: absolute;
     inset: 33%;
+    overflow: hidden;
     border-radius: 50%;
-    background: radial-gradient(
-      circle at 38% 34%,
-      color-mix(in oklab, var(--primary) 78%, white),
-      var(--primary)
-    );
+    background: var(--primary);
+    /* paper label meets vinyl: a faint pressed lip */
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5);
+  }
+
+  .disc-label img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
   }
 
   .disc-hole {
     position: absolute;
-    inset: 47.5%;
+    inset: 48.2%;
     border-radius: 50%;
     background: var(--disc-core);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.35);
   }
 
   .disc-cd .disc-hole {
-    inset: 43%;
+    inset: 43.75%;
+    box-shadow: inset 0 0 0 1px var(--cd-ring-lo);
+  }
+
+  .disc-light {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  /* Vinyl's signature: two opposed wedges of light across the grooves. */
+  .disc-light-vinyl {
+    background: conic-gradient(
+      from 18deg,
+      transparent 0deg,
+      rgba(255, 255, 255, 0.2) 22deg,
+      transparent 48deg 180deg,
+      rgba(255, 255, 255, 0.12) 202deg,
+      transparent 228deg
+    );
+    mask-image: radial-gradient(
+      circle closest-side,
+      transparent 34.5%,
+      #000 36%,
+      #000 99%,
+      transparent 100%
+    );
+  }
+
+  /* Specular streak through the light source, with diffraction rainbows
+     fanning either side, kept to the metal band. */
+  .disc-light-cd {
+    background:
+      conic-gradient(
+        from 18deg,
+        transparent 0deg,
+        var(--cd-glint) 22deg,
+        transparent 44deg 180deg,
+        var(--cd-glint) 202deg,
+        transparent 224deg
+      ),
+      conic-gradient(
+        from -32deg,
+        transparent 0deg,
+        oklch(0.82 0.13 350 / var(--cd-rainbow)) 14deg,
+        oklch(0.88 0.13 85 / var(--cd-rainbow)) 26deg,
+        oklch(0.86 0.13 160 / var(--cd-rainbow)) 38deg,
+        oklch(0.8 0.12 240 / var(--cd-rainbow)) 50deg,
+        transparent 62deg 108deg,
+        oklch(0.8 0.12 240 / var(--cd-rainbow)) 120deg,
+        oklch(0.86 0.13 160 / var(--cd-rainbow)) 132deg,
+        oklch(0.88 0.13 85 / var(--cd-rainbow)) 144deg,
+        oklch(0.82 0.13 350 / var(--cd-rainbow)) 156deg,
+        transparent 168deg 180deg,
+        transparent 180deg
+      ),
+      conic-gradient(
+        from 148deg,
+        transparent 0deg,
+        oklch(0.82 0.13 350 / var(--cd-rainbow)) 14deg,
+        oklch(0.88 0.13 85 / var(--cd-rainbow)) 26deg,
+        oklch(0.86 0.13 160 / var(--cd-rainbow)) 38deg,
+        oklch(0.8 0.12 240 / var(--cd-rainbow)) 50deg,
+        transparent 62deg 108deg,
+        oklch(0.8 0.12 240 / var(--cd-rainbow)) 120deg,
+        oklch(0.86 0.13 160 / var(--cd-rainbow)) 132deg,
+        oklch(0.88 0.13 85 / var(--cd-rainbow)) 144deg,
+        oklch(0.82 0.13 350 / var(--cd-rainbow)) 156deg,
+        transparent 168deg 360deg
+      ),
+      /* broad darker quadrants give the metal some depth */
+      conic-gradient(
+        from 18deg,
+        transparent 0deg 60deg,
+        var(--cd-shade) 90deg,
+        transparent 130deg 240deg,
+        var(--cd-shade) 270deg,
+        transparent 310deg
+      );
+    mask-image: radial-gradient(
+      circle closest-side,
+      transparent 38%,
+      #000 39%,
+      #000 97%,
+      transparent 97.5%
+    );
   }
 
   .spinning {
@@ -890,6 +1114,10 @@ function onTimeUpdate() {
     transform: translateY(-1px);
   }
 
+  .nav:active:not(:disabled) {
+    transform: scale(0.94);
+  }
+
   .nav:focus-visible {
     outline: 2px solid var(--primary);
     outline-offset: 2px;
@@ -933,7 +1161,7 @@ function onTimeUpdate() {
     flex-direction: column;
     justify-content: flex-start;
     width: 100%;
-    height: clamp(6.25rem, 20vw, 8.5rem);
+    height: clamp(7.5rem, 26vw, 8.5rem);
     overflow: hidden;
   }
 
@@ -969,6 +1197,10 @@ function onTimeUpdate() {
     text-wrap: balance;
     overflow-wrap: anywhere;
     color: var(--foreground);
+    /* fitHeading measures font-size changes synchronously. The global
+       reduced-motion rule gives every element a 0.01ms `all` transition, which
+       makes those reads stale and shrinks the title to its floor. */
+    transition-property: none;
   }
 
   /* Native-script line for CJK records: the romanized/English reading is the
@@ -987,11 +1219,17 @@ function onTimeUpdate() {
     letter-spacing: 0.1em;
   }
 
+  /* One line: fitHeading only scales the main title, so a wrapping subtitle
+     would get clipped mid-glyph at the bottom of the fixed-height heading. */
   .now-title-sub {
+    /* overflow:hidden would otherwise let the flex column squash it to 0. */
+    flex-shrink: 0;
     margin-top: 0.25rem;
+    overflow: hidden;
     font-size: 0.95rem;
     font-weight: 600;
-    text-wrap: balance;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   .chips {
@@ -1024,11 +1262,19 @@ function onTimeUpdate() {
     color: var(--muted-foreground);
   }
 
+  /* Release links share one row: Apple Music leads, Discogs sits beside it. */
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 1rem;
+    row-gap: 0.25rem;
+  }
+
   .discogs-link {
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
-    margin-top: 1.2rem;
     font-size: 0.9rem;
     font-weight: 600;
     color: var(--muted-foreground);
@@ -1061,8 +1307,7 @@ function onTimeUpdate() {
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    gap: 0.7rem;
-    min-height: 6rem;
+    min-height: 4rem;
     margin-top: 1.3rem;
   }
 
@@ -1095,6 +1340,10 @@ function onTimeUpdate() {
     background: color-mix(in oklab, var(--primary) 18%, var(--card));
   }
 
+  .play:active {
+    transform: scale(0.94);
+  }
+
   .play:focus-visible {
     outline: 2px solid var(--primary);
     outline-offset: 2px;
@@ -1121,7 +1370,6 @@ function onTimeUpdate() {
   .ring-progress {
     stroke: var(--primary);
     stroke-linecap: round;
-    transition: stroke-dashoffset 0.2s linear;
   }
 
   .play-icon {
@@ -1129,13 +1377,29 @@ function onTimeUpdate() {
     place-items: center;
   }
 
+  /* Stacked in one cell; the hidden icon shrinks and blurs out as the other
+     arrives. */
   .play-icon svg {
+    grid-area: 1 / 1;
     width: 1.2rem;
     height: 1.2rem;
+    opacity: 0;
+    transform: scale(0.5);
+    filter: blur(3px);
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s var(--ease-crate),
+      filter 0.2s ease;
+  }
+
+  .play-icon svg.shown {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
   }
 
   /* Optically centre the play triangle (its visual mass sits left of centre). */
-  .play-icon-tri {
+  .play-icon .icon-play.shown {
     transform: translateX(1px);
   }
 
@@ -1208,19 +1472,31 @@ function onTimeUpdate() {
     border-radius: 6px;
   }
 
-  .discogs-secondary {
-    margin-top: 0;
-    font-size: 0.82rem;
-    opacity: 0.85;
+  /* The text swap: a quick fade with a little blur. */
+  .swap-in {
+    animation: swap-in 0.26s ease-out both;
   }
 
-  /* The ring still fills — it's the only playback-position feedback. */
+  .swap-late {
+    animation-delay: 0.04s;
+  }
+
+  @keyframes swap-in {
+    from {
+      opacity: 0;
+      filter: blur(2px);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .play,
-    .ring-progress,
+    .play-icon svg,
     .apple-link,
     .apple-link svg {
       transition: none;
+    }
+    .swap-in {
+      animation: none;
     }
   }
 
@@ -1271,6 +1547,10 @@ function onTimeUpdate() {
   .tile:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 18px -10px rgba(0, 0, 0, 0.45);
+  }
+
+  .tile:active {
+    transform: scale(0.95);
   }
 
   .tile:focus-visible {

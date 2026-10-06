@@ -11,7 +11,7 @@ const currentYear = new Date().getFullYear();
     class="flex flex-col items-center gap-2 border-border border-t pt-6 text-center text-muted-foreground text-sm"
   >
     <p>
-      No cookie banner needed - this site uses privacy-first analytics.
+      This site sets no tracking cookies, so it needs no cookie banner.
       <br class="hidden sm:block" />
       <span class="text-foreground">
         But if it did, it'd use{" "}
@@ -33,11 +33,10 @@ const currentYear = new Date().getFullYear();
         target="_blank"
       >
         <Icon class="size-4" name="github" />
-        <span>View Source</span>
+        <span>View source</span>
       </a>
       <a
-        aria-label="Dig through my record crate"
-        class="vinyl-wink transition-colors duration-150 hover:text-primary"
+        class="vinyl-wink flex items-center gap-1 transition-colors duration-150 hover:text-primary"
         href="/records"
       >
         <svg class="vinyl size-3.5" fill="none" viewBox="0 0 24 24">
@@ -52,6 +51,7 @@ const currentYear = new Date().getFullYear();
           />
           <circle cx="12" cy="12" fill="currentColor" r="2.1" />
         </svg>
+        <span>Records</span>
       </a>
       <p>© {currentYear} {personConfig.name}</p>
     </div>

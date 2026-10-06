@@ -34,6 +34,26 @@ The throughline across everything: **compliance belongs in code.** c15t (consent
 - Self-referencing achievements narratively ("the case I made on stage at…"). The artifact list is the proof; prose stays about the work.
 - Long biographical narrative ("My Story" pages, dramatic turning points). Not her genre.
 
+## Humanize (AI-pattern sweep)
+
+Distilled from Wikipedia's "Signs of AI writing" (via blader/humanizer). These patterns read as machine-generated; sweep for them in every copy change.
+
+**Dashes.** No em or en dashes in `<title>` strings, meta descriptions, `person.json` meta fields, or the `/llms.txt` summary — use a colon, a comma, or a new sentence. Titles are natural phrases ("About Kaylee Williams", "Projects by Kaylee Williams"), not "Page — Name" separators. In page prose an em dash is allowed but rationed: at most one per paragraph, and only where a comma or period wouldn't do. (Dashes separating a link from its annotation in generated link lists are layout, not prose — fine.)
+
+**Sentence shapes to rewrite:**
+
+- Copula avoidance: "serves as", "stands as", "boasts", "features" → just say "is" / "has".
+- Tacked-on "-ing" analysis: "…, showcasing her commitment to…" → cut, or make it its own factual sentence.
+- Negative parallelism: "not just X, it's Y", "it's more than a banner" → state what it is.
+- False ranges: "from consent to compliance" when the endpoints aren't a scale → list the actual things.
+- Forced rule-of-three triads for rhythm. (Real lists of real things — c15t, DSAR, Cookiebench — are exempt.)
+- Filler: "in order to", "it's important to note", "at this point in time" → shorter.
+- Generic upbeat closers ("exciting times ahead") → end on a fact or don't add an ending.
+
+**Vocabulary to avoid:** delve, showcase, landscape (abstract), tapestry, testament, underscore, pivotal, crucial, vibrant, seamless, robust, leverage, foster, elevate. These co-occur in AI text; each has a plainer word.
+
+Titles and descriptions in `lib/seo.ts` have hard limits: title ≤60 chars, description ≤160. Descriptions are complete sentences, not keyword fragments.
+
 ## Content-flow map (where each string renders)
 
 | File | Renders |
@@ -52,6 +72,7 @@ The throughline across everything: **compliance belongs in code.** c15t (consent
 
 1. Does every paragraph have a why → what → proof spine (or serve one)?
 2. Any banned phrases introduced? Grep for `bloat` and `minimal bundle`.
-3. If you touched `person.json` `bio`, check it against the records-page truncation.
-4. `bun run build` passes (this is the only check — `astro check` doesn't work on the TS7 preview).
-5. Skim the corresponding markdown mirror (`/about.md`, `/llms.txt`) output if the content feeds it.
+3. Humanize sweep: no `—`/`–` in `lib/seo.ts`, `person.json` meta fields, or the `/llms.txt` summary (`grep -n "—" lib/seo.ts content/site/person.json lib/agent-markdown.ts` — hits in generated link lists are fine); no words from the vocabulary list above.
+4. If you touched `person.json` `bio`, check it against the records-page truncation.
+5. `bun run build` passes (this is the only check — `astro check` doesn't work on the TS7 preview).
+6. Skim the corresponding markdown mirror (`/about.md`, `/llms.txt`) output if the content feeds it.

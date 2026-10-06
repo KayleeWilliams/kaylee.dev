@@ -389,7 +389,7 @@ async function interactive(): Promise<void> {
     );
     return;
   }
-  intro("The Crate — preview curation");
+  intro("Records — preview curation");
   const loading = spinner();
   loading.start("Resolving previews…");
   const records = await withPreviews(await loadRecords());

@@ -74,7 +74,7 @@ async function aboutBody(): Promise<string> {
     lines.push(
       `### ${role.role} · ${role.company}`,
       "",
-      `- ${formatDate(role.startDate)} – ${role.endDate ? formatDate(role.endDate) : "Present"}`,
+      `- ${formatDate(role.startDate)} to ${role.endDate ? formatDate(role.endDate) : "Present"}`,
       ...(role.url ? [`- ${role.url}`] : []),
       `- ${role.description}`,
       ""
@@ -192,11 +192,11 @@ export function renderNotFoundMarkdown(baseUrl: string): string {
     "",
     "That page does not exist. Available pages:",
     "",
-    `- [Home](${base}/) — [markdown](${base}/index.md)`,
-    `- [About](${base}/about) — [markdown](${base}/about.md)`,
-    `- [Projects](${base}/projects) — [markdown](${base}/projects.md)`,
-    `- [Blog](${base}/blog) — [markdown](${base}/blog.md)`,
-    `- [Connect](${base}/connect) — [markdown](${base}/connect.md)`,
+    `- [Home](${base}/): [markdown](${base}/index.md)`,
+    `- [About](${base}/about): [markdown](${base}/about.md)`,
+    `- [Projects](${base}/projects): [markdown](${base}/projects.md)`,
+    `- [Blog](${base}/blog): [markdown](${base}/blog.md)`,
+    `- [Connect](${base}/connect): [markdown](${base}/connect.md)`,
     "",
     `See [the full sitemap](${base}/sitemap.md).`,
   ].join("\n")}\n`;
@@ -208,13 +208,13 @@ export function renderLlmsIndex(baseUrl: string): string {
   return `${[
     `# ${personConfig.name}`,
     "",
-    "> Founding engineer at Inth (YC P26) and co-author of c15t. Building the open-source compliance stack — consent (c15t), data rights (DSAR), performance (Cookiebench), and agent-readable docs (Leadtype). Compliance belongs in code.",
+    "> Founding engineer at Inth (YC P26) and co-author of c15t. She builds the open-source compliance stack: c15t for consent, DSAR for data rights, Cookiebench for performance, and Leadtype for agent-readable docs. Compliance belongs in code.",
     "",
     "## Pages",
     "",
     `- [Home](${base}/index.md): Overview, current work, and selected projects`,
     `- [About](${base}/about.md): Bio, experience, and appearances`,
-    `- [Projects](${base}/projects.md): Open-source work — c15t, Cookiebench, DSAR, Leadtype, Joyful`,
+    `- [Projects](${base}/projects.md): Open-source work, including c15t, Cookiebench, DSAR, Leadtype, and Joyful`,
     `- [Blog](${base}/blog.md): Notes on compliance, developer tooling, and software craft`,
     `- [Connect](${base}/connect.md): Social and contact links`,
     "",
@@ -237,7 +237,7 @@ export async function renderSitemapMarkdown(baseUrl: string): Promise<string> {
   const posts = await getBlogPosts();
   return `${[
     "---",
-    `title: "Sitemap — ${personConfig.name}"`,
+    `title: "Sitemap: ${personConfig.name}"`,
     `canonical_url: "${base}/sitemap.md"`,
     `last_updated: "${dateModified}"`,
     "---",
@@ -246,21 +246,21 @@ export async function renderSitemapMarkdown(baseUrl: string): Promise<string> {
     "",
     "## Pages",
     "",
-    `- [Home](${base}/) — [markdown](${base}/index.md)`,
-    `- [About](${base}/about) — [markdown](${base}/about.md)`,
-    `- [Projects](${base}/projects) — [markdown](${base}/projects.md)`,
-    `- [Blog](${base}/blog) — [markdown](${base}/blog.md)`,
-    `- [Connect](${base}/connect) — [markdown](${base}/connect.md)`,
-    `- [The Crate](${base}/records) — [markdown](${base}/records.md)`,
+    `- [Home](${base}/): [markdown](${base}/index.md)`,
+    `- [About](${base}/about): [markdown](${base}/about.md)`,
+    `- [Projects](${base}/projects): [markdown](${base}/projects.md)`,
+    `- [Blog](${base}/blog): [markdown](${base}/blog.md)`,
+    `- [Connect](${base}/connect): [markdown](${base}/connect.md)`,
+    `- [Records](${base}/records): [markdown](${base}/records.md)`,
     ...posts.map(
       (post) =>
-        `- [${post.data.title}](${base}/blog/${post.id}) — [markdown](${base}/blog/${post.id}.md)`
+        `- [${post.data.title}](${base}/blog/${post.id}): [markdown](${base}/blog/${post.id}.md)`
     ),
     "",
     "## Agent resources",
     "",
-    `- [llms.txt](${base}/llms.txt) — index`,
-    `- [llms-full.txt](${base}/llms-full.txt) — full profile`,
+    `- [llms.txt](${base}/llms.txt): index`,
+    `- [llms-full.txt](${base}/llms-full.txt): full profile`,
     `- [AGENTS.md](${base}/AGENTS.md)`,
     `- [sitemap.xml](${base}/sitemap.xml)`,
   ].join("\n")}\n`;

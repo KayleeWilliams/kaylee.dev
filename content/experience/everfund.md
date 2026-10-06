@@ -1,6 +1,6 @@
 ---
 role: "Full Stack Engineer"
-description: "Donation platform helping nonprofits raise more money through better technology."
+description: "A donation platform for nonprofits, with hosted donation portals and branded receipts."
 logo: "/experience/everfund/logo.webp"
 company: "Everfund"
 startDate: "2023-06-01"
@@ -25,18 +25,18 @@ tech:
   ]
 ---
 
-### Framework Migration
+### Framework migration
 
-Migrated the main dashboard from RedwoodJS to Next.js with minimal downtime, simplifying the stack since the donation platform already ran on Next.js.
+Moved the main dashboard from RedwoodJS to Next.js with minimal downtime. This put the dashboard and donation platform on the same framework and removed RedwoodJS from the stack.
 
-### White-Labeled Donations
+### White-labeled donations
 
-Built a domain white-labeling system so nonprofits could serve our hosted donation portal on their own branded domains. Involved DNS configuration, Stripe domain verification, and a customizable email system for branded donation receipts.
+Built custom-domain support so nonprofits could host our donation portal on their own domains. The work covered DNS configuration, Stripe domain verification, and custom donation-receipt emails.
 
-### Design System
+### Design system
 
-Led UI/UX from Figma through to implementation. Built a component design system focused on consistency and accessibility across the product.
+Designed the interfaces in Figma, then built them. I also built a shared component system so accessibility fixes and interaction changes landed across the product.
 
-### ML Exploration
+### ML exploration
 
-Explored predictive ML for optimizing suggested donation amounts. The model never shipped, but the work surfaced interesting ethical questions around using ML in the nonprofit space.
+Tested predictive ML for suggested donation amounts. The model never shipped. The experiment raised an uncomfortable question about using donor behaviour to decide how much money to ask for.
