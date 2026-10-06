@@ -1,6 +1,6 @@
 import { personConfig } from "@/lib/site-config";
 
-export type SeoKey = "home" | "about" | "projects" | "connect";
+export type SeoKey = "home" | "about" | "projects" | "blog" | "connect";
 
 /**
  * Single source of truth for per-page <title> (≤60 chars) and meta description
@@ -21,6 +21,11 @@ export const pageSeo: Record<SeoKey, { title: string; description: string }> = {
     title: "Projects by Kaylee Williams",
     description:
       "Kaylee Williams builds c15t, Cookiebench, DSAR, and Leadtype at Inth: open-source tools for consent, data rights, performance, and agent-readable docs.",
+  },
+  blog: {
+    title: "Blog | Kaylee Williams",
+    description:
+      "Notes from Kaylee Williams on open-source compliance, developer tooling, privacy, and the details that make software feel finished.",
   },
   connect: {
     title: "Connect with Kaylee Williams",

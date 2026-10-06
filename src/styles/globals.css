@@ -258,6 +258,337 @@ h3 {
   text-decoration: underline;
 }
 
+.blog-prose {
+  max-width: 70ch;
+  font-size: 1.0625rem;
+  line-height: 1.75;
+}
+
+.blog-prose > * + * {
+  margin-top: 1.35em;
+}
+
+.blog-prose h2,
+.blog-prose h3 {
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+.blog-prose h2 {
+  margin-top: 2.4em;
+  font-size: 1.65rem;
+  font-weight: 750;
+}
+
+.blog-prose h3 {
+  margin-top: 2em;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.blog-prose :is(ul, ol) {
+  padding-left: 1.4em;
+}
+
+.blog-prose ul {
+  list-style: disc;
+}
+
+.blog-prose ol {
+  list-style: decimal;
+}
+
+.blog-prose li + li {
+  margin-top: 0.4em;
+}
+
+.blog-prose :not(.rich-profile, .rich-link, .rich-tweet) a {
+  color: var(--primary);
+  text-decoration-line: underline;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.2em;
+}
+
+.blog-prose :not(.rich-profile, .rich-link, .rich-tweet) a:hover {
+  text-decoration-thickness: 0.13em;
+}
+
+.blog-prose a.inline-profile {
+  display: inline-flex;
+  gap: 0.32em;
+  align-items: center;
+  max-width: 100%;
+  padding: 0.08em 0.48em 0.08em 0.12em;
+  margin-inline: 0.08em;
+  font-size: 0.9em;
+  line-height: 1.4;
+  vertical-align: -0.18em;
+  color: var(--primary);
+  white-space: nowrap;
+  text-decoration: none;
+  background: color-mix(in srgb, var(--primary) 8%, var(--card));
+  border: 1px solid color-mix(in srgb, var(--primary) 24%, var(--border));
+  border-radius: 9999px;
+}
+
+.blog-prose .inline-profile:hover {
+  color: var(--primary);
+  border-color: color-mix(in srgb, var(--primary) 55%, var(--border));
+}
+
+.blog-prose .inline-profile:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.inline-profile__avatar,
+.inline-profile > span {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  object-fit: cover;
+  border-radius: 9999px;
+}
+
+.inline-profile > span {
+  display: inline-grid;
+  place-items: center;
+  font-size: 0.7em;
+  font-weight: 800;
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 14%, var(--muted));
+}
+
+.inline-profile strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.blog-prose blockquote {
+  padding: 1.1rem 1.25rem;
+  color: var(--muted-foreground);
+  background: color-mix(in srgb, var(--muted) 65%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+}
+
+.blog-prose :is(code, pre) {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.blog-prose :not(pre) > code {
+  padding: 0.14em 0.35em;
+  font-size: 0.9em;
+  background: var(--muted);
+  border-radius: 0.3rem;
+}
+
+.blog-prose pre {
+  padding: 1rem 1.15rem;
+  overflow-x: auto;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+}
+
+.blog-prose img:not(.rich-embed__avatar, .inline-profile__avatar) {
+  width: 100%;
+  border-radius: 0.75rem;
+}
+
+.rich-profile,
+.rich-link,
+.rich-tweet {
+  display: block;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.8rem;
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--foreground) 6%, transparent);
+}
+
+.rich-profile,
+.rich-link {
+  color: var(--card-foreground);
+  text-decoration: none;
+  transition:
+    border-color 160ms ease-out,
+    transform 160ms ease-out,
+    box-shadow 160ms ease-out;
+}
+
+.rich-profile:hover,
+.rich-link:hover {
+  border-color: color-mix(in srgb, var(--primary) 48%, var(--border));
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--foreground) 8%, transparent);
+  transform: translateY(-2px);
+}
+
+.rich-profile:focus-visible,
+.rich-link:focus-visible,
+.rich-tweet a:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+.rich-profile {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  padding: 0.85rem 1rem;
+}
+
+.rich-profile > span:nth-child(2),
+.rich-tweet__author > span {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
+}
+
+.rich-profile strong,
+.rich-tweet strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rich-profile small,
+.rich-tweet small {
+  font-size: 0.78rem;
+  color: var(--muted-foreground);
+}
+
+.rich-embed__avatar {
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  object-fit: cover;
+  border-radius: 9999px;
+}
+
+.rich-embed__avatar--fallback {
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 14%, var(--muted));
+}
+
+.rich-embed__mark {
+  font-size: 1.15rem;
+  color: var(--muted-foreground);
+}
+
+.rich-tweet {
+  padding: 1rem 1.1rem;
+}
+
+.rich-tweet header {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.rich-tweet__author {
+  display: flex;
+  flex: 1;
+  gap: 0.75rem;
+  align-items: center;
+  min-width: 0;
+  color: var(--foreground);
+  text-decoration: none;
+}
+
+.blog-prose a.rich-tweet__author,
+.blog-prose a.rich-tweet__author:hover {
+  text-decoration: none;
+}
+
+.rich-tweet__author:hover strong {
+  color: var(--primary);
+}
+
+.rich-tweet__body,
+.rich-tweet__fallback {
+  margin-top: 1rem;
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.rich-tweet__body a {
+  color: var(--primary);
+}
+
+.rich-tweet__source {
+  display: inline-flex;
+  gap: 0.25rem;
+  align-items: center;
+  margin-top: 0.8rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--muted-foreground);
+  text-decoration: none;
+}
+
+.rich-tweet__source:hover {
+  color: var(--primary);
+}
+
+.rich-link {
+  padding: 1rem 1.1rem 1.05rem;
+}
+
+.rich-link > span,
+.rich-link > strong {
+  display: block;
+}
+
+.rich-link__site {
+  margin-bottom: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 750;
+  color: var(--primary);
+  letter-spacing: 0.04em;
+}
+
+.rich-link > strong {
+  font-size: 1.05rem;
+  line-height: 1.35;
+}
+
+.rich-link__description {
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical;
+  margin-top: 0.35rem;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+}
+
+.rich-link__action {
+  margin-top: 0.7rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--muted-foreground);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rich-profile,
+  .rich-link {
+    transition: none;
+  }
+
+  .rich-profile:hover,
+  .rich-link:hover {
+    transform: none;
+  }
+}
+
 /* Staggered entrance for the /connect surfaces (delay set inline per element). */
 @keyframes rise {
   from {

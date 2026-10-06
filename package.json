@@ -11,7 +11,8 @@
     "build:node": "ASTRO_ADAPTER=node ASTRO_TELEMETRY_DISABLED=1 astro build",
     "start": "bun run build:node && HOST=127.0.0.1 PORT=4321 node dist/server/entry.mjs",
     "curate": "bun run scripts/curate.ts",
-    "fmt": "biome check --write"
+    "fmt": "biome check --write",
+    "test": "bun test"
   },
   "dependencies": {
     "@astrojs/svelte": "^9.0.0",
