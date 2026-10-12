@@ -50,7 +50,7 @@ I started using the same approach elsewhere in c15t and across a few of my other
 
 The failures were useful. While a model explored a dead end, I worked on something else. I still had to inspect the implementation and decide what its result proved, but I did not have to build every branch myself.
 
-Theo described the distinction neatly: code can be useful without being merged.
+Theo described the distinction: code can be useful without being merged.
 
 [https://x.com/theo/status/2074094418798485814](https://x.com/theo/status/2074094418798485814)
 
