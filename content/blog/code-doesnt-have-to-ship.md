@@ -38,7 +38,13 @@ Proving it by hand would have meant giving an uncertain direction real roadmap t
 
 Instead, I wrote down the hypothesis, the rough implementation, and the benchmark that would decide whether it was worth pursuing. I set an agent loop running, then spent the day cleaning my apartment.
 
-The experiment worked. With the manifest cached at the CDN edge, the Next.js server could produce the response without waiting for the c15t backend. The request was no longer exposed to the latency between those servers, and the improvement was large enough to keep investigating.
+The experiment worked. With the manifest cached at the CDN edge, the Next.js server could produce the response without waiting for the c15t backend. A request that took 200ms from the client to the hosted backend dropped to under 20ms.
+
+Then I tested it in real production environments. Latency came back, and server-side rendering had problems the benchmark never showed. I was ready to scrap the idea.
+
+Before I did, I gave another agent a narrower question. What if the manifest was generated at build time and shipped inside the bundle? With no manifest to fetch, the Next.js server has nothing left to wait on. That fixed the main problem, and bundled manifests shipped in [c15t v3](https://github.com/c15t/c15t/releases/tag/c15t%403.0.0).
+
+The edge-cached version never shipped, and it was still worth running. It showed that removing the backend trip mattered, which told the second experiment where to look.
 
 I started using the same approach elsewhere in c15t and across a few of my other projects. Some ideas worked. Others failed miserably.
 
