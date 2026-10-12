@@ -1,0 +1,67 @@
+---
+import BaseLayout from "@/src/layouts/BaseLayout.astro";
+import { getBlogPosts, type BlogPost } from "@/lib/get-blog-posts";
+import { renderRichMarkdown } from "@/lib/rich-markdown";
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const posts = await getBlogPosts();
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+type Props = { post: BlogPost };
+
+const { post } = Astro.props;
+const html = await renderRichMarkdown(post.body ?? "");
+const dateFormat = new Intl.DateTimeFormat("en-GB", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+});
+---
+
+<BaseLayout
+  title={`${post.data.title} | Kaylee Williams`}
+  description={post.data.description}
+>
+  <article>
+    <a
+      class="mb-7 inline-flex items-center gap-1.5 rounded-md text-muted-foreground text-sm transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+      href="/blog"
+    >
+      <span aria-hidden="true">←</span>
+      All posts
+    </a>
+
+    <header class="mb-9 space-y-4 border-b border-border pb-7">
+      <h1 class="font-bold text-3xl tracking-tight sm:text-4xl">{post.data.title}</h1>
+      <p class="max-w-prose text-lg text-muted-foreground">
+        {post.data.description}
+      </p>
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-2 text-muted-foreground text-sm">
+        <time datetime={post.data.publishedAt.toISOString()}>
+          {dateFormat.format(post.data.publishedAt)}
+        </time>
+        {
+          post.data.updatedAt ? (
+            <>
+              <span aria-hidden="true">·</span>
+              <span>Updated {dateFormat.format(post.data.updatedAt)}</span>
+            </>
+          ) : null
+        }
+        {
+          post.data.tags.length > 0 ? (
+            <>
+              <span aria-hidden="true">·</span>
+              <span>{post.data.tags.join(" · ")}</span>
+            </>
+          ) : null
+        }
+      </div>
+    </header>
+
+    <div class="blog-prose" set:html={html} />
+  </article>
+</BaseLayout>

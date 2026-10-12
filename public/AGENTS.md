@@ -11,7 +11,7 @@ Leadtype for agent-readable docs. Compliance belongs in code.
 - `/llms-full.txt`: the full profile inlined, including live OSS activity
 - `/sitemap.md`: Markdown sitemap; `/sitemap.xml`: XML sitemap
 - Markdown mirrors are available at `/index.md`, `/about.md`, `/projects.md`,
-  `/connect.md`, and `/records.md`
+  `/blog.md`, `/connect.md`, `/records.md`, and `/blog/{slug}.md`
 - The matching HTML pages answer `Accept: text/markdown` with their Markdown mirror
 
 ## Usage
