@@ -42,9 +42,9 @@ The experiment worked. With the manifest cached at the CDN edge, the Next.js ser
 
 Then I tested it in real production environments. Latency came back, and server-side rendering had problems the benchmark never showed. I was ready to scrap the idea.
 
-Before I did, I gave another agent a narrower question. What if the manifest was generated at build time and shipped inside the bundle? With no manifest to fetch, the Next.js server has nothing left to wait on. That fixed the main problem, and bundled manifests shipped in [c15t v3](https://github.com/c15t/c15t/releases/tag/c15t%403.0.0).
+Before I did, I gave another agent a narrower question. What if the build generated the manifest and shipped it inside the bundle? With nothing to fetch at request time, the Next.js server has nothing left to wait on. That fixed the main problem, and it's the default setup in [c15t v3](https://c15t.com/changelog/3.0.0).
 
-The edge-cached version never shipped, and it was still worth running. It showed that removing the backend trip mattered, which told the second experiment where to look.
+The edge-cached version didn't become the default. It still ships as a fallback for policy changes that can't wait for a rebuild. It also showed that removing the backend trip mattered, which told the second experiment where to look.
 
 I started using the same approach elsewhere in c15t and across a few of my other projects. Some ideas worked. Others failed miserably.
 
