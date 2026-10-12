@@ -1,7 +1,7 @@
 ---
 title: "Code doesn't have to ship"
 description: "Coding agents make more engineering questions cheap enough to test."
-publishedAt: 2026-07-12
+publishedAt: 2026-10-12
 tags:
   - AI
   - engineering
