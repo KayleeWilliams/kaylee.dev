@@ -103,8 +103,9 @@ function load<T>(
  *     instances reuse data instead of refetching the origin
  *
  * Fresh hit → return; stale hit → return stale + revalidate in the background;
- * cold miss → await. Concurrent calls for a key share one in-flight request,
- * and failed/empty results expire quickly so they self-heal.
+ * cold miss → await, then use the fallback only if the load fails or comes
+ * back empty. Concurrent calls for a key share one in-flight request, and
+ * failed/empty results expire quickly so they self-heal.
  */
 export function withMemoryCache<T>(
   key: string,
@@ -125,11 +126,15 @@ export function withMemoryCache<T>(
     return Promise.resolve(cached.value);
   }
 
+  // Every caller with a fallback renders on prerendered pages, and every build
+  // starts with a cold cache. Returning the snapshot here would bake it into
+  // the page whenever the first render won the race, so wait for the real value.
   if (hasFallback(options)) {
-    load(key, ttlSeconds, loader).catch(() => {
-      /* keep serving the local snapshot on failure */
-    });
-    return Promise.resolve(options.fallback);
+    const { fallback } = options;
+    return load(key, ttlSeconds, loader).then(
+      (value) => (isEmpty(value) ? fallback : value),
+      () => fallback
+    );
   }
 
   return load(key, ttlSeconds, loader);
