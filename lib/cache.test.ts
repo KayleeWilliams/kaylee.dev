@@ -28,4 +28,13 @@ describe("withMemoryCache with a fallback", () => {
     );
     expect(value).toBe(1);
   });
+
+  test("keeps using the fallback after a failed load is cached", async () => {
+    const failing = async () => undefined as number | undefined;
+    await withMemoryCache("test:cached-empty", 60, failing, { fallback: 1 });
+    const second = await withMemoryCache("test:cached-empty", 60, failing, {
+      fallback: 1,
+    });
+    expect(second).toBe(1);
+  });
 });

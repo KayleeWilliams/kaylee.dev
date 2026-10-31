@@ -114,16 +114,20 @@ export function withMemoryCache<T>(
   options?: CacheOptions<T>
 ): Promise<T> {
   const cached = memory.get(key) as CacheEntry<T> | undefined;
+  // A failed load is cached briefly as empty; later calls still deserve the
+  // fallback, not the empty value.
+  const orFallback = (value: T): T =>
+    isEmpty(value) && hasFallback(options) ? options.fallback : value;
 
   if (cached && cached.expiresAt > Date.now()) {
-    return Promise.resolve(cached.value);
+    return Promise.resolve(orFallback(cached.value));
   }
 
   if (cached) {
     load(key, ttlSeconds, loader).catch(() => {
       /* keep serving stale on failure */
     });
-    return Promise.resolve(cached.value);
+    return Promise.resolve(orFallback(cached.value));
   }
 
   // Every caller with a fallback renders on prerendered pages, and every build
@@ -131,10 +135,7 @@ export function withMemoryCache<T>(
   // the page whenever the first render won the race, so wait for the real value.
   if (hasFallback(options)) {
     const { fallback } = options;
-    return load(key, ttlSeconds, loader).then(
-      (value) => (isEmpty(value) ? fallback : value),
-      () => fallback
-    );
+    return load(key, ttlSeconds, loader).then(orFallback, () => fallback);
   }
 
   return load(key, ttlSeconds, loader);
