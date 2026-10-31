@@ -11,8 +11,12 @@
   --color-card-foreground: var(--card-foreground);
   --color-border: var(--border);
   --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-positive: var(--positive);
+  --color-negative: var(--negative);
 }
 
 @layer base {
@@ -21,30 +25,42 @@
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-gray-200, currentcolor);
+    border-color: var(--border, currentcolor);
   }
 }
 
+/* One neutral family, tinted toward the violet accent (hue 293), so both
+   themes read as the same site. Every text pair here clears WCAG AA. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --card: #ffffff;
-  --card-foreground: #171717;
-  --border: #e5e7eb;
-  --primary: #8b5cf6;
-  --muted: #f4f4f5;
-  --muted-foreground: #71717a;
+  --background: oklch(0.99 0.004 293);
+  --foreground: oklch(0.2 0.02 293);
+  --card: oklch(1 0 0);
+  --card-foreground: var(--foreground);
+  --border: oklch(0.25 0.03 293 / 0.12);
+  --primary: oklch(0.52 0.24 293);
+  --primary-foreground: oklch(1 0 0);
+  --primary-hover: oklch(0.46 0.22 293);
+  --muted: oklch(0.96 0.008 293);
+  --muted-foreground: oklch(0.5 0.02 293);
+  --positive: oklch(0.5 0.12 155);
+  --negative: oklch(0.52 0.2 22);
+  --grid-dot: oklch(0.2 0.02 293 / 0.14);
 }
 
 .dark {
-  --background: #0f172a;
-  --foreground: #f1f5f9;
-  --card: #1a2332;
-  --card-foreground: #f1f5f9;
-  --border: #334155;
-  --primary: #a78bfa;
-  --muted: #111827;
-  --muted-foreground: #94a3b8;
+  --background: oklch(0.16 0.014 293);
+  --foreground: oklch(0.95 0.008 293);
+  --card: oklch(0.2 0.016 293);
+  --card-foreground: var(--foreground);
+  --border: oklch(0.29 0.02 293);
+  --primary: oklch(0.74 0.145 293);
+  --primary-foreground: oklch(0.18 0.03 293);
+  --primary-hover: oklch(0.8 0.11 293);
+  --muted: oklch(0.25 0.018 293);
+  --muted-foreground: oklch(0.72 0.02 293);
+  --positive: oklch(0.78 0.15 160);
+  --negative: oklch(0.72 0.17 22);
+  --grid-dot: oklch(0.8 0.02 293 / 0.1);
 }
 
 html {
@@ -56,7 +72,7 @@ html.dark {
 }
 
 body {
-  font-family: Nunito, ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-nunito);
   color: var(--foreground);
   background: var(--background);
 }
@@ -70,18 +86,10 @@ h3 {
 .grid-background {
   background-image: radial-gradient(
     circle at center,
-    rgba(2, 2, 2, 0.15) 1px,
+    var(--grid-dot) 1px,
     transparent 1px
   );
   background-size: 40px 40px;
-}
-
-.dark .grid-background {
-  background-image: radial-gradient(
-    circle at center,
-    rgba(148, 163, 184, 0.15) 1px,
-    transparent 1px
-  );
 }
 
 .theme-icon-sun {
@@ -100,15 +108,6 @@ h3 {
 .disable-theme-transitions ::before,
 .disable-theme-transitions ::after {
   transition: none !important;
-}
-
-@keyframes grid-fade {
-  0% {
-    background-position: 0px 20px;
-  }
-  100% {
-    background-position: 40px 20px;
-  }
 }
 
 @keyframes marquee-left {
@@ -614,10 +613,6 @@ h3 {
 }
 
 @media (min-width: 768px) {
-  .grid-background {
-    animation: grid-fade 10s linear infinite;
-  }
-
   .marquee-left {
     animation: marquee-left 30s linear infinite;
   }

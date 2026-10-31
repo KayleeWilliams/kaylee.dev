@@ -7,6 +7,6 @@ type Props = {
 const { class: className = "", as: Tag = "div" } = Astro.props;
 ---
 
-<Tag class={`font-semibold text-2xl leading-none tracking-tight ${className}`}>
+<Tag class={`font-bold text-2xl leading-none tracking-tight ${className}`}>
   <slot />
 </Tag>

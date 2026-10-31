@@ -30,7 +30,7 @@ const dateFormat = new Intl.DateTimeFormat("en-GB", {
             <article class="flex flex-col gap-2">
                 <div class="flex items-baseline justify-between gap-4">
                   <a
-                    class="group font-semibold text-lg text-primary"
+                    class="group font-semibold text-foreground text-lg transition-colors duration-150 hover:text-primary"
                     href={`/blog/${post.id}`}
                   >
                     <span class="group-hover:underline">{post.data.title}</span>

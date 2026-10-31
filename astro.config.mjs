@@ -2,7 +2,7 @@ import node from "@astrojs/node";
 import svelte from "@astrojs/svelte";
 import vercel from "@astrojs/vercel";
 import tailwindcss from "@tailwindcss/vite";
-import { defineConfig } from "astro/config";
+import { defineConfig, fontProviders } from "astro/config";
 
 const adapter =
   process.env.ASTRO_ADAPTER === "node"
@@ -21,6 +21,20 @@ export default defineConfig({
   redirects: {
     "/contact": { status: 301, destination: "/connect" },
   },
+  // Nunito is downloaded at build time and served from this domain: no
+  // third-party font request, plus a metric-matched fallback so the swap
+  // doesn't shift the layout.
+  fonts: [
+    {
+      provider: fontProviders.fontsource(),
+      name: "Nunito",
+      cssVariable: "--font-nunito",
+      weights: ["200 1000"],
+      styles: ["normal"],
+      subsets: ["latin"],
+      fallbacks: ["ui-sans-serif", "system-ui", "sans-serif"],
+    },
+  ],
   build: {
     // Keep CSS cacheable and avoid inflating every HTML response.
     inlineStylesheets: "never",

@@ -11,7 +11,7 @@ const currentYear = new Date().getFullYear();
     class="flex flex-col items-center gap-2 border-border border-t pt-6 text-center text-muted-foreground text-sm"
   >
     <p>
-      This site sets no tracking cookies, so it needs no cookie banner.
+      This site sets no tracking cookies, so it needs no cookie banner.{" "}
       <br class="hidden sm:block" />
       <span class="text-foreground">
         But if it did, it'd use{" "}
@@ -25,7 +25,7 @@ const currentYear = new Date().getFullYear();
         </a>.
       </span>
     </p>
-    <div class="flex items-center gap-3 text-muted-foreground/60">
+    <div class="flex items-center gap-3 text-muted-foreground">
       <a
         class="flex items-center gap-1 transition-colors duration-150 hover:text-foreground"
         href={withUtm(personConfig.sourceRepo, "footer", "view-source")}

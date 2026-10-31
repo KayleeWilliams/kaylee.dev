@@ -29,7 +29,7 @@ const iconByName = {
       <div class="flex flex-row items-center gap-4 md:flex-col md:items-start">
         <img
           alt="Kaylee Williams"
-          class="size-16 shrink-0 rounded-full border-2 border-gray-200 object-cover object-top shadow-sm md:size-28"
+          class="size-16 shrink-0 rounded-full border-2 border-border object-cover object-top shadow-sm md:size-28"
           decoding="async"
           fetchpriority="high"
           height="240"
@@ -69,8 +69,8 @@ const iconByName = {
                 rel="noopener noreferrer"
                 target="_blank"
               >
-                <Icon class="size-4 text-violet-400" name={icon} />
-                <p class="text-foreground text-sm transition-color duration-200 ease-linear group-hover:text-primary">
+                <Icon class="size-4 text-muted-foreground transition-colors duration-150 group-hover:text-primary" name={icon} />
+                <p class="text-foreground text-sm transition-colors duration-150 group-hover:text-primary">
                   {username}
                 </p>
               </a>
