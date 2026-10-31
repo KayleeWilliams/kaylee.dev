@@ -7,6 +7,7 @@ import { pageSeo } from "@/lib/seo";
 import { type Appearance, personConfig } from "@/lib/site-config";
 import VercelAnalytics from "@vercel/analytics/astro";
 import SpeedInsights from "@vercel/speed-insights/astro";
+import { Font } from "astro:assets";
 import { ClientRouter } from "astro:transitions";
 import "@/src/styles/globals.css";
 
@@ -164,6 +165,7 @@ const jsonLd = {
     <meta name="twitter:creator" content={personConfig.twitterHandle} />
     <meta name="twitter:image" content={ogImageUrl} />
     <link rel="icon" href="/favicon.ico" />
+    <Font cssVariable="--font-nunito" preload />
     <script
       is:inline
       set:html={`(()=>{const apply=()=>{try{const t=localStorage.getItem("theme");const d=t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d)}catch{}};apply();if(!window.__themeApplyBound){window.__themeApplyBound=true;document.addEventListener("astro:after-swap",apply)}})()`}

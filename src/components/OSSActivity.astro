@@ -21,7 +21,7 @@ const repos = await getRecentGitHubActivity(username);
         PAST 30 DAYS
       </Pill>
       <CardHeader>
-        <CardTitle as="h2">OSS contributions</CardTitle>
+        <CardTitle as="h2" class="text-lg">OSS contributions</CardTitle>
       </CardHeader>
       <CardContent>
         <div class="divide-y divide-border">
@@ -30,7 +30,7 @@ const repos = await getRecentGitHubActivity(username);
               <div class="min-w-0">
                 <div class="flex items-center justify-between gap-3">
                   <a
-                    class="truncate font-medium text-primary hover:underline"
+                    class="truncate font-medium text-foreground transition-colors duration-150 hover:text-primary"
                     href={`https://github.com/${repo.repo}`}
                     rel="noopener noreferrer"
                     target="_blank"
@@ -39,10 +39,10 @@ const repos = await getRecentGitHubActivity(username);
                   </a>
                   {repo.additions || repo.deletions ? (
                     <p class="shrink-0 font-medium text-xs">
-                      <span class="text-emerald-500">
+                      <span class="text-positive">
                         +{repo.additions.toLocaleString()}
                       </span>{" "}
-                      <span class="text-rose-500">
+                      <span class="text-negative">
                         -{repo.deletions.toLocaleString()}
                       </span>
                     </p>

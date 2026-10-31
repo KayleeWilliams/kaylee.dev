@@ -17,7 +17,7 @@ function isActive(href: string): boolean {
 }
 ---
 
-<nav aria-label="Primary" class="flex items-center gap-0.5 sm:gap-1">
+<nav aria-label="Primary" class="flex min-w-0 items-center gap-0.5 sm:gap-1">
   {
     links.map((link) => {
       const active = isActive(link.href);
@@ -27,7 +27,7 @@ function isActive(href: string): boolean {
           class:list={[
             "rounded-md px-2 py-1.5 font-medium text-sm transition-colors duration-150 sm:px-3",
             active
-              ? "bg-violet-500/10 text-primary"
+              ? "bg-primary/10 text-primary"
               : "text-muted-foreground hover:bg-muted hover:text-foreground",
           ]}
           href={link.href}

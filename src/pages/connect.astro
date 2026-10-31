@@ -99,7 +99,7 @@ const sites: Site[] = [
         socials.map((social) => (
           <a
             aria-label={social.label}
-            class="group flex aspect-square items-center justify-center rounded-lg border border-border bg-card text-foreground shadow-xs outline-none transition-[transform,border-color,background-color,color] duration-200 ease-out hover:-translate-y-0.5 hover:border-violet-300 hover:bg-violet-50 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background active:translate-y-0 dark:hover:border-violet-500/40 dark:hover:bg-violet-500/10"
+            class="group flex aspect-square items-center justify-center rounded-lg border border-border bg-card text-foreground shadow-xs outline-none transition-[transform,border-color,background-color,color] duration-200 ease-out hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/10 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background active:translate-y-0"
             href={social.url}
             rel="noopener noreferrer"
             target="_blank"
@@ -118,7 +118,7 @@ const sites: Site[] = [
             style={`animation-delay:${140 + index * 60}ms`}
           >
             <a
-              class="group flex items-center gap-4 rounded-lg border border-border bg-card p-3.5 shadow-xs outline-none transition-[transform,border-color,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:border-violet-300 hover:shadow-md focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background active:translate-y-0 dark:hover:border-violet-500/40"
+              class="group flex items-center gap-4 rounded-lg border border-border bg-card p-3.5 shadow-xs outline-none transition-[transform,border-color,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background active:translate-y-0"
               href={site.href}
               rel={site.external ? "noopener noreferrer" : undefined}
               target={site.external ? "_blank" : undefined}
@@ -132,7 +132,7 @@ const sites: Site[] = [
                   width="44"
                 />
               ) : (
-                <span class="grid size-11 shrink-0 place-items-center rounded-md bg-violet-600 font-bold text-lg text-white shadow-xs">
+                <span class="grid size-11 shrink-0 place-items-center rounded-md bg-primary font-bold text-lg text-primary-foreground shadow-xs">
                   {site.monogram}
                 </span>
               )}

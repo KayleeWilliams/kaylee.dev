@@ -28,15 +28,15 @@ const stats: Stat[] = [];
 if (totalStars > 0) {
   stats.push({
     icon: "star",
-    iconClass: "text-yellow-500",
+    iconClass: "text-muted-foreground",
     value: `${totalStars.toLocaleString()}+`,
-    label: "GitHub stars",
+    label: "Stars across all projects",
   });
 }
 if (ossProjects > 0) {
   stats.push({
     icon: "github",
-    iconClass: "text-foreground",
+    iconClass: "text-muted-foreground",
     value: `${ossProjects}`,
     label: ossProjects === 1 ? "OSS project" : "OSS projects",
   });
@@ -44,7 +44,7 @@ if (ossProjects > 0) {
 if (appearances > 0) {
   stats.push({
     icon: "mic",
-    iconClass: "text-violet-400",
+    iconClass: "text-muted-foreground",
     value: `${appearances}`,
     label: "Talks & appearances",
   });

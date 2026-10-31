@@ -30,7 +30,7 @@ const [stars, downloads] =
 
 {
   hero?.projectUrl && hero.github && hero.npmPackage ? (
-    <Card class="border-violet-200 bg-linear-to-br from-violet-50 to-card dark:border-violet-500/30 dark:from-violet-950/20 dark:to-card">
+    <Card class="border-primary/25 bg-linear-to-br from-primary/6 to-card">
       <CardContent class="pt-6">
         <div class="flex flex-col gap-4">
           <div class="flex flex-col gap-1">
@@ -51,19 +51,24 @@ const [stars, downloads] =
                 </div>
               )}
               {downloads && (
-                <div class="flex items-center gap-2">
-                  <Icon class="size-5 text-violet-500" name="download" />
-                  <span class="font-semibold text-foreground">
+                <a
+                  class="group flex items-center gap-2"
+                  href={hero.statsUrl ? withUtm(hero.statsUrl, "hero", "view-stats") : undefined}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  <Icon class="size-5 text-muted-foreground" name="download" />
+                  <span class="font-semibold text-foreground underline decoration-border underline-offset-4 transition-[text-decoration-color] duration-150 group-hover:decoration-primary">
                     {formatDownloads(downloads)}+ monthly downloads
                   </span>
-                </div>
+                </a>
               )}
             </div>
           )}
 
           <div class="flex flex-wrap gap-3">
             <a
-              class="ease inline-flex items-center gap-1.5 rounded-md bg-violet-500 px-4 py-2 font-medium text-sm text-white transition-[background-color] duration-150 hover:bg-violet-600 active:scale-[0.98]"
+              class="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground text-sm transition-[background-color] duration-150 ease-out hover:bg-primary-hover active:scale-[0.98]"
               href={withUtm(hero.projectUrl, "hero", "view-project")}
               rel="noopener noreferrer"
               target="_blank"
@@ -71,20 +76,9 @@ const [stars, downloads] =
               View project
               <Icon class="size-4" name="external-link" />
             </a>
-            {hero.statsUrl && (
-              <a
-                class="ease inline-flex items-center gap-1.5 rounded-md border border-violet-200 bg-white px-4 py-2 font-medium text-sm text-violet-600 transition-[background-color,border-color] duration-150 hover:border-violet-300 hover:bg-violet-50 active:scale-[0.98] dark:border-violet-500/30 dark:bg-transparent dark:text-violet-400 dark:hover:border-violet-500/50 dark:hover:bg-violet-500/10"
-                href={withUtm(hero.statsUrl, "hero", "view-stats")}
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                View stats
-                <Icon class="size-4" name="external-link" />
-              </a>
-            )}
             {hero.docsUrl && (
               <a
-                class="ease inline-flex items-center gap-1.5 rounded-md border border-violet-200 bg-white px-4 py-2 font-medium text-sm text-violet-600 transition-[background-color,border-color] duration-150 hover:border-violet-300 hover:bg-violet-50 active:scale-[0.98] dark:border-violet-500/30 dark:bg-transparent dark:text-violet-400 dark:hover:border-violet-500/50 dark:hover:bg-violet-500/10"
+                class="inline-flex items-center gap-1.5 rounded-md border border-primary/30 bg-card px-4 py-2 font-medium text-primary text-sm transition-[background-color,border-color] duration-150 ease-out hover:border-primary/50 hover:bg-primary/10 active:scale-[0.98]"
                 href={withUtm(hero.docsUrl, "hero", "read-docs")}
                 rel="noopener noreferrer"
                 target="_blank"

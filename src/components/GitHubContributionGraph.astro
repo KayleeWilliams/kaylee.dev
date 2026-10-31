@@ -13,11 +13,11 @@ const { username } = Astro.props;
 const calendar = await getGitHubContributionCalendar(username);
 
 const levelClasses = {
-  0: "bg-[oklch(0.97_0.015_300)] ring-[oklch(0.91_0.025_300)] dark:bg-[oklch(0.305_0.03_290)] dark:ring-[oklch(0.355_0.036_290)]",
-  1: "bg-[oklch(0.88_0.055_300)] ring-[oklch(0.82_0.07_300)] dark:bg-[oklch(0.38_0.07_291)] dark:ring-[oklch(0.43_0.076_291)]",
-  2: "bg-[oklch(0.78_0.09_300)] ring-[oklch(0.72_0.11_300)] dark:bg-[oklch(0.47_0.11_291)] dark:ring-[oklch(0.52_0.116_291)]",
-  3: "bg-[oklch(0.67_0.145_300)] ring-[oklch(0.62_0.16_300)] dark:bg-[oklch(0.565_0.14_292)] dark:ring-[oklch(0.615_0.146_292)]",
-  4: "bg-[oklch(0.56_0.19_300)] ring-[oklch(0.52_0.19_300)] dark:bg-[oklch(0.675_0.165_293)] dark:ring-[oklch(0.725_0.155_293)]",
+  0: "bg-[oklch(0.955_0.008_293)] ring-[oklch(0.9_0.014_293)] dark:bg-[oklch(0.27_0.025_293)] dark:ring-[oklch(0.32_0.03_293)]",
+  1: "bg-[oklch(0.86_0.06_293)] ring-[oklch(0.8_0.075_293)] dark:bg-[oklch(0.38_0.07_293)] dark:ring-[oklch(0.43_0.076_293)]",
+  2: "bg-[oklch(0.76_0.11_293)] ring-[oklch(0.7_0.13_293)] dark:bg-[oklch(0.47_0.11_293)] dark:ring-[oklch(0.52_0.116_293)]",
+  3: "bg-[oklch(0.64_0.16_293)] ring-[oklch(0.59_0.17_293)] dark:bg-[oklch(0.565_0.14_293)] dark:ring-[oklch(0.615_0.146_293)]",
+  4: "bg-[oklch(0.52_0.21_293)] ring-[oklch(0.47_0.2_293)] dark:bg-[oklch(0.675_0.145_293)] dark:ring-[oklch(0.725_0.135_293)]",
 } as const;
 
 function formatDay(date: string): string {

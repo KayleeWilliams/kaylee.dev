@@ -42,7 +42,7 @@ function liveUrl(project: { url?: string; github?: string }) {
 
   {
     flagship && (
-      <Card class="border-violet-200 bg-linear-to-br from-violet-50 to-card dark:border-violet-500/30 dark:from-violet-950/20 dark:to-card">
+      <Card class="border-primary/25 bg-linear-to-br from-primary/6 to-card">
         <div class="flex flex-col gap-4 p-6">
           <div class="flex flex-col gap-1.5">
             <a
@@ -67,7 +67,7 @@ function liveUrl(project: { url?: string; github?: string }) {
               )}
               {flagshipDownloads && (
                 <span class="flex items-center gap-1.5 font-semibold text-foreground text-sm">
-                  <Icon class="size-4 text-violet-500" name="download" />
+                  <Icon class="size-4 text-muted-foreground" name="download" />
                   {formatDownloads(flagshipDownloads)}+ monthly downloads
                 </span>
               )}
@@ -76,7 +76,7 @@ function liveUrl(project: { url?: string; github?: string }) {
 
           <div class="flex flex-wrap gap-3 pt-1">
             <a
-              class="ease inline-flex items-center gap-1.5 rounded-md bg-violet-500 px-4 py-2 font-medium text-sm text-white transition-[background-color] duration-150 hover:bg-violet-600 active:scale-[0.98]"
+              class="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground text-sm transition-[background-color] duration-150 ease-out hover:bg-primary-hover active:scale-[0.98]"
               href={withUtm(liveUrl(flagship), "projects", `${flagship.slug}-view`)}
               rel="noopener noreferrer"
               target="_blank"
@@ -86,7 +86,7 @@ function liveUrl(project: { url?: string; github?: string }) {
             </a>
             {flagship.github && (
               <a
-                class="ease inline-flex items-center gap-1.5 rounded-md border border-violet-200 bg-white px-4 py-2 font-medium text-sm text-violet-600 transition-[background-color,border-color] duration-150 hover:border-violet-300 hover:bg-violet-50 active:scale-[0.98] dark:border-violet-500/30 dark:bg-transparent dark:text-violet-400 dark:hover:border-violet-500/50 dark:hover:bg-violet-500/10"
+                class="inline-flex items-center gap-1.5 rounded-md border border-primary/30 bg-card px-4 py-2 font-medium text-primary text-sm transition-[background-color,border-color] duration-150 ease-out hover:border-primary/50 hover:bg-primary/10 active:scale-[0.98]"
                 href={withUtm(flagship.github, "projects", `${flagship.slug}-github`)}
                 rel="noopener noreferrer"
                 target="_blank"
@@ -112,13 +112,13 @@ function liveUrl(project: { url?: string; github?: string }) {
             <article class="flex flex-col gap-2 py-5 first:pt-0">
               <div class="flex items-baseline justify-between gap-4">
                 <a
-                  class="group flex items-center gap-1.5 font-semibold text-lg text-primary"
+                  class="group flex items-center gap-1.5 font-semibold text-foreground text-lg transition-colors duration-150 hover:text-primary"
                   href={withUtm(liveUrl(project), "projects", project.slug)}
                   rel="noopener noreferrer"
                   target="_blank"
                 >
                   <span class="group-hover:underline">{project.title}</span>
-                  <Icon class="size-3.5" name="external-link" />
+                  <Icon class="size-3.5 text-muted-foreground transition-colors duration-150 group-hover:text-primary" name="external-link" />
                 </a>
                 {project.stars ? (
                   <span class="flex shrink-0 items-center gap-1 text-muted-foreground text-sm">
@@ -133,7 +133,7 @@ function liveUrl(project: { url?: string; github?: string }) {
               <div class="flex items-center gap-4">
                 {project.github && (
                   <a
-                    class="flex shrink-0 items-center gap-1.5 text-primary text-sm hover:underline"
+                    class="flex shrink-0 items-center gap-1.5 text-muted-foreground text-sm transition-colors duration-150 hover:text-primary"
                     href={withUtm(project.github, "projects", `${project.slug}-github`)}
                     rel="noopener noreferrer"
                     target="_blank"
