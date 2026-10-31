@@ -48,7 +48,7 @@ The edge-cached version didn't become the default. It still ships as a fallback 
 
 I started using the same approach elsewhere in c15t and across a few of my other projects. Some ideas worked. Others failed miserably.
 
-The failures were useful. While a model explored a dead end, I worked on something else. I still had to inspect the implementation and decide what its result proved, but I did not have to build every branch myself.
+The failures were useful, like the edge cache that fell short in production but still showed the next experiment where to look. While a model explored a dead end, I worked on something else. I still had to inspect the implementation and decide what its result proved, but I did not have to build every branch myself.
 
 Theo described the distinction: code can be useful without being merged.
 
