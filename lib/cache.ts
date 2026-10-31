@@ -103,8 +103,9 @@ function load<T>(
  *     instances reuse data instead of refetching the origin
  *
  * Fresh hit → return; stale hit → return stale + revalidate in the background;
- * cold miss → await. Concurrent calls for a key share one in-flight request,
- * and failed/empty results expire quickly so they self-heal.
+ * cold miss → await, then use the fallback only if the load fails or comes
+ * back empty. Concurrent calls for a key share one in-flight request, and
+ * failed/empty results expire quickly so they self-heal.
  */
 export function withMemoryCache<T>(
   key: string,
@@ -113,23 +114,28 @@ export function withMemoryCache<T>(
   options?: CacheOptions<T>
 ): Promise<T> {
   const cached = memory.get(key) as CacheEntry<T> | undefined;
+  // A failed load is cached briefly as empty; later calls still deserve the
+  // fallback, not the empty value.
+  const orFallback = (value: T): T =>
+    isEmpty(value) && hasFallback(options) ? options.fallback : value;
 
   if (cached && cached.expiresAt > Date.now()) {
-    return Promise.resolve(cached.value);
+    return Promise.resolve(orFallback(cached.value));
   }
 
   if (cached) {
     load(key, ttlSeconds, loader).catch(() => {
       /* keep serving stale on failure */
     });
-    return Promise.resolve(cached.value);
+    return Promise.resolve(orFallback(cached.value));
   }
 
+  // Every caller with a fallback renders on prerendered pages, and every build
+  // starts with a cold cache. Returning the snapshot here would bake it into
+  // the page whenever the first render won the race, so wait for the real value.
   if (hasFallback(options)) {
-    load(key, ttlSeconds, loader).catch(() => {
-      /* keep serving the local snapshot on failure */
-    });
-    return Promise.resolve(options.fallback);
+    const { fallback } = options;
+    return load(key, ttlSeconds, loader).then(orFallback, () => fallback);
   }
 
   return load(key, ttlSeconds, loader);

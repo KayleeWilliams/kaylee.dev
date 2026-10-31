@@ -9,7 +9,8 @@ export const STAR_SNAPSHOTS: Record<string, number> = {
 };
 
 export const NPM_DOWNLOAD_SNAPSHOTS: Record<string, number> = {
-  c15t: 195_566,
+  // Deduped c15t + @c15t/core total for 2026-09-30 to 2026-10-29.
+  c15t: 1_331_665,
 };
 
 export const GITHUB_ACTIVITY_SNAPSHOTS: Record<string, RepoActivity[]> = {
