@@ -1,6 +1,6 @@
 import { getAllExperience } from "@/lib/get-all-experience";
 import { getAllProjects } from "@/lib/get-all-projects";
-import { getBlogPosts } from "@/lib/get-blog-posts";
+import { getBlogListing, getBlogPosts } from "@/lib/get-blog-posts";
 import { getSiteContent } from "@/lib/get-site-content";
 import { renderPortfolioMarkdown } from "@/lib/render-portfolio-markdown";
 import { pageSeo, type SeoKey } from "@/lib/seo";
@@ -146,13 +146,15 @@ function connectBody(): string {
 }
 
 async function blogBody(base: string): Promise<string> {
-  const posts = await getBlogPosts();
+  const posts = await getBlogListing();
   const lines = ["# Blog", ""];
   for (const post of posts) {
     lines.push(
-      `## [${post.data.title}](${base}/blog/${post.id}.md)`,
+      `## [${post.title}](${new URL(post.markdownHref, base).href})`,
       "",
-      post.data.description,
+      post.source
+        ? `${post.description} (On the ${post.source} blog.)`
+        : post.description,
       ""
     );
   }

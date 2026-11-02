@@ -1,11 +1,13 @@
 ---
 import BaseLayout from "@/src/layouts/BaseLayout.astro";
-import { getBlogPosts } from "@/lib/get-blog-posts";
+import Icon from "@/src/components/Icon.astro";
+import { getBlogListing } from "@/lib/get-blog-posts";
 import { pageSeo } from "@/lib/seo";
+import { withUtm } from "@/lib/utils/utm";
 
 export const prerender = true;
 
-const posts = await getBlogPosts();
+const posts = await getBlogListing();
 const dateFormat = new Intl.DateTimeFormat("en-GB", {
   day: "numeric",
   month: "short",
@@ -31,26 +33,36 @@ const dateFormat = new Intl.DateTimeFormat("en-GB", {
                 <div class="flex items-baseline justify-between gap-4">
                   <a
                     class="group font-semibold text-foreground text-lg transition-colors duration-150 hover:text-primary"
-                    href={`/blog/${post.id}`}
+                    href={post.source ? withUtm(post.href, "blog") : post.href}
+                    rel={post.source ? "noopener noreferrer" : undefined}
+                    target={post.source ? "_blank" : undefined}
                   >
-                    <span class="group-hover:underline">{post.data.title}</span>
+                    <span class="group-hover:underline">{post.title}</span>
+                    {post.source ? (
+                      <Icon
+                        class="ml-1 inline size-4 align-[-0.125em] text-muted-foreground"
+                        name="external-link"
+                      />
+                    ) : null}
                   </a>
                   <time
                     class="shrink-0 text-muted-foreground text-sm tabular-nums"
-                    datetime={post.data.publishedAt.toISOString()}
+                    datetime={post.publishedAt.toISOString()}
                   >
-                    {dateFormat.format(post.data.publishedAt)}
+                    {dateFormat.format(post.publishedAt)}
                   </time>
                 </div>
                 <p class="max-w-prose text-muted-foreground text-sm">
-                  {post.data.description}
+                  {post.description}
                 </p>
-                {post.data.tags.length > 0 ? (
+                {post.source ? (
+                  <p class="text-muted-foreground text-xs">On the {post.source} blog</p>
+                ) : post.tags.length > 0 ? (
                   <ul
                     class="flex flex-wrap gap-x-3 gap-y-1 text-muted-foreground text-xs"
                     aria-label="Topics"
                   >
-                    {post.data.tags.map((tag) => (
+                    {post.tags.map((tag) => (
                       <li>{tag}</li>
                     ))}
                   </ul>
