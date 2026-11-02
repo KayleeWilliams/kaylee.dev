@@ -1,4 +1,6 @@
 ---
+import { getImage } from "astro:assets";
+import inthLogo from "@/src/assets/inth.png";
 import BaseLayout from "@/src/layouts/BaseLayout.astro";
 import Icon from "@/src/components/Icon.astro";
 import { getBlogListing } from "@/lib/get-blog-posts";
@@ -8,6 +10,14 @@ import { withUtm } from "@/lib/utils/utm";
 export const prerender = true;
 
 const posts = await getBlogListing();
+// 2x the 16px it renders at, so the mark stays crisp on retina screens.
+const inthIcon = await getImage({
+  src: inthLogo,
+  width: 32,
+  height: 32,
+  format: "webp",
+  quality: 90,
+});
 const dateFormat = new Intl.DateTimeFormat("en-GB", {
   day: "numeric",
   month: "short",
@@ -56,7 +66,18 @@ const dateFormat = new Intl.DateTimeFormat("en-GB", {
                   {post.description}
                 </p>
                 {post.source ? (
-                  <p class="text-muted-foreground text-xs">On the {post.source} blog</p>
+                  <p class="flex items-center gap-1.5 text-muted-foreground text-xs">
+                    <img
+                      alt=""
+                      class="size-4 rounded-sm"
+                      decoding="async"
+                      height="16"
+                      loading="lazy"
+                      src={inthIcon.src}
+                      width="16"
+                    />
+                    {post.source}
+                  </p>
                 ) : post.tags.length > 0 ? (
                   <ul
                     class="flex flex-wrap gap-x-3 gap-y-1 text-muted-foreground text-xs"
