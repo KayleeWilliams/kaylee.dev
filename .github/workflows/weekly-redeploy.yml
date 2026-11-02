@@ -1,0 +1,19 @@
+name: Weekly redeploy
+
+# /blog is prerendered, so new posts from the Inth feed only show up after a
+# build. VERCEL_DEPLOY_HOOK is a Vercel deploy hook for the main branch.
+on:
+  schedule:
+    - cron: "0 9 * * 1"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  redeploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger the Vercel deploy hook
+        env:
+          VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: curl --fail-with-body --silent --show-error -X POST "$VERCEL_DEPLOY_HOOK"

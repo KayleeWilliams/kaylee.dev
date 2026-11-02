@@ -1,11 +1,11 @@
 import { markdownResponse } from "@/lib/agent-markdown";
-import { getBlogPosts } from "@/lib/get-blog-posts";
+import { getBlogListing } from "@/lib/get-blog-posts";
 import { pageSeo } from "@/lib/seo";
 
 export const prerender = true;
 
 export async function GET({ url }: { url: URL }): Promise<Response> {
-  const posts = await getBlogPosts();
+  const posts = await getBlogListing();
   const body = [
     "---",
     `title: "${pageSeo.blog.title}"`,
@@ -16,11 +16,11 @@ export async function GET({ url }: { url: URL }): Promise<Response> {
     "# Blog",
     "",
     ...posts.flatMap((post) => [
-      `## [${post.data.title}](${url.origin}/blog/${post.id}.md)`,
+      `## [${post.title}](${new URL(post.markdownHref, url.origin).href})`,
       "",
-      post.data.description,
+      post.description,
       "",
-      `Published: ${post.data.publishedAt.toISOString().slice(0, 10)}`,
+      `Published: ${post.publishedAt.toISOString().slice(0, 10)}${post.source ? ` on the ${post.source} blog` : ""}`,
       "",
     ]),
   ].join("\n");
