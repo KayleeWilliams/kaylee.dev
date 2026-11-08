@@ -65,3 +65,83 @@ describe("website link cards", () => {
     );
   });
 });
+
+describe("tweet embeds", () => {
+  const originalFetch = globalThis.fetch;
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  test("show the tweets a reply answers, oldest first, with photos", async () => {
+    const tweets: Record<string, object> = {
+      "103": {
+        id_str: "103",
+        in_reply_to_status_id_str: "102",
+        text: "@b ok yeah",
+        user: { name: "C", screen_name: "c" },
+      },
+      "102": {
+        display_text_range: [3, 22],
+        id_str: "102",
+        in_reply_to_status_id_str: "101",
+        text: "@a can you rename it?",
+        user: { name: "B", screen_name: "b" },
+      },
+      "101": {
+        display_text_range: [0, 13],
+        id_str: "101",
+        mediaDetails: [
+          {
+            media_url_https: "https://pbs.twimg.com/media/trap.png",
+            original_info: { height: 821, width: 640 },
+            type: "photo",
+          },
+        ],
+        text: "come here now https://t.co/photo",
+        user: { name: "A", screen_name: "a" },
+      },
+    };
+    globalThis.fetch = mock((input: RequestInfo | URL) => {
+      const url = new URL(input.toString());
+      if (url.hostname === "cdn.syndication.twimg.com") {
+        return Promise.resolve(
+          Response.json(tweets[url.searchParams.get("id") ?? ""])
+        );
+      }
+      if (url.hostname === "publish.twitter.com") {
+        return Promise.resolve(
+          Response.json({
+            author_name: "C",
+            author_url: "https://x.com/c",
+            html: "<blockquote><p>ok yeah</p></blockquote>",
+          })
+        );
+      }
+      if (
+        url.toString() ===
+        "https://pbs.twimg.com/media/trap?format=jpg&name=small"
+      ) {
+        return Promise.resolve(
+          new Response(new Uint8Array([255, 216]), {
+            headers: { "content-type": "image/jpeg" },
+          })
+        );
+      }
+      return Promise.resolve(new Response("", { status: 404 }));
+    }) as unknown as typeof fetch;
+
+    const html = await renderRichMarkdown(
+      "[https://x.com/c/status/103](https://x.com/c/status/103)"
+    );
+
+    const order = ["come here now", "can you rename it?", "ok yeah"].map(
+      (text) => html.indexOf(text)
+    );
+    expect(order.every((index) => index >= 0)).toBe(true);
+    expect(order).toEqual([...order].sort((a, b) => a - b));
+    expect(html).not.toContain("@a can");
+    expect(html).toContain(
+      '<img class="rich-tweet__photo" src="data:image/jpeg;base64,/9g="'
+    );
+  });
+});

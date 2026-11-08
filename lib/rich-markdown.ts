@@ -8,8 +8,44 @@ interface LinkPreview {
   kind: "link" | "profile" | "tweet";
   profileUrl?: string;
   site: string;
+  /** Tweets the embedded tweet replies to, oldest first. */
+  thread?: ThreadTweet[];
   title: string;
   tweetHtml?: string;
+}
+
+interface ThreadPhoto {
+  alt: string;
+  height: number;
+  src: string;
+  width: number;
+}
+
+interface ThreadTweet {
+  avatar?: string;
+  handle: string;
+  html: string;
+  name: string;
+  photos: ThreadPhoto[];
+  text: string;
+  url: string;
+}
+
+interface SyndicatedTweet {
+  display_text_range?: [number, number];
+  entities?: {
+    urls?: { display_url: string; expanded_url: string; url: string }[];
+  };
+  id_str: string;
+  in_reply_to_status_id_str?: string;
+  mediaDetails?: {
+    ext_alt_text?: string;
+    media_url_https: string;
+    original_info?: { height: number; width: number };
+    type: string;
+  }[];
+  text: string;
+  user: { name: string; screen_name: string };
 }
 
 interface OEmbedResponse {
@@ -31,6 +67,10 @@ const AVATAR_CACHE_DIRECTORY = join(
   ".astro",
   "blog-avatar-cache"
 );
+
+const MAX_THREAD_PARENTS = 3;
+const TCO_URL_REGEX = /https:\/\/t\.co\/\w+/g;
+const IMAGE_EXTENSION_REGEX = /\.(?:jpe?g|png|webp)$/i;
 
 const PROFILE_NAMES: Record<string, string> = {
   burnedchris: "Christopher Burns",
@@ -256,7 +296,110 @@ async function profilePreview(
   };
 }
 
-async function tweetPreview(url: string, handle: string): Promise<LinkPreview> {
+// The token scheme matches X's own embed widget.
+function syndicationToken(id: string): string {
+  return ((Number(id) / 1e15) * Math.PI).toString(36).replace(/(0+|\.)/g, "");
+}
+
+async function fetchSyndicatedTweet(
+  id: string
+): Promise<SyndicatedTweet | undefined> {
+  try {
+    const endpoint = new URL("https://cdn.syndication.twimg.com/tweet-result");
+    endpoint.searchParams.set("id", id);
+    endpoint.searchParams.set("token", syndicationToken(id));
+    const response = await fetchWithTimeout(endpoint.toString());
+    return response.ok
+      ? ((await response.json()) as SyndicatedTweet)
+      : undefined;
+  } catch {
+    return;
+  }
+}
+
+// Drops leading @mentions and trailing media links, and expands t.co links.
+function syndicatedText(tweet: SyndicatedTweet): {
+  html: string;
+  text: string;
+} {
+  const [start, end] = tweet.display_text_range ?? [
+    0,
+    Number.POSITIVE_INFINITY,
+  ];
+  const visible = Array.from(tweet.text).slice(start, end).join("");
+  const urls = tweet.entities?.urls ?? [];
+  let html = "";
+  let text = "";
+  let cursor = 0;
+  for (const match of visible.matchAll(TCO_URL_REGEX)) {
+    const piece = decodeEntities(visible.slice(cursor, match.index));
+    html += escapeHtml(piece);
+    text += piece;
+    const link = urls.find((candidate) => candidate.url === match[0]);
+    if (link) {
+      html += `<a href="${escapeHtml(link.expanded_url)}" rel="noopener noreferrer" target="_blank">${escapeHtml(link.display_url)}</a>`;
+      text += link.expanded_url;
+    }
+    cursor = match.index + match[0].length;
+  }
+  const rest = decodeEntities(visible.slice(cursor));
+  html += escapeHtml(rest);
+  text += rest;
+  return { html: html.trim().replace(/\n/g, "<br>"), text: text.trim() };
+}
+
+async function threadTweet(tweet: SyndicatedTweet): Promise<ThreadTweet> {
+  const handle = tweet.user.screen_name;
+  const photos = await Promise.all(
+    (tweet.mediaDetails ?? [])
+      .filter((media) => media.type === "photo")
+      .map(async (media) => {
+        const small = new URL(
+          media.media_url_https.replace(IMAGE_EXTENSION_REGEX, "")
+        );
+        small.searchParams.set("format", "jpg");
+        small.searchParams.set("name", "small");
+        const src = await previewImage(small);
+        return src
+          ? {
+              alt: media.ext_alt_text ?? "",
+              height: media.original_info?.height ?? 0,
+              src,
+              width: media.original_info?.width ?? 0,
+            }
+          : undefined;
+      })
+  );
+  return {
+    avatar: await avatarDataUrl(handle),
+    handle,
+    name: tweet.user.name,
+    photos: photos.filter((photo): photo is ThreadPhoto => Boolean(photo)),
+    url: `https://x.com/${handle}/status/${tweet.id_str}`,
+    ...syndicatedText(tweet),
+  };
+}
+
+async function threadParents(id: string): Promise<ThreadTweet[]> {
+  const parents: ThreadTweet[] = [];
+  let parentId = (await fetchSyndicatedTweet(id))?.in_reply_to_status_id_str;
+  while (parentId && parents.length < MAX_THREAD_PARENTS) {
+    const parent = await fetchSyndicatedTweet(parentId);
+    if (!parent) {
+      break;
+    }
+    parents.unshift(await threadTweet(parent));
+    parentId = parent.in_reply_to_status_id_str;
+  }
+  return parents;
+}
+
+async function tweetPreview(
+  url: string,
+  handle: string,
+  id: string
+): Promise<LinkPreview> {
+  const thread = threadParents(id);
   try {
     const endpoint = new URL("https://publish.twitter.com/oembed");
     endpoint.searchParams.set("url", url);
@@ -275,6 +418,7 @@ async function tweetPreview(url: string, handle: string): Promise<LinkPreview> {
       kind: "tweet",
       profileUrl: data.author_url || `https://x.com/${resolvedHandle}`,
       site: `@${resolvedHandle}`,
+      thread: await thread,
       title:
         data.author_name ||
         PROFILE_NAMES[resolvedHandle] ||
@@ -287,6 +431,7 @@ async function tweetPreview(url: string, handle: string): Promise<LinkPreview> {
       kind: "tweet",
       profileUrl: `https://x.com/${handle}`,
       site: `@${handle}`,
+      thread: await thread,
       title: PROFILE_NAMES[handle.toLowerCase()] || `@${handle}`,
     };
   }
@@ -345,7 +490,7 @@ function createPreview(href: string, label: string): Promise<LinkPreview> {
     return profilePreview(xLink.handle, label);
   }
   if (xLink?.kind === "tweet") {
-    return tweetPreview(url.toString(), xLink.handle);
+    return tweetPreview(url.toString(), xLink.handle, xLink.id);
   }
   return websitePreview(url, label);
 }
@@ -371,7 +516,7 @@ function standaloneLink(token: Tokens.Paragraph): Tokens.Link | undefined {
   return EXTERNAL_URL_REGEX.test(link.href) ? link : undefined;
 }
 
-function avatarMarkup(preview: LinkPreview): string {
+function avatarMarkup(preview: Pick<LinkPreview, "image" | "title">): string {
   if (preview.image) {
     return `<img class="rich-embed__avatar" src="${escapeHtml(preview.image)}" alt="" width="44" height="44" />`;
   }
@@ -389,6 +534,16 @@ function renderInlineProfile(href: string, preview: LinkPreview): string {
   return `<a class="inline-profile" href="${escapeHtml(href)}" rel="noopener noreferrer" target="_blank">${inlineAvatarMarkup(preview)}<strong>${escapeHtml(preview.title)}</strong></a>`;
 }
 
+function renderThreadTweet(tweet: ThreadTweet): string {
+  const photos = tweet.photos
+    .map(
+      (photo) =>
+        `<img class="rich-tweet__photo" src="${escapeHtml(photo.src)}" alt="${escapeHtml(photo.alt)}"${photo.width ? ` width="${photo.width}" height="${photo.height}"` : ""} decoding="async" />`
+    )
+    .join("");
+  return `<li class="rich-tweet__parent"><a class="rich-tweet__author" href="${escapeHtml(tweet.url)}" rel="noopener noreferrer" target="_blank">${avatarMarkup({ image: tweet.avatar, title: tweet.name })}<span><strong>${escapeHtml(tweet.name)}</strong><small>@${escapeHtml(tweet.handle)}</small></span></a>${tweet.html ? `<div class="rich-tweet__body">${tweet.html}</div>` : ""}${photos}</li>`;
+}
+
 function renderPreview(href: string, preview: LinkPreview): string {
   const safeHref = escapeHtml(href);
   if (preview.kind === "profile") {
@@ -399,7 +554,10 @@ function renderPreview(href: string, preview: LinkPreview): string {
       ? `<div class="rich-tweet__body">${preview.tweetHtml}</div>`
       : '<p class="rich-tweet__fallback">View this post on X.</p>';
     const profileUrl = escapeHtml(preview.profileUrl || href);
-    return `<article class="rich-tweet"><header><a class="rich-tweet__author" href="${profileUrl}" rel="noopener noreferrer" target="_blank">${avatarMarkup(preview)}<span><strong>${escapeHtml(preview.title)}</strong><small>${escapeHtml(preview.site)}</small></span></a><span class="rich-embed__mark" aria-hidden="true">𝕏</span></header>${body}<a class="rich-tweet__source" href="${safeHref}" rel="noopener noreferrer" target="_blank">View on X <span aria-hidden="true">↗</span></a></article>`;
+    const thread = preview.thread?.length
+      ? `<ol class="rich-tweet__thread">${preview.thread.map(renderThreadTweet).join("")}</ol>`
+      : "";
+    return `<article class="rich-tweet">${thread}<header><a class="rich-tweet__author" href="${profileUrl}" rel="noopener noreferrer" target="_blank">${avatarMarkup(preview)}<span><strong>${escapeHtml(preview.title)}</strong><small>${escapeHtml(preview.site)}</small></span></a><span class="rich-embed__mark" aria-hidden="true">𝕏</span></header>${body}<a class="rich-tweet__source" href="${safeHref}" rel="noopener noreferrer" target="_blank">View on X <span aria-hidden="true">↗</span></a></article>`;
   }
   const image = preview.image
     ? `<img class="rich-link__image" src="${escapeHtml(preview.image)}" alt="" decoding="async" />`
@@ -419,11 +577,18 @@ function agentTweetQuote(href: string, preview: LinkPreview): string {
   const text = preview.tweetHtml
     ? plainText(preview.tweetHtml.replace(BR_TAG_REGEX, "\n"))
     : "Post text unavailable. View the original on X.";
-  const quote = text
+  const parents = (preview.thread ?? []).map((tweet) => {
+    const body = tweet.photos.length ? `${tweet.text}\n[Photo]` : tweet.text;
+    return `${blockquote(body)}\n>\n> [${tweet.name} (@${tweet.handle})](${tweet.url})\n\n`;
+  });
+  return `${parents.join("")}${blockquote(text)}\n>\n> ${agentProfileLink(href, preview)}`;
+}
+
+function blockquote(text: string): string {
+  return text
     .split("\n")
     .map((line) => `> ${line}`)
     .join("\n");
-  return `${quote}\n>\n> ${agentProfileLink(href, preview)}`;
 }
 
 function linksInToken(parser: Marked, token: Token): Tokens.Link[] {
