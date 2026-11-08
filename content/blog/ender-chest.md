@@ -14,6 +14,8 @@ Coding agents gave the spare machines a job. I didn't want to pay $200 a month f
 
 They also gave me a chore. Every machine needed the same skills, the same MCP servers, the same dev environment, and its own set of logins. So I wrote [Ender Chest](https://github.com/KayleeWilliams/ender-chest), a small CLI called `ec`, and I've used it for months to keep all three machines in step.
 
+The name, obviously, comes from Minecraft. Every ender chest opens the same inventory, no matter where you place it.
+
 [Theo](https://x.com/theo) runs a similar setup and explains it in [If you have a Claude sub, watch this](https://youtu.be/D8PikZ1KhUo). When it came out, I described mine:
 
 [https://x.com/kaylee_dev/status/2106130229379092815](https://x.com/kaylee_dev/status/2106130229379092815)
@@ -71,5 +73,3 @@ Sorry Ram Altman, I need some of the RAM.
 [https://x.com/sama/status/2117845542021808438](https://x.com/sama/status/2117845542021808438)
 
 To try it, copy the [starter config](https://github.com/KayleeWilliams/ender-chest/tree/main/examples/config) and run `ec sync`.
-
-The name, obviously, comes from Minecraft. Every ender chest opens the same inventory, no matter where you place it.
