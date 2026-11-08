@@ -292,6 +292,15 @@ async function tweetPreview(url: string, handle: string): Promise<LinkPreview> {
   }
 }
 
+// Inlined at build time so readers' browsers never request the third-party host.
+async function previewImage(url: URL): Promise<string | undefined> {
+  try {
+    return await responseDataUrl(await fetchWithTimeout(url.toString()));
+  } catch {
+    return;
+  }
+}
+
 async function websitePreview(
   url: URL,
   linkLabel: string
@@ -308,9 +317,12 @@ async function websitePreview(
     const rawTitle =
       metaContent(html, "og:title") ||
       plainText(html.match(TITLE_TAG_REGEX)?.[1] ?? "");
+    const imageUrl =
+      metaContent(html, "og:image") || metaContent(html, "twitter:image");
     return {
       description:
         metaContent(html, "og:description") || metaContent(html, "description"),
+      image: imageUrl ? await previewImage(new URL(imageUrl, url)) : undefined,
       kind: "link",
       site:
         metaContent(html, "og:site_name") ||
@@ -389,7 +401,10 @@ function renderPreview(href: string, preview: LinkPreview): string {
     const profileUrl = escapeHtml(preview.profileUrl || href);
     return `<article class="rich-tweet"><header><a class="rich-tweet__author" href="${profileUrl}" rel="noopener noreferrer" target="_blank">${avatarMarkup(preview)}<span><strong>${escapeHtml(preview.title)}</strong><small>${escapeHtml(preview.site)}</small></span></a><span class="rich-embed__mark" aria-hidden="true">𝕏</span></header>${body}<a class="rich-tweet__source" href="${safeHref}" rel="noopener noreferrer" target="_blank">View on X <span aria-hidden="true">↗</span></a></article>`;
   }
-  return `<a class="rich-link" href="${safeHref}" rel="noopener noreferrer" target="_blank"><span class="rich-link__site">${escapeHtml(preview.site)}</span><strong>${escapeHtml(preview.title)}</strong>${preview.description ? `<span class="rich-link__description">${escapeHtml(preview.description)}</span>` : ""}<span class="rich-link__action">Visit site <span aria-hidden="true">↗</span></span></a>`;
+  const image = preview.image
+    ? `<img class="rich-link__image" src="${escapeHtml(preview.image)}" alt="" decoding="async" />`
+    : "";
+  return `<a class="rich-link" href="${safeHref}" rel="noopener noreferrer" target="_blank">${image}<span class="rich-link__body"><span class="rich-link__site">${escapeHtml(preview.site)}</span><strong>${escapeHtml(preview.title)}</strong>${preview.description ? `<span class="rich-link__description">${escapeHtml(preview.description)}</span>` : ""}<span class="rich-link__action">Visit site <span aria-hidden="true">↗</span></span></span></a>`;
 }
 
 function agentProfileLink(href: string, preview: LinkPreview): string {
