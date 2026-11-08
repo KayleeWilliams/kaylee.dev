@@ -64,7 +64,7 @@ You can see it in my GitHub contributions. They jump in August, the month I star
 
 Subscriptions and logins aren't what holds me back anymore. RAM is. My machines run out of memory before I run out of agents to start.
 
-I'm considering a dedicated Linux machine that does nothing but run agents. The desktop already runs Linux, but I dual-boot it for games and can't leave it on all day. A new machine would join the same way the others did: install `ec`, clone the config, save two secrets, and run `ec sync`.
+I'm considering a dedicated Linux machine that does nothing but run agents. The desktop already runs Linux, but I dual-boot it. When I stop to play games, any long-running work on it stops too. A new machine would join the same way the others did: install `ec`, clone the config, save two secrets, and run `ec sync`.
 
 Sorry Ram Altman, I need some of the RAM.
 
