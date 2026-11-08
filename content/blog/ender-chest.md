@@ -60,6 +60,14 @@ You can see it in my GitHub contributions. They jump in August, the month I star
 
 [https://areyougoingexponential.rhys.dev/KayleeWilliams](https://areyougoingexponential.rhys.dev/KayleeWilliams)
 
+## The next limit
+
+Subscriptions and logins aren't what holds me back anymore. RAM is. My machines run out of memory before I run out of agents to start.
+
+I'm considering a dedicated Linux machine that does nothing but run agents. Ender Chest already supports Linux, so setting it up would take the same five commands as every other machine: install `ec`, clone the config, save two secrets, and run `ec sync`.
+
+The timing could be better. RAM is now expensive enough that someone [baited a trap for Sam Altman with it](https://x.com/sama/status/2117845542021808438), and he agreed to go by Ram Altman.
+
 To try it, copy the [starter config](https://github.com/KayleeWilliams/ender-chest/tree/main/examples/config) and run `ec sync`.
 
 The name, obviously, comes from Minecraft. Every ender chest opens the same inventory, no matter where you place it.
